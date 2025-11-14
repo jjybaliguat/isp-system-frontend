@@ -8,24 +8,32 @@ export default function HeroSection() {
     return (
         <>
             <HeroHeader />
-            <main className="relative overflow-x-hidden max-h-[95vh] overflow-y-hidden">
-                <section className="max-h-[80vh] overflow-y-hidden overflow-x-hidden">
-                    <div className="pb-24 pt-12 md:pb-32 lg:pb-56 lg:pt-44">
-                        <div className="relative mx-auto flex max-w-6xl flex-col px-6 lg:block">
-                            <div className="mx-auto max-w-lg text-center lg:ml-0 lg:w-1/2 lg:text-left">
-                                <h1 className="mt-8 max-w-2xl text-balance text-5xl font-medium md:text-6xl lg:mt-16 xl:text-7xl">
+
+            <main className="relative overflow-x-hidden">
+
+                {/* HERO SECTION */}
+                <section className="py-20 md:py-32">
+                    <div className="mx-auto max-w-6xl px-6">
+                        <div className="flex flex-col-reverse lg:flex-row items-center gap-10">
+
+                            {/* TEXT BLOCK */}
+                            <div className="text-center lg:text-left lg:w-1/2">
+                                <h1 className="text-4xl md:text-6xl xl:text-7xl font-medium">
                                     Sierra Communications
                                 </h1>
-                                <p className="mt-8 max-w-2xl text-pretty text-lg">
-                                    Empowering homes and businesses in Montalban, Rizal with fast, reliable fiber internet.
+
+                                <p className="mt-6 text-lg max-w-xl mx-auto lg:mx-0">
+                                    Empowering homes and businesses in Montalban, Rizal
+                                    with fast, reliable fiber internet.
                                 </p>
 
-                                <div className="mt-12 flex flex-col items-center justify-center gap-2 sm:flex-row lg:justify-start">
+                                <div className="mt-10 flex flex-col sm:flex-row items-center gap-3 lg:justify-start">
                                     <Button asChild size="lg" className="px-5 text-base">
                                         <Link href="#link">
                                             <span className="text-nowrap">Apply Now</span>
                                         </Link>
                                     </Button>
+
                                     <Button asChild size="lg" variant="ghost" className="px-5 text-base">
                                         <Link href="#link">
                                             <span className="text-nowrap">Check Bills</span>
@@ -33,125 +41,41 @@ export default function HeroSection() {
                                     </Button>
                                 </div>
                             </div>
-                            <Image
-                                className="mt-4 lg:mt-0 -z-10 order-first ml-auto h-56 w-full object-cover sm:h-96 lg:absolute lg:inset-0 lg:-right-20 lg:-top-10 lg:order-last lg:h-max lg:w-1/2 lg:object-contain dark:mix-blend-lighten"
-                                src="/images/hero-pic.jpeg"
-                                alt="Abstract Object"
-                                height="3000"
-                                width="2000"
-                            />
+
+                            {/* IMAGE BLOCK */}
+                            <div className="w-full lg:w-1/2">
+                                <Image
+                                    src="/images/hero-pic.jpeg"
+                                    alt="Abstract Object"
+                                    width={2000}
+                                    height={1500}
+                                    className="w-full h-auto object-cover rounded-xl"
+                                />
+                            </div>
+
                         </div>
                     </div>
                 </section>
+
+                {/* POWERED BY SECTION */}
                 <section className="bg-background pb-16 md:pb-32">
-                    <div className="group relative m-auto max-w-6xl px-6">
-                        <div className="flex flex-col items-center md:flex-row">
+                    <div className="m-auto max-w-6xl px-6">
+                        <div className="flex flex-col items-center gap-4 md:flex-row md:gap-6">
                             <div className="md:max-w-44 md:border-r md:pr-6">
                                 <p className="text-end text-sm">Powered By</p>
                             </div>
+
                             <Image
                                 src="/images/PTT-logo.jpg"
-                                alt='pt&t-logo'
+                                alt="pt&t-logo"
                                 height={100}
                                 width={100}
+                                className="object-contain"
                             />
-                            {/* <div className="relative py-6 md:w-[calc(100%-11rem)]">
-                                <InfiniteSlider
-                                    speedOnHover={20}
-                                    speed={40}
-                                    gap={112}>
-                                    <div className="flex">
-                                        <img
-                                            className="mx-auto h-5 w-fit dark:invert"
-                                            src="https://html.tailus.io/blocks/customers/nvidia.svg"
-                                            alt="Nvidia Logo"
-                                            height="20"
-                                            width="auto"
-                                        />
-                                    </div>
-
-                                    <div className="flex">
-                                        <img
-                                            className="mx-auto h-4 w-fit dark:invert"
-                                            src="https://html.tailus.io/blocks/customers/column.svg"
-                                            alt="Column Logo"
-                                            height="16"
-                                            width="auto"
-                                        />
-                                    </div>
-                                    <div className="flex">
-                                        <img
-                                            className="mx-auto h-4 w-fit dark:invert"
-                                            src="https://html.tailus.io/blocks/customers/github.svg"
-                                            alt="GitHub Logo"
-                                            height="16"
-                                            width="auto"
-                                        />
-                                    </div>
-                                    <div className="flex">
-                                        <img
-                                            className="mx-auto h-5 w-fit dark:invert"
-                                            src="https://html.tailus.io/blocks/customers/nike.svg"
-                                            alt="Nike Logo"
-                                            height="20"
-                                            width="auto"
-                                        />
-                                    </div>
-                                    <div className="flex">
-                                        <img
-                                            className="mx-auto h-5 w-fit dark:invert"
-                                            src="https://html.tailus.io/blocks/customers/lemonsqueezy.svg"
-                                            alt="Lemon Squeezy Logo"
-                                            height="20"
-                                            width="auto"
-                                        />
-                                    </div>
-                                    <div className="flex">
-                                        <img
-                                            className="mx-auto h-4 w-fit dark:invert"
-                                            src="https://html.tailus.io/blocks/customers/laravel.svg"
-                                            alt="Laravel Logo"
-                                            height="16"
-                                            width="auto"
-                                        />
-                                    </div>
-                                    <div className="flex">
-                                        <img
-                                            className="mx-auto h-7 w-fit dark:invert"
-                                            src="https://html.tailus.io/blocks/customers/lilly.svg"
-                                            alt="Lilly Logo"
-                                            height="28"
-                                            width="auto"
-                                        />
-                                    </div>
-
-                                    <div className="flex">
-                                        <img
-                                            className="mx-auto h-6 w-fit dark:invert"
-                                            src="https://html.tailus.io/blocks/customers/openai.svg"
-                                            alt="OpenAI Logo"
-                                            height="24"
-                                            width="auto"
-                                        />
-                                    </div>
-                                </InfiniteSlider>
-
-                                <div className="bg-linear-to-r from-background absolute inset-y-0 left-0 w-20"></div>
-                                <div className="bg-linear-to-l from-background absolute inset-y-0 right-0 w-20"></div>
-                                <ProgressiveBlur
-                                    className="pointer-events-none absolute left-0 top-0 h-full w-20"
-                                    direction="left"
-                                    blurIntensity={1}
-                                />
-                                <ProgressiveBlur
-                                    className="pointer-events-none absolute right-0 top-0 h-full w-20"
-                                    direction="right"
-                                    blurIntensity={1}
-                                />
-                            </div> */}
                         </div>
                     </div>
                 </section>
+
             </main>
         </>
     )

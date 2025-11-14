@@ -230,7 +230,6 @@ export function BillingTable({
               </TableHead> */}
               <TableHead>Invoice #</TableHead>
               <TableHead>Client</TableHead>
-              <TableHead>Account #</TableHead>
               <TableHead>Period</TableHead>
               <TableHead>Due Date</TableHead>
               <TableHead>Amount</TableHead>
@@ -262,7 +261,6 @@ export function BillingTable({
                       <div className="text-xs text-muted-foreground">AccNum: {billing.client.accountNumber}</div>
                     </div>
                   </TableCell>
-                  <TableCell>{billing.client.accountNumber}</TableCell>
                   <TableCell>{billing.period}</TableCell>
                   <TableCell>{formatDate(billing.dueDate)}</TableCell>
                   <TableCell>{formatCurrency(billing.amount)}</TableCell>

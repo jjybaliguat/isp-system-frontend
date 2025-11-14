@@ -30,6 +30,7 @@ export function NavMain({
   }[]
 }) {
   const { isMobile } = useSidebar()
+  const {toggleSidebar} = useSidebar()
   const [openDialog, setOpenDialog] = useState({
     client: false,
     billing: false,
@@ -87,7 +88,7 @@ export function NavMain({
         </SidebarMenu>
         <SidebarMenu>
           {items?.map((item) => (
-            <SidebarMenuItem key={item.title}>
+            <SidebarMenuItem key={item.title} onClick={()=>isMobile ? toggleSidebar() : {}}>
               <Link href={item.url}>
                 <SidebarMenuButton tooltip={item.title}>
                   {item.icon && <item.icon />}
