@@ -315,7 +315,11 @@ const getPageNumbers = () => {
                           </div>
                           <div>
                             <div className="font-medium text-foreground">{client.fullName}</div>
-                            <div className="text-xs text-muted-foreground">ID: {client.id}</div>
+                            <div className="text-xs text-muted-foreground">
+                              ACC: {client.accounts?.length
+                                ? client.accounts.map(a => a.accountNumber).join(", ")
+                                : "-"}
+                            </div>
                           </div>
                         </div>
                       </TableCell>

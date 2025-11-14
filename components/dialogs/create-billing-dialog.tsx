@@ -91,7 +91,7 @@ export function CreateBillingDialog({ open, onOpenChange }: CreateBillingDialogP
     e.preventDefault()
 
     try {
-      const period = `Period ${formData.month}`
+      const period = `${formData.month} ${formData.year}`
 
       await createBilling({
         clientId: formData.clientId,

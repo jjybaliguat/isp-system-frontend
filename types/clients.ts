@@ -42,7 +42,26 @@ export interface ClientDataSchema {
         companyLogoUrl: string,
         email: string,
         phoneNumber: string
-    }
+    },
+    accounts?: Accounts[]
+}
+
+export interface Accounts {
+    id: string
+    clientId: string
+    servicePlanId: string
+    clientTypeId:     string
+    coverageId:      string
+    accountNumber: string
+    createdAt:     string
+    billingDay:      number
+    notes:            string
+    mikrotikAccount:  string   
+    status:           string
+    paymentType:     string
+    installationDate: string
+    address: string
+    taxStatus: string
 }
 
 export interface servicePlanSchema {

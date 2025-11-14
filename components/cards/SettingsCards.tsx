@@ -17,16 +17,16 @@ import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "../ui/button"
 import dynamic from "next/dynamic"
-import "@uiw/react-md-editor/markdown-editor.css"
-import "@uiw/react-markdown-preview/markdown.css"
 import { useGetProviderQuery } from "@/redux/fetures/provider-api-slice"
 import { BillingSettingsSchema, DocumentSettingsProps, NotificationsDataSchema, useUpdateBillingSettingsMutation, useUpdateDocumentSettingsMutation, useUpdateNotificationSettingsMutation, useUpdatePaymentSettingsMutation } from "@/redux/fetures/settings-api-slice"
 import { toast } from "sonner"
+import "@uiw/react-md-editor/markdown-editor.css"
+import "@uiw/react-markdown-preview/markdown.css"
 
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false })
 
 const SettingsCards = () => {
-  const { data: providerData } = useGetProviderQuery();
+const { data: providerData } = useGetProviderQuery();
 const [settings, setSettings] = useState<any>({});
 const [updateNotificationSettings, {isLoading: loadingNotification}] = useUpdateNotificationSettingsMutation();
 const [updatePaymentSettings, {isLoading: loadingPaymentSettings}] = useUpdatePaymentSettingsMutation();
