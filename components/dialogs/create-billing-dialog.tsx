@@ -129,7 +129,10 @@ export function CreateBillingDialog({ open, onOpenChange }: CreateBillingDialogP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent
+            className="max-h-[90vh] h-auto overflow-y-auto sm:max-w-[500px] 
+            p-4 sm:p-6 rounded-xl"
+        >
         <DialogHeader>
           <DialogTitle>Create New Bill</DialogTitle>
           <DialogDescription>Fill in the details to create a new billing invoice</DialogDescription>
@@ -210,44 +213,46 @@ export function CreateBillingDialog({ open, onOpenChange }: CreateBillingDialogP
               </Popover>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="month">Billing Month *</Label>
-              <Select
-                value={formData.month}
-                onValueChange={(value) => setFormData({ ...formData, month: value })}
-                required
-              >
-                <SelectTrigger id="month">
-                  <SelectValue placeholder="Select month" />
-                </SelectTrigger>
-                <SelectContent>
-                  {MONTHS.map((month) => (
-                    <SelectItem key={month} value={month}>
-                      {month}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="month">Billing Month *</Label>
+                <Select
+                  value={formData.month}
+                  onValueChange={(value) => setFormData({ ...formData, month: value })}
+                  required
+                >
+                  <SelectTrigger id="month">
+                    <SelectValue placeholder="Select month" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {MONTHS.map((month) => (
+                      <SelectItem key={month} value={month}>
+                        {month}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="year">Billing Year *</Label>
-              <Select
-                value={formData.year}
-                onValueChange={(value) => setFormData({ ...formData, year: value })}
-                required
-              >
-                <SelectTrigger id="year">
-                  <SelectValue placeholder="Select year" />
-                </SelectTrigger>
-                <SelectContent>
-                  {YEARS.map((year) => (
-                    <SelectItem key={year} value={year.toString()}>
-                      {year}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="space-y-2">
+                <Label htmlFor="year">Billing Year *</Label>
+                <Select
+                  value={formData.year}
+                  onValueChange={(value) => setFormData({ ...formData, year: value })}
+                  required
+                >
+                  <SelectTrigger id="year">
+                    <SelectValue placeholder="Select year" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {YEARS.map((year) => (
+                      <SelectItem key={year} value={year.toString()}>
+                        {year}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="space-y-2 md:col-span-2">

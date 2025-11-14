@@ -147,4 +147,19 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Fix shadcn dialog on mobile */
+  @media (max-width: 640px) {
+    .radix-dialog-content {
+      width: 100vw !important;
+      max-width: 100vw !important;
+      height: 90vh !important;
+      max-height: 90vh !important;
+      margin: 0 !important;
+      padding: 1rem !important;
+      border-radius: 0.75rem !important;
+    }
+  }
+
 }
+

@@ -78,7 +78,10 @@ export function CreateTicketDialog({ open, onOpenChange }: CreateTicketDialogPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent
+            className="max-h-[90vh] h-auto overflow-y-auto sm:max-w-[500px] 
+            p-4 sm:p-6 rounded-xl"
+      >
         <DialogHeader>
           <DialogTitle>Create New Ticket</DialogTitle>
           <DialogDescription>Fill in the details to create a new support ticket</DialogDescription>

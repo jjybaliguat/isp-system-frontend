@@ -58,7 +58,10 @@ const CreateUserDialog = ({
         open={open}
         onOpenChange={onOpenChange}
     >
-        <DialogContent>
+        <DialogContent
+            className="max-h-[90vh] h-auto overflow-y-auto sm:max-w-[500px] 
+            p-4 sm:p-6 rounded-xl"
+        >
             <DialogHeader>
                 <DialogTitle>{isEditing? "Edit User" : "Create User"}</DialogTitle>
                 <DialogDescription></DialogDescription>

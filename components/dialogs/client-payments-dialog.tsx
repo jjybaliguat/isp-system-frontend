@@ -64,7 +64,10 @@ export default function ClientPaymentsDialog({
     <>
       {/* Main dialog for viewing billings */}
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-6xl">
+        <DialogContent
+              className="max-h-[90vh] h-auto overflow-y-auto sm:max-w-[500px] 
+              p-4 sm:p-6 rounded-xl"
+          >
           <DialogHeader>
             <DialogTitle>
               {client?.fullName} — {new Date().getFullYear()} Billings

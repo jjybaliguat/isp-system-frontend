@@ -23,11 +23,7 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
-  },
-  matcher: [
-    "/dashboard/:path*", // protect all dashboard routes
-    "/login",            // handle redirect for logged-in users
-  ],
+  }
 };
 
 export default nextConfig;

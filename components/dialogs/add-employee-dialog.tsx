@@ -56,7 +56,10 @@ const CreateEmployeeDialog = ({open, onOpenChange} : CreateDialogModalProps) => 
         open={open}
         onOpenChange={onOpenChange}
     >
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[500px]">
+        <DialogContent
+            className="max-h-[90vh] h-auto overflow-y-auto sm:max-w-[500px] 
+            p-4 sm:p-6 rounded-xl"
+        >
             <DialogHeader>
                 <DialogTitle>Create Employee</DialogTitle>
             </DialogHeader>

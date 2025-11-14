@@ -154,7 +154,10 @@ const CoverageDialog = ({ open, onOpenChange, isEditing = false, coverage }: Dia
         if (!state) handleResetForm()
       }}
   >
-      <DialogContent className="max-w-[600px]">
+      <DialogContent
+            className="max-h-[90vh] h-auto overflow-y-auto sm:max-w-[600px] 
+            p-4 sm:p-6 rounded-xl"
+        >
         <DialogHeader>
           <DialogTitle>{isEditing ? "Edit Coverage Area" : "Create Coverage Area"}</DialogTitle>
           <DialogDescription>
