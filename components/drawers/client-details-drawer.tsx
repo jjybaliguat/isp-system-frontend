@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,13 +10,19 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Mail, Phone, MapPin, Calendar, CreditCard, User, Edit2, Save, X } from "lucide-react"
-import { ClientDataSchema, clientTypeSchema, servicePlanSchema } from "@/types/clients"
+import { Accounts, ClientDataSchema, clientTypeSchema, servicePlanSchema } from "@/types/clients"
 import { useUpdateClientMutation } from "@/redux/fetures/clientApiSlice"
 import { formatCurrency } from "@/utils/formatCurrency"
 import { toast } from "sonner"
 import { useGetCoverageQuery } from "@/redux/fetures/converage-api-slice"
 import { useGetServicePlanQuery } from "@/redux/fetures/service-plan-api-slice"
 import { useGetClientTypesQuery } from "@/redux/fetures/client-type-slice"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { Pencil, Trash2 } from "lucide-react"
+import EditAccountDialog from "../dialogs/create-account-dialog"
+import CreateAccountDialog from "../dialogs/create-account-dialog"
+import { IconPlus } from "@tabler/icons-react"
+
 
 interface ClientDetailsDrawerProps {
   client: ClientDataSchema | null
@@ -24,23 +30,30 @@ interface ClientDetailsDrawerProps {
   onOpenChange: (open: boolean) => void
 }
 
+interface AddAccountProps {
+  open: boolean
+  isEditing: boolean
+  selectedAccount: Accounts | null
+}
+
 export function ClientDetailsDrawer({ client, open, onOpenChange }: ClientDetailsDrawerProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [updateClient, { isLoading }] = useUpdateClientMutation()
-  const {data: servicePlans} = useGetServicePlanQuery()
-      const {data: clientTypes} = useGetClientTypesQuery()
-    
-    const {data: coverage} = useGetCoverageQuery()
+  const [openAddAccount, setOpenAddAccount] = useState<AddAccountProps>({
+    open: false,
+    isEditing: false,
+    selectedAccount: null
+  })
 
   const [formData, setFormData] = useState<Partial<ClientDataSchema>>({})
 
-  // Reset form data when client changes or drawer opens
-  useState(() => {
+// Reset form data when client changes or drawer opens
+  useEffect(() => {
     if (client) {
       setFormData(client)
       setIsEditing(false)
     }
-  })
+  }, [client])
 
   if (!client) return null
 
@@ -113,7 +126,7 @@ export function ClientDetailsDrawer({ client, open, onOpenChange }: ClientDetail
             </div>
             <div className="flex-1">
               <h3 className="text-lg font-semibold">{client.fullName}</h3>
-              <p className="text-sm text-muted-foreground">ID: {client.code || client.id}</p>
+              <p className="text-sm text-muted-foreground">Acc: {client.accountNumber}</p>
               <Badge variant="secondary" className={`mt-1 ${getStatusColor(client.status)}`}>
                 {client.status}
               </Badge>
@@ -194,7 +207,7 @@ export function ClientDetailsDrawer({ client, open, onOpenChange }: ClientDetail
                 </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            {/* <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="accountNumber" className="flex items-center gap-2">
                   <CreditCard className="h-4 w-4" />
@@ -224,9 +237,9 @@ export function ClientDetailsDrawer({ client, open, onOpenChange }: ClientDetail
                   <p className="text-sm text-muted-foreground">{client.mikrotikAccount || "N/A"}</p>
                 )}
               </div>
-            </div>
+            </div> */}
 
-            <div className="grid grid-cols-2 gap-4">
+            {/* <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="installationDate" className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
@@ -267,7 +280,7 @@ export function ClientDetailsDrawer({ client, open, onOpenChange }: ClientDetail
                   <p className="text-sm text-muted-foreground">{client.billingDay || "N/A"}</p>
                 )}
               </div>
-            </div>
+            </div> */}
             <div className="flex items-center gap-4">
                 <div className="space-y-2 flex-1">
                 <Label htmlFor="status">Status</Label>
@@ -290,7 +303,7 @@ export function ClientDetailsDrawer({ client, open, onOpenChange }: ClientDetail
                 )}
                 </div>
 
-                <div className="space-y-2 flex-1">
+                {/* <div className="space-y-2 flex-1">
                     <Label htmlFor="servicePlanId">
                         Service Plan {isEditing && <span className="text-destructive">*</span>}
                     </Label>
@@ -314,9 +327,9 @@ export function ClientDetailsDrawer({ client, open, onOpenChange }: ClientDetail
                     ) : (
                         <p className="text-sm text-muted-foreground">{client.servicePlan?.name}</p>
                     )}
-                </div>
+                </div> */}
             </div>
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
                 <Label htmlFor="servicePlanId">
                     Client Type {isEditing && <span className="text-destructive">*</span>}
                 </Label>
@@ -340,8 +353,8 @@ export function ClientDetailsDrawer({ client, open, onOpenChange }: ClientDetail
                 ) : (
                     <p className="text-sm text-muted-foreground">{client.clientType?.name}</p>
                 )}
-            </div>
-            <div className="space-y-2">
+            </div> */}
+            {/* <div className="space-y-2">
                 <Label htmlFor="coverageId">
                 Coverage
                 </Label>
@@ -365,7 +378,91 @@ export function ClientDetailsDrawer({ client, open, onOpenChange }: ClientDetail
                 ) : (
                   <p className="text-sm text-muted-foreground">{client.coverage?.name}</p>
                 )}
-            </div>
+            </div> */}
+            {/* Associated Accounts Table */}
+            {/* Associated Accounts Table */}
+            {/* Associated Accounts */}
+            {!isEditing && client.accounts && client.accounts.length > 0 && (
+              <div className="mt-8 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">Associated Accounts</h3>
+                  <Button disabled={true} type="button" size="sm" onClick={()=>setOpenAddAccount({open: true, isEditing: false, selectedAccount: null})}><IconPlus /> Add Account</Button>
+                </div>
+
+                {client.accounts.map((acc) => (
+                  <Card key={acc.id} className="border rounded-xl shadow-sm">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                      <CardTitle className="text-base font-semibold">
+                        Account #{acc.accountNumber}
+                      </CardTitle>
+
+                      <div className="flex items-center gap-2">
+                        <Button type="button" variant="outline" size="icon" className="h-8 w-8"
+                          onClick={()=>setOpenAddAccount({open: true, isEditing: true, selectedAccount: acc})}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+
+                        <Button variant="destructive" size="icon" className="h-8 w-8">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </CardHeader>
+
+                    <CardContent className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="font-medium">Service Plan:</span>
+                        <span>{acc.servicePlan?.name || "N/A"}</span>
+                      </div>
+
+                      <div className="flex justify-between">
+                        <span className="font-medium">Monthly Fee:</span>
+                        <span>
+                          ₱{acc.servicePlan?.monthlyFee?.toLocaleString() ?? "0"}
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between">
+                        <span className="font-medium">Status:</span>
+                        <span className="capitalize">{acc.status}</span>
+                      </div>
+
+                      <div className="flex justify-between">
+                        <span className="font-medium">Coverage:</span>
+                        <span className="capitalize">{acc.coverage?.name}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-medium">Address:</span>
+                        <span className="capitalize">{acc.address}</span>
+                      </div>
+
+                      <div className="flex justify-between">
+                        <span className="font-medium">Billing Day:</span>
+                        <span>{acc.billingDay}</span>
+                      </div>
+
+                      <div className="flex justify-between">
+                        <span className="font-medium">Installation:</span>
+                        <span>
+                          {acc.installationDate
+                            ? new Date(acc.installationDate).toLocaleDateString()
+                            : "N/A"}
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between">
+                        <span className="font-medium">ODP PORT</span>
+                        <span className="capitalize">{acc.odpPort?.portNumber || "N/A"}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-medium">Payment Type:</span>
+                        <span className="capitalize">{acc.paymentType || "N/A"}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
 
           {isEditing && (
@@ -388,6 +485,13 @@ export function ClientDetailsDrawer({ client, open, onOpenChange }: ClientDetail
           )}
         </form>
       </SheetContent>
+      <CreateAccountDialog 
+        open={openAddAccount.open} 
+        isEditing={openAddAccount.isEditing} 
+        onOpenChange={(open) => setOpenAddAccount({open, isEditing: false, selectedAccount: null})} 
+        account={openAddAccount.selectedAccount!} 
+        clientId={client.id} 
+      />
     </Sheet>
   )
 }

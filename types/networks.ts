@@ -93,6 +93,7 @@ export interface OdpPort {
   portNumber: number
   status: PortStatus
   remarks?: string
+  odp?: ODP
   odpId: string
   client?: {
     fullName: string

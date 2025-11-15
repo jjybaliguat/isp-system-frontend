@@ -35,7 +35,7 @@ export function ConfirmPaymentDrawer({ billing, open, onOpenChange }: ConfirmPay
     if (billing) {
       setFormData((prev) => ({
         ...prev,
-        amount: (billing.amount - billing.paidAmount).toString()
+        amount: (billing?.amount - billing?.paidAmount).toString()
       }))
     }
   }, [billing])
@@ -47,7 +47,7 @@ export function ConfirmPaymentDrawer({ billing, open, onOpenChange }: ConfirmPay
 
     try {
       await confirmPayment({
-        billingId: billing.id,
+        billingId: billing?.id,
         amount: Number.parseFloat(formData.amount),
         paymentDate: formData.paymentDate,
         paymentMethod: formData.paymentMethod,
@@ -74,14 +74,14 @@ export function ConfirmPaymentDrawer({ billing, open, onOpenChange }: ConfirmPay
       <SheetContent className="w-full sm:max-w-lg overflow-y-auto p-6">
         <SheetHeader>
           <SheetTitle>Confirm Payment</SheetTitle>
-          <SheetDescription>Record payment details for invoice {billing.invoiceNumber}</SheetDescription>
+          <SheetDescription>Record payment details for invoice {billing?.invoiceNumber}</SheetDescription>
         </SheetHeader>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div className="rounded-lg border bg-muted/50 p-4">
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Invoice Amount</span>
-              <span className="text-lg font-bold">₱{billing.amount.toLocaleString()}</span>
+              <span className="text-lg font-bold">₱{billing?.amount.toLocaleString()}</span>
             </div>
           </div>
 

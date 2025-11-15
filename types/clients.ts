@@ -1,4 +1,6 @@
 import { BillType } from "./billing";
+import { CoverageDataSchema } from "./coverage";
+import { OdpPort } from "./networks";
 
 export interface ClientDataSchema {
     id: string;
@@ -27,6 +29,7 @@ export interface ClientDataSchema {
         name: string,
         monthlyFee: number
     },
+    odpPortId?: string
     odpPort?: {
         id: string
         portNumber: number
@@ -48,6 +51,8 @@ export interface ClientDataSchema {
 
 export interface Accounts {
     id: string
+    servicePlan: servicePlanSchema
+    coverage: CoverageDataSchema
     clientId: string
     servicePlanId: string
     clientTypeId:     string
@@ -62,12 +67,17 @@ export interface Accounts {
     installationDate: string
     address: string
     taxStatus: string
+    odpPort?: OdpPort
+    generateBill?: BillType | undefined
+    proRatedDays?: string
 }
 
 export interface servicePlanSchema {
     id: string,
     name: string
+    monthlyFee: number
 }
+
 export interface clientTypeSchema {
     id: string,
     name: string,

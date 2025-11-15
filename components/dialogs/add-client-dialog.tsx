@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -18,6 +18,11 @@ import { useGetCoverageQuery } from "@/redux/fetures/converage-api-slice"
 import { CoverageDataSchema } from "@/types/coverage"
 import { useGetServicePlanQuery } from "@/redux/fetures/service-plan-api-slice"
 import { useGetClientTypesQuery } from "@/redux/fetures/client-type-slice"
+import { SelectOdp } from "../combobox/select-odp"
+import { ODP, OdpPort, PortStatus } from "@/types/networks"
+import { id } from "zod/v4/locales"
+import { useGetOdpPortsMutation } from "@/redux/fetures/network-hierarchy-api-slice"
+import { generateAccountNumber } from "@/utils/generateAccountNumber"
 
 interface AddClientDialogProps {
   open: boolean
@@ -28,6 +33,7 @@ export function AddClientDialog({ open, onOpenChange }: AddClientDialogProps) {
   const {data: servicePlans} = useGetServicePlanQuery()
   const {data: clientTypes} = useGetClientTypesQuery()
   const {data: coverage} = useGetCoverageQuery()
+  const [selectedOdp, setSelectedOdp] = useState<ODP | null>(null)
 
   const [formData, setFormData] = useState({
     code: `CLT-${Date.now().toString().slice(-6)}`, // Auto-generated code
@@ -42,27 +48,17 @@ export function AddClientDialog({ open, onOpenChange }: AddClientDialogProps) {
     servicePlanId: "",
     clientTypeId: "",
     coverageId: "",
+    odpPortId: "",
     notes: "",
-    proRatedDays: ""
+    proRatedDays: "",
   })
 
   const [createBill, setCreateBill] = useState<BillType>()
   const [showCreateBilling, setShowCreateBilling] = useState(false)
   const [createClient, {isLoading}] = useCreateClientMutation()
+  const [getOdpPorts] = useGetOdpPortsMutation()
   const [errorMess, setErrorMess] = useState("")
-
-  
-  const generateAccountNumber = () => {
-    const yearPrefix = new Date().getFullYear().toString().slice(2);
-    const chars = "0123456789";
-    let randomPart  = "";
-    
-    for (let i = 0; i < 10; i++) { // remaining 10 digits to make 12 total
-      randomPart += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    const result = yearPrefix + randomPart
-    setFormData({...formData, accountNumber: result});
-  };
+  const [odpPorts, setOdpPorts] = useState<OdpPort[] | null>(null)
   
   const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault()
@@ -82,6 +78,7 @@ export function AddClientDialog({ open, onOpenChange }: AddClientDialogProps) {
           servicePlanId: "",
           clientTypeId: "",
           coverageId: "",
+          odpPortId: "",
           notes: "",
           proRatedDays: ""
         })
@@ -97,6 +94,22 @@ export function AddClientDialog({ open, onOpenChange }: AddClientDialogProps) {
           })
     }
   }
+
+  const getPorts = async(odpId: string) => {
+    try {
+      const odpPorts = await getOdpPorts(odpId).unwrap()
+      setOdpPorts(odpPorts)
+    } catch (error) {
+      console.log(error)
+      setOdpPorts(null)
+    }
+  }
+
+  useEffect(()=>{
+    if(selectedOdp){
+      getPorts(selectedOdp.id)
+    }
+  }, [selectedOdp])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -201,7 +214,7 @@ export function AddClientDialog({ open, onOpenChange }: AddClientDialogProps) {
                     type="button"
                     variant="secondary"
                     className="flex items-center gap-1 px-3 py-1.5 text-xs rounded-md"
-                    onClick={generateAccountNumber}
+                    onClick={()=>setFormData({...formData, accountNumber: generateAccountNumber()})}
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
                     Generate
@@ -310,6 +323,34 @@ export function AddClientDialog({ open, onOpenChange }: AddClientDialogProps) {
                   ))}
               </SelectContent>
               </Select>
+          </div>
+          <div className="flex flex-col gap-4 md:flex-row">
+            <div className="flex-1 space-y-2">
+              <Label htmlFor="odp">Select ODP/NAP</Label>
+              <div className="w-full" id="odp">
+                <SelectOdp onSelect={setSelectedOdp} />
+              </div>
+            </div>
+            <div className="flex-1 space-y-2">
+              <Label htmlFor="odpPort">Select Port Number</Label>
+              <div className="w-full" id="odpPort">
+                <Select
+                  value={formData.odpPortId}
+                  onValueChange={(value) => setFormData({ ...formData, odpPortId: value })}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select Port Number" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[200px] overflow-y-auto">
+                      {odpPorts?.map((port) => (
+                      <SelectItem disabled={port.status === PortStatus.OCCUPIED} key={port.id} value={port.id}>
+                          Port {port.portNumber} - {port.status}
+                      </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </div>
           <div className="space-y-2 flex-1">
               <Label htmlFor="notes">Notes</Label>

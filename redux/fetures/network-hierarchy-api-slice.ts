@@ -10,6 +10,27 @@ export const networkHierarchyApiSlice = apiSlice.injectEndpoints({
       }),
       providesTags: ["NetworkHierarchy"],
     }),
+    getOdps : builder.query<ODP[], {search: string}>({
+      query: ({search}) => ({
+        url: `/network-hierarchy/odp?search=${search}`,
+        method: "GET",
+      }),
+      providesTags: ["NetworkHierarchy"],
+    }),
+    getOdpPorts : builder.mutation<OdpPort[], string>({
+      query: (odpId) => ({
+        url: `/network-hierarchy/odp-ports?odpId=${odpId}`,
+        method: "GET",
+      }),
+      invalidatesTags: ["NetworkHierarchy"]
+    }),
+    getOdpPort : builder.mutation<OdpPort, string>({
+      query: (accountId) => ({
+        url: `/network-hierarchy/odp-port?odpId=${accountId}`,
+        method: "GET",
+      }),
+      invalidatesTags: ["NetworkHierarchy"]
+    }),
     createOLT: builder.mutation<OLT, Partial<OLT>>({
       query: (body) => ({
         url: "/network-hierarchy/olt",
@@ -179,5 +200,8 @@ export const {
   useDeleteODPMutation,
   useDeleteOdpPortMutation,
   useAssignClientToPortMutation,
-  useUnAssignClientToPortMutation
+  useUnAssignClientToPortMutation,
+  useGetOdpsQuery,
+  useGetOdpPortsMutation,
+  useGetOdpPortMutation
 } = networkHierarchyApiSlice

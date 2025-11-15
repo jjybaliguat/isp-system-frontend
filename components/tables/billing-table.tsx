@@ -22,14 +22,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { BillingDetailsDrawer } from "../drawers/billing-details-drawer"
 import { toast } from "sonner"
 import { ConfirmPaymentDrawer } from "../drawers/confirm-payment-drawer"
-import { useBulkDeleteBillingsMutation, useDeleteBillingMutation } from "@/redux/fetures/billing-api-slice"
+import { useBulkDeleteBillingsMutation, useDeleteBillingMutation, useSendBillingReminderEmailMutation, useSendBillingReminderSmsMutation } from "@/redux/fetures/billing-api-slice"
 import { cn } from "@/lib/utils"
 import { formatCurrency } from "@/utils/formatCurrency"
 import DeleteConfirmAction from "../dialogs/confirmation-dialog"
 import { formatDate } from "@/utils/formatDate"
 import { useReactToPrint } from "react-to-print";
 import { InvoicePrint } from "../printables/invoice-print"
-import { IconMessage } from "@tabler/icons-react"
+import { IconMail, IconMessage } from "@tabler/icons-react"
 
 interface BillingTableProps {
   data: BillingDataSchema[]
@@ -60,18 +60,30 @@ export function BillingTable({
   const [selectedBillingToPrint, setSelectedBillingToPrint] = useState<BillingDataSchema | null>(null)
   const [deleteBilling] = useDeleteBillingMutation()
   const [bulkDeleteBillings] = useBulkDeleteBillingsMutation()
+  const [sendBillingReminderEmail] = useSendBillingReminderEmailMutation()
+  const [sendBillingReminderSms] = useSendBillingReminderSmsMutation()
 
   const totalPages = pagination?.totalPages || 1
   const total = pagination?.total || 0
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // const handleSelectAll = (checked: boolean) => {
-  //   if (checked) {
-  //     setSelectedIds(data.map((billing) => billing.id))
-  //   } else {
-  //     setSelectedIds([])
-  //   }
-  // }
+  const handleSendReminder = async(billingId: string, type: 'Email' | 'Sms') => {
+    try {
+      switch(type) {
+        case "Email":
+          await sendBillingReminderEmail(billingId).unwrap()
+          toast.success("Email reminder sent successfully")
+          break;
+        case "Sms":
+          await sendBillingReminderSms(billingId).unwrap()
+          toast.success("Sms reminder sent successfully")
+          break;
+      }
+    } catch (error: any) {
+      toast.error(`Error: ${error.data.message}`)
+      console.log(error)
+    }
+  }
 
   const handleSelectOne = (id: string, checked: boolean) => {
     if (checked) {
@@ -295,9 +307,16 @@ export function BillingTable({
                           </DropdownMenuItem>
                         )}
                         <DropdownMenuItem
+                          onClick={() => handleSendReminder(billing.id, "Email")}
+                        >
+                          <IconMail />
+                          Send Email Reminder
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleSendReminder(billing.id, "Sms")}
                         >
                           <IconMessage />
-                          Send Reminder
+                          Send SMS Reminder
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => setSelectedBillingToPrint(billing)}

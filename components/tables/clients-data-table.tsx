@@ -237,7 +237,7 @@ const getPageNumbers = () => {
                 >
                   Address
                 </DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem
+                {/* <DropdownMenuCheckboxItem
                   checked={columnVisibility.servicePlan}
                   onCheckedChange={(checked) => setColumnVisibility({ ...columnVisibility, servicePlan: checked })}
                 >
@@ -248,13 +248,13 @@ const getPageNumbers = () => {
                   onCheckedChange={(checked) => setColumnVisibility({ ...columnVisibility, billingDay: checked })}
                 >
                   Billing Day
-                </DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem
+                </DropdownMenuCheckboxItem> */}
+                {/* <DropdownMenuCheckboxItem
                   checked={columnVisibility.clientType}
                   onCheckedChange={(checked) => setColumnVisibility({ ...columnVisibility, clientType: checked })}
                 >
                   Client Type
-                </DropdownMenuCheckboxItem>
+                </DropdownMenuCheckboxItem> */}
                 <DropdownMenuCheckboxItem
                   checked={columnVisibility.coverage}
                   onCheckedChange={(checked) => setColumnVisibility({ ...columnVisibility, coverage: checked })}
@@ -285,9 +285,9 @@ const getPageNumbers = () => {
                 {columnVisibility.client && <TableHead className="font-medium">Client</TableHead>}
                 {columnVisibility.contact && <TableHead className="font-medium">Contact</TableHead>}
                 {columnVisibility.address && <TableHead className="font-medium">Address</TableHead>}
-                {columnVisibility.servicePlan && <TableHead className="font-medium">Service Plan</TableHead>}
+                {/* {columnVisibility.servicePlan && <TableHead className="font-medium">Service Plan</TableHead>}
                 {columnVisibility.billingDay && <TableHead className="font-medium">Billing Day</TableHead>}
-                {columnVisibility.clientType && <TableHead className="font-medium">Client Type</TableHead>}
+                {columnVisibility.clientType && <TableHead className="font-medium">Client Type</TableHead>} */}
                 {columnVisibility.status && <TableHead className="font-medium">Status</TableHead>}
                 {columnVisibility.status && <TableHead className="font-medium text-center">Coverage</TableHead>}
                 {columnVisibility.billPerMonth && <TableHead className="font-medium text-right">Bill/Month</TableHead>}
@@ -343,7 +343,7 @@ const getPageNumbers = () => {
                         <div className="truncate text-sm text-muted-foreground">{client.address}</div>
                       </TableCell>
                     )}
-                    {columnVisibility.servicePlan && (
+                    {/* {columnVisibility.servicePlan && (
                       <TableCell>
                         <span className="text-sm font-mono text-foreground">{client.servicePlan?.name}</span>
                       </TableCell>
@@ -357,7 +357,7 @@ const getPageNumbers = () => {
                       <TableCell>
                         <span className="text-sm font-mono text-foreground">{client.clientType?.name}</span>
                       </TableCell>
-                    )}
+                    )} */}
                     {columnVisibility.status && (
                       <TableCell>
                         <Badge variant="secondary" className={getStatusColor(client.status)}>
@@ -371,7 +371,11 @@ const getPageNumbers = () => {
                       </TableCell>
                     )}
                     {columnVisibility.billPerMonth && (
-                      <TableCell className="text-right font-medium">{formatCurrency(Number(client.servicePlan?.monthlyFee.toFixed(2)))}</TableCell>
+                      <TableCell className="text-right font-medium">
+                        {client.accounts
+                          ?.map(acc => formatCurrency(acc.servicePlan?.monthlyFee) ?? "—")
+                          .join(" | ")}
+                      </TableCell>
                     )}
                     <TableCell>
                       <div className="flex justify-center">

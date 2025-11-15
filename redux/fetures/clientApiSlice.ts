@@ -1,6 +1,6 @@
 import { PaginatedResponse } from "@/types/billing"
 import { apiSlice } from "../apiSlice"
-import { ChartData, ClientDataSchema, ClientsCountSchema } from "@/types/clients"
+import { Accounts, ChartData, ClientDataSchema, ClientsCountSchema } from "@/types/clients"
 
 interface GetClientsParams {
   page?: number
@@ -46,12 +46,12 @@ export const clientApiSlice = apiSlice.injectEndpoints({
     }),
 
     createClient: builder.mutation<ClientDataSchema, Partial<ClientDataSchema>>({
-      query: (credentials) => ({
+      query: (body) => ({
         url: "/clients",
         method: "POST",
-        body: { ...credentials },
+        body,
       }),
-      invalidatesTags: ["Clients", "ClientsCount", "ClientsAnalytics"],
+      invalidatesTags: ["Clients", "ClientsCount", "ClientsAnalytics", "NetworkHierarchy"],
     }),
 
     updateClient: builder.mutation<ClientDataSchema, { id: string; data: Partial<ClientDataSchema> }>({
@@ -70,6 +70,22 @@ export const clientApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Clients", "ClientsCount", "ClientsAnalytics", "Logs"],
     }),
+    createAccount: builder.mutation<Accounts, Partial<Accounts>>({
+      query: (body) => ({
+        url: "/clients/account",
+        method: "POST",
+        body
+      }),
+      invalidatesTags: ["Clients", "NetworkHierarchy"]
+    }),
+    updateClientAccount: builder.mutation<Accounts, {id: string, data: Partial<Accounts>}>({
+      query: ({id, data}) => ({
+        url: `/clients/account/${id}`,
+        method: "PATCH",
+        body: data
+      }),
+      invalidatesTags: ["Clients", "NetworkHierarchy"]
+    }),
   }),
 })
 
@@ -81,4 +97,6 @@ export const {
   useCreateClientMutation,
   useUpdateClientMutation,
   useDeleteClientMutation,
+  useCreateAccountMutation,
+  useUpdateClientAccountMutation
 } = clientApiSlice

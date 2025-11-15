@@ -83,6 +83,18 @@ export const billingApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: [{ type: "Billings", id: "LIST" }],
     }),
+    sendBillingReminderEmail: builder.mutation<void, string>({
+      query: (billingId) => ({
+        url: `/billing/send-email-reminder/${billingId}`,
+        method: "POST"
+      })
+    }),
+    sendBillingReminderSms: builder.mutation<void, string>({
+      query: (billingId) => ({
+        url: `/billing/send-sms-reminder/${billingId}`,
+        method: "POST"
+      })
+    }),
   }),
 })
 
@@ -93,5 +105,7 @@ export const {
   useConfirmPaymentMutation,
   useDeleteBillingMutation,
   useBulkDeleteBillingsMutation,
-  useGetFullYearBillingByIdQuery
+  useGetFullYearBillingByIdQuery,
+  useSendBillingReminderEmailMutation,
+  useSendBillingReminderSmsMutation
 } = billingApiSlice
