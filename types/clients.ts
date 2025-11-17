@@ -53,6 +53,7 @@ export interface Accounts {
     id: string
     servicePlan: servicePlanSchema
     coverage: CoverageDataSchema
+    client: ClientDataSchema
     clientId: string
     servicePlanId: string
     clientTypeId:     string

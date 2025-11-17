@@ -50,11 +50,11 @@ export function BillingDetailsDrawer({ billing, open, onOpenChange }: BillingDet
             <div className="grid gap-3">
               <div>
                 <p className="text-sm text-muted-foreground">Name</p>
-                <p className="font-medium">{billing.client.fullName}</p>
+                <p className="font-medium">{billing.account?.client.fullName}</p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Account Number</p>
-                <p className="font-medium">{billing.client.accountNumber}</p>
+                <p className="font-medium">{billing.account?.client.accountNumber}</p>
               </div>
             </div>
           </div>

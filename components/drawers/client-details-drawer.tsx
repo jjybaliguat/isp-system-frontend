@@ -490,6 +490,10 @@ const handleUpdateClientAccount = (acc: Accounts) => {
                       </div>
 
                       <div className="flex justify-between">
+                        <span className="font-medium">ODP Code</span>
+                        <span className="capitalize">{acc.odpPort?.odp?.odpCode || "N/A"}</span>
+                      </div>
+                      <div className="flex justify-between">
                         <span className="font-medium">ODP PORT</span>
                         <span className="capitalize">{acc.odpPort?.portNumber || "N/A"}</span>
                       </div>

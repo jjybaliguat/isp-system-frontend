@@ -185,8 +185,8 @@ export function PaymentsTable({
                   <TableCell className="font-medium">{payment.referenceId}</TableCell>
                   <TableCell className="font-medium">
                     <div>
-                      <div className="font-medium text-foreground">{payment.client?.fullName}</div>
-                      <div className="text-xs text-muted-foreground">AccNum: {payment.client?.accountNumber}</div>
+                      <div className="font-medium text-foreground">{payment.account?.client?.fullName}</div>
+                      <div className="text-xs text-muted-foreground">AccNum: {payment.account?.accountNumber}</div>
                     </div>
                   </TableCell>
                   <TableCell>{payment.billing?.period}</TableCell>

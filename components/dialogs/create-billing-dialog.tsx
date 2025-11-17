@@ -14,9 +14,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useCreateBillingMutation } from "@/redux/fetures/billing-api-slice"
-import { useGetClientsQuery } from "@/redux/fetures/clientApiSlice"
+import { useGetAccountsQuery, useGetClientsQuery } from "@/redux/fetures/clientApiSlice"
 import { toast } from "sonner"
-import { ClientDataSchema } from "@/types/clients"
+import { Accounts, ClientDataSchema } from "@/types/clients"
 import { formatCurrency } from "@/utils/formatCurrency"
 
 interface CreateBillingDialogProps {
@@ -45,7 +45,7 @@ export function CreateBillingDialog({ open, onOpenChange }: CreateBillingDialogP
   const today = new Date()
   const currentMonthIndex = today.getMonth();
   const [formData, setFormData] = useState({
-    clientId: "",
+    accountId: "",
     month: MONTHS[currentMonthIndex],
     year: `${today.getFullYear()}`,
     discount: "0",
@@ -57,24 +57,26 @@ export function CreateBillingDialog({ open, onOpenChange }: CreateBillingDialogP
 
   const [createBilling, { isLoading: isCreatingBilling }] = useCreateBillingMutation()
 
-  const { data, isLoading: isFetchingClients } = useGetClientsQuery({
+  const { data, isLoading: isFetchingClients } = useGetAccountsQuery({
     search: debouncedSearch
   })
 
-  const clientsData = data?.data || []
+  console.log(data)
 
-  const [selectedClientName, setSelectedClientName] = useState<string | null>(
-    formData.clientId
-      ? clientsData?.find((c) => c.id === formData.clientId)?.fullName ?? null
-      : null
-  );
+  const accountsData = data?.data || []
 
-  const selectedClient = useMemo(() => {
-    return clientsData?.find((client) => client.id === formData.clientId)
-  }, [clientsData, formData.clientId])
+  // const [selectedAccount, setSelectedAccount] = useState<Accounts | null>(
+  //   formData.accountId
+  //     ? accountsData?.find((c) => c.id === formData.accountId) ?? null
+  //     : null
+  // );
+
+  const selectedAccount = useMemo(() => {
+    return accountsData?.find((acc) => acc.id === formData.accountId)
+  }, [accountsData, formData.accountId])
 
   const calculatedTotal = useMemo(() => {
-    const amount = Number(selectedClient?.servicePlan.monthlyFee) || 0
+    const amount = Number(selectedAccount?.servicePlan.monthlyFee) || 0
     const discount = Number.parseFloat(formData.discount) || 0
     return amount - discount
   }, [formData.discount])
@@ -94,10 +96,10 @@ export function CreateBillingDialog({ open, onOpenChange }: CreateBillingDialogP
       const period = `${formData.month} ${formData.year}`
 
       await createBilling({
-        clientId: formData.clientId,
+        accountId: formData.accountId,
         period,
         amount: calculatedTotal,
-        dueDate: `${formData.year}-${MONTHS.indexOf(formData.month)+1}-${selectedClient?.billingDay}`
+        dueDate: `${formData.year}-${MONTHS.indexOf(formData.month)+1}-${selectedAccount?.billingDay}`
       }).unwrap()
 
       toast("Success", {
@@ -105,12 +107,12 @@ export function CreateBillingDialog({ open, onOpenChange }: CreateBillingDialogP
       })
 
       setFormData({
-        clientId: "",
+        accountId: "",
         month: MONTHS[currentMonthIndex],
         year: `${today.getFullYear()}`,
         discount: "0",
       })
-      setSelectedClientName(null)
+      // setSelectedClientName(null)
       setSearchValue("")
       onOpenChange(false)
     } catch (error) {
@@ -121,9 +123,9 @@ export function CreateBillingDialog({ open, onOpenChange }: CreateBillingDialogP
     }
   }
 
-  const handleSelectClient = (client: ClientDataSchema) => {
-    setFormData({ ...formData, clientId: client.id });
-    setSelectedClientName(client.fullName); // store name separately
+  const handleSelectAccount = (acc: Accounts) => {
+    setFormData({ ...formData, accountId: acc.id });
+    // setSelectedClientName(acc.fullName); // store name separately
     setComboboxOpen(false);
   };
 
@@ -139,8 +141,7 @@ export function CreateBillingDialog({ open, onOpenChange }: CreateBillingDialogP
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2 md:col-span-2">
+            <div className="space-y-2">
               <Label htmlFor="clientId">Client * - (Search by (name, accountNo., email, phone))</Label>
               <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
                 <PopoverTrigger asChild>
@@ -150,7 +151,7 @@ export function CreateBillingDialog({ open, onOpenChange }: CreateBillingDialogP
                     aria-expanded={comboboxOpen}
                     className="w-full justify-between bg-transparent"
                   >
-                    {selectedClientName ?? "Select client..."}
+                    {selectedAccount ? `${selectedAccount?.client.fullName} | BillingDay - ${selectedAccount?.billingDay}` : "Select client..."}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
@@ -172,36 +173,37 @@ export function CreateBillingDialog({ open, onOpenChange }: CreateBillingDialogP
                       </div>
                     )}
 
-                    {!isFetchingClients && (!clientsData || clientsData.length === 0) && (
+                    {!isFetchingClients && (!accountsData || accountsData.length === 0) && (
                       <div className="p-4 text-center text-muted-foreground">
                         No client found.
                       </div>
                     )}
 
-                    {!isFetchingClients && clientsData?.length > 0 && (
+                    {!isFetchingClients && accountsData?.length > 0 && (
                       <ul className="p-2">
-                        {clientsData.map(client => (
-                          <li key={client.id}>
+                        {accountsData.map(acc => (
+                          <li key={acc.id}>
                             <button
                               type="button"
                               className={cn(
                                 "w-full text-left hover:bg-primary/10 flex items-center gap-3 rounded-md py-1 px-2",
-                                formData.clientId === client.id ? "bg-primary/20" : ""
+                                formData.accountId === acc.id ? "bg-primary/20" : ""
                               )}
                               onClick={() => {
-                                handleSelectClient(client)
+                                handleSelectAccount(acc)
                                 setComboboxOpen(false)
                               }}
                             >
                               <Check
                                 className={cn(
                                   "mr-2 h-4 w-4",
-                                  formData.clientId === client.id ? "opacity-100" : "opacity-0"
+                                  formData.accountId === acc.id ? "opacity-100" : "opacity-0"
                                 )}
                               />
                               <div className="flex flex-col">
-                                <span className="font-medium">{client.fullName}</span>
-                                <span className="text-xs text-muted-foreground">{client.email}</span>
+                                <span className="font-medium">{acc.client?.fullName} ({acc.accountNumber})</span>
+                                <span className="text-xs text-muted-foreground">Billing Day: {acc.billingDay}</span>
+                                <span className="text-xs text-muted-foreground">Address: {acc.address}</span>
                               </div>
                             </button>
                           </li>
@@ -212,6 +214,31 @@ export function CreateBillingDialog({ open, onOpenChange }: CreateBillingDialogP
                 </PopoverContent>
               </Popover>
             </div>
+            {/* <div className="space-y-2">
+              <Label htmlFor="account">Select Client Account *</Label>
+              <Select>
+                <SelectTrigger id="account" className="w-full">
+                  <SelectValue placeholder="Select Account" />
+                </SelectTrigger>
+                <SelectContent className="max-h-60 overflow-y-auto">
+                  {selectedClient?.accounts?.map((acc) => (
+                    <SelectItem
+                      key={acc.id}
+                      value={acc.id}
+                      className="flex flex-col p-2 hover:bg-primary/10 rounded-md"
+                      title={acc.address} // full address on hover
+                    >
+                      <span className="font-medium text-sm text-gray-900 truncate">Acc: {acc.accountNumber}</span>
+                      <span className="text-xs text-gray-500 truncate">Billing Day: {acc.billingDay}</span>
+                      <span className="text-xs text-gray-500 truncate">Address: {acc.address}</span>
+                      {acc.mikrotikAccount && (
+                        <span className="text-xs text-gray-400 truncate">Mikrotik: {acc.mikrotikAccount}</span>
+                      )}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div> */}
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -266,9 +293,8 @@ export function CreateBillingDialog({ open, onOpenChange }: CreateBillingDialogP
                 onChange={(e) => setFormData({ ...formData, discount: e.target.value })}
               />
             </div>
-          </div>
 
-          {selectedClient && (
+          {selectedAccount && (
             <div className="space-y-2">
               <Label>Billing Details</Label>
               <div className="border rounded-lg">
@@ -276,6 +302,7 @@ export function CreateBillingDialog({ open, onOpenChange }: CreateBillingDialogP
                   <TableHeader>
                     <TableRow>
                       <TableHead>Name</TableHead>
+                      <TableHead>Acc</TableHead>
                       <TableHead className="text-right">Price</TableHead>
                       <TableHead className="text-right">Discount</TableHead>
                       <TableHead className="text-right">Total</TableHead>
@@ -283,9 +310,10 @@ export function CreateBillingDialog({ open, onOpenChange }: CreateBillingDialogP
                   </TableHeader>
                   <TableBody>
                     <TableRow>
-                      <TableCell className="font-medium">{selectedClient.fullName}</TableCell>
+                      <TableCell className="font-medium">{selectedAccount.client.fullName}</TableCell>
+                      <TableCell className="font-medium">{selectedAccount.accountNumber}</TableCell>
                       <TableCell className="text-right">
-                        {formatCurrency(Number(selectedClient?.servicePlan.monthlyFee))}
+                        {formatCurrency(Number(selectedAccount?.servicePlan.monthlyFee))}
                       </TableCell>
                       <TableCell className="text-right">
                         {formatCurrency(Number.parseFloat(formData.discount || "0"))}

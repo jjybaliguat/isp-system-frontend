@@ -1,4 +1,4 @@
-import { ClientDataSchema } from "./clients";
+import { Accounts, ClientDataSchema } from "./clients";
 
 export interface BillingData {
   id: string;
@@ -20,6 +20,7 @@ export interface BillingDataSchema {
   id: string
   invoiceNumber: string
   client: ClientDataSchema
+  account?: Accounts
   billingDate: string
   period: string
   dueDate: string
@@ -75,10 +76,18 @@ export interface PaymentDataSchema {
   status: string
   billing?: BillingDataSchema
   client?: ClientDataSchema
+  account?: Accounts
 }
 
 export interface CreateBillingInput {
   clientId: string
+  period: string
+  amount: number
+  description?: string,
+  dueDate?: string
+}
+export interface CreateBillingForAccountInput {
+  accountId: string
   period: string
   amount: number
   description?: string,

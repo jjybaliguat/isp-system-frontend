@@ -1,4 +1,4 @@
-import { BillingDataSchema, ConfirmPaymentInput, CreateBillingInput, PaginatedResponse } from "@/types/billing"
+import { BillingDataSchema, ConfirmPaymentInput, CreateBillingForAccountInput, CreateBillingInput, PaginatedResponse } from "@/types/billing"
 import { apiSlice } from "../apiSlice"
 
 export const billingApiSlice = apiSlice.injectEndpoints({
@@ -43,9 +43,9 @@ export const billingApiSlice = apiSlice.injectEndpoints({
           : [{ type: "Billings", id: "LIST" }],
     }),
 
-    createBilling: builder.mutation<BillingDataSchema, CreateBillingInput>({
+    createBilling: builder.mutation<BillingDataSchema, CreateBillingForAccountInput>({
       query: (billing) => ({
-        url: "/billing",
+        url: "/billing/v2",
         method: "POST",
         body: billing,
       }),

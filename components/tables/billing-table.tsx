@@ -269,8 +269,8 @@ export function BillingTable({
                   <TableCell className="font-medium">{billing.invoiceNumber}</TableCell>
                   <TableCell className="font-medium">
                     <div>
-                      <div className="font-medium text-foreground">{billing.client.fullName}</div>
-                      <div className="text-xs text-muted-foreground">AccNum: {billing.client.accountNumber}</div>
+                      <div className="font-medium text-foreground">{billing.account?.client.fullName}</div>
+                      <div className="text-xs text-muted-foreground">AccNum: {billing.account?.accountNumber}</div>
                     </div>
                   </TableCell>
                   <TableCell>{billing.period}</TableCell>

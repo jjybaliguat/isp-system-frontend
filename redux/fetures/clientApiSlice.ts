@@ -19,6 +19,13 @@ export const clientApiSlice = apiSlice.injectEndpoints({
       }),
       providesTags: ["Clients"],
     }),
+    getAccounts: builder.query<PaginatedResponse<Accounts>, GetClientsParams>({
+      query: ({ page = 1, limit = 10, search = "", status = "", coverageId="" }) => ({
+        url: `/clients/accounts?page=${page}&limit=${limit}&search=${search}&status=${status}&coverageId=${coverageId}`,
+        method: "GET",
+      }),
+      providesTags: ["Accounts"],
+    }),
 
     getClientsCount: builder.query<ClientsCountSchema, void>({
       query: () => ({
@@ -76,7 +83,7 @@ export const clientApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body
       }),
-      invalidatesTags: ["Clients", "NetworkHierarchy"]
+      invalidatesTags: ["Clients", "NetworkHierarchy", "Accounts"]
     }),
     updateClientAccount: builder.mutation<Accounts, {id: string, data: Partial<Accounts>}>({
       query: ({id, data}) => ({
@@ -84,20 +91,21 @@ export const clientApiSlice = apiSlice.injectEndpoints({
         method: "PATCH",
         body: data
       }),
-      invalidatesTags: ["Clients", "NetworkHierarchy"]
+      invalidatesTags: ["Clients", "NetworkHierarchy", "Accounts"]
     }),
     deleteClientAccount: builder.mutation<void, string>({
       query: (id) => ({
         url: `/clients/account/${id}`,
         method: "DELETE"
       }),
-      invalidatesTags: ["Clients", "NetworkHierarchy"]
+      invalidatesTags: ["Clients", "NetworkHierarchy", "Accounts"]
     })
   }),
 })
 
 export const {
   useGetClientsQuery,
+  useGetAccountsQuery,
   useGetClientsCountQuery,
   useGetClientsChartDataQuery,
   useGetPhoneNumbersMutation,
