@@ -91,4 +91,5 @@ export interface ConfirmPaymentInput {
   paymentDate: string
   paymentMethod: string
   referenceNumber: string
+  sendReceipt?: boolean
 }

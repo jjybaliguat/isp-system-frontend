@@ -86,6 +86,13 @@ export const clientApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Clients", "NetworkHierarchy"]
     }),
+    deleteClientAccount: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `/clients/account/${id}`,
+        method: "DELETE"
+      }),
+      invalidatesTags: ["Clients", "NetworkHierarchy"]
+    })
   }),
 })
 
@@ -98,5 +105,6 @@ export const {
   useUpdateClientMutation,
   useDeleteClientMutation,
   useCreateAccountMutation,
-  useUpdateClientAccountMutation
+  useUpdateClientAccountMutation,
+  useDeleteClientAccountMutation
 } = clientApiSlice

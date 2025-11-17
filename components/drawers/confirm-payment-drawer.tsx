@@ -12,6 +12,7 @@ import { toast } from "sonner"
 import { BillingDataSchema } from "@/types/billing"
 import { useConfirmPaymentMutation } from "@/redux/fetures/billing-api-slice"
 import { useAppSelector } from "@/redux/store/store"
+import { Checkbox } from "../ui/checkbox"
 
 interface ConfirmPaymentDrawerProps {
   billing: BillingDataSchema
@@ -28,7 +29,8 @@ export function ConfirmPaymentDrawer({ billing, open, onOpenChange }: ConfirmPay
     amount: "",
     paymentDate: localISO,
     paymentMethod: "CASH",
-    referenceNumber: ""
+    referenceNumber: "",
+    sendReceipt: false
   })
 
    useEffect(() => {
@@ -51,7 +53,8 @@ export function ConfirmPaymentDrawer({ billing, open, onOpenChange }: ConfirmPay
         amount: Number.parseFloat(formData.amount),
         paymentDate: formData.paymentDate,
         paymentMethod: formData.paymentMethod,
-        referenceNumber: formData.referenceNumber
+        referenceNumber: formData.referenceNumber,
+        sendReceipt: formData.sendReceipt
       }).unwrap()
 
       setFormData({...formData, referenceNumber: "", amount: ""})
@@ -138,6 +141,10 @@ export function ConfirmPaymentDrawer({ billing, open, onOpenChange }: ConfirmPay
               onChange={(e) => setFormData({ ...formData, referenceNumber: e.target.value })}
               required
             />
+          </div>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="send-receipt">Send Receipt</Label>
+            <Checkbox checked={formData.sendReceipt} onCheckedChange={(checked: boolean) =>setFormData({...formData, sendReceipt: checked})} />
           </div>
 
           <div className="space-y-2">

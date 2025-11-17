@@ -306,18 +306,18 @@ export function BillingTable({
                             Confirm Payment
                           </DropdownMenuItem>
                         )}
-                        <DropdownMenuItem
+                        {billing.status !== BillingStatus.PAID && <DropdownMenuItem
                           onClick={() => handleSendReminder(billing.id, "Email")}
                         >
                           <IconMail />
                           Send Email Reminder
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
+                        </DropdownMenuItem>}
+                        {billing.status !== BillingStatus.PAID && <DropdownMenuItem
                           onClick={() => handleSendReminder(billing.id, "Sms")}
                         >
                           <IconMessage />
                           Send SMS Reminder
-                        </DropdownMenuItem>
+                        </DropdownMenuItem>}
                         <DropdownMenuItem
                           onClick={() => setSelectedBillingToPrint(billing)}
                         >

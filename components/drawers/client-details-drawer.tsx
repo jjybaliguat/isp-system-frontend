@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge"
 import { Mail, Phone, MapPin, Calendar, CreditCard, User, Edit2, Save, X } from "lucide-react"
 import { Accounts, ClientDataSchema, clientTypeSchema, servicePlanSchema } from "@/types/clients"
-import { useUpdateClientMutation } from "@/redux/fetures/clientApiSlice"
+import { useDeleteClientAccountMutation, useUpdateClientMutation } from "@/redux/fetures/clientApiSlice"
 import { formatCurrency } from "@/utils/formatCurrency"
 import { toast } from "sonner"
 import { useGetCoverageQuery } from "@/redux/fetures/converage-api-slice"
@@ -22,6 +22,7 @@ import { Pencil, Trash2 } from "lucide-react"
 import EditAccountDialog from "../dialogs/create-account-dialog"
 import CreateAccountDialog from "../dialogs/create-account-dialog"
 import { IconPlus } from "@tabler/icons-react"
+import DeleteConfirmAction from "../dialogs/confirmation-dialog"
 
 
 interface ClientDetailsDrawerProps {
@@ -38,12 +39,19 @@ interface AddAccountProps {
 
 export function ClientDetailsDrawer({ client, open, onOpenChange }: ClientDetailsDrawerProps) {
   const [isEditing, setIsEditing] = useState(false)
-  const [updateClient, { isLoading }] = useUpdateClientMutation()
+  const [updateClient, { isLoading: updatingAccount }] = useUpdateClientMutation()
+  const [deleteClientAccount, { isLoading: deletingAccount }] = useDeleteClientAccountMutation()
+  const [selectedClient, setSelectedClient] = useState<ClientDataSchema | null>(client)
+  const [clientAccounts, setClientAccounts] = useState<Accounts[] | null>(client?.accounts!)
   const [openAddAccount, setOpenAddAccount] = useState<AddAccountProps>({
     open: false,
     isEditing: false,
     selectedAccount: null
   })
+
+  useEffect(()=>{
+    console.log(client)
+  }, [client])
 
   const [formData, setFormData] = useState<Partial<ClientDataSchema>>({})
 
@@ -52,6 +60,8 @@ export function ClientDetailsDrawer({ client, open, onOpenChange }: ClientDetail
     if (client) {
       setFormData(client)
       setIsEditing(false)
+      setSelectedClient(client)
+      setClientAccounts(client.accounts!)
     }
   }, [client])
 
@@ -71,9 +81,9 @@ export function ClientDetailsDrawer({ client, open, onOpenChange }: ClientDetail
     e.preventDefault()
 
     try {
-      await updateClient({ id: client.id, data: formData }).unwrap()
+      const updatedClient = await updateClient({ id: client.id, data: formData }).unwrap()
       setIsEditing(false)
-      onOpenChange(false)
+      setSelectedClient(updatedClient)
       toast("Success", {
           description: "Client updated successfully",
         })
@@ -96,6 +106,27 @@ export function ClientDetailsDrawer({ client, open, onOpenChange }: ClientDetail
         return ""
     }
   }
+
+  const handleDeleteAccount = async(id: string) => {
+    try {
+      await deleteClientAccount(id).unwrap()
+      setClientAccounts((prev) => (prev ? prev.filter((acc) => acc.id !== id) : []));
+      toast.success("Account Deleted Successfully")
+    } catch (error: any) {
+      toast.error(`Error: ${error.message}`)
+    }
+  }
+
+const handleAddClientAccount = (acc: Accounts) => {
+  setClientAccounts((prev) => [...(prev ?? []), acc]);
+};
+const handleUpdateClientAccount = (acc: Accounts) => {
+  setClientAccounts((prev) =>
+    prev ? prev.map((item) =>
+      item.id === acc.id ? { ...item, ...acc } : item
+    ) : []
+  );
+};
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -125,9 +156,9 @@ export function ClientDetailsDrawer({ client, open, onOpenChange }: ClientDetail
                 .join("")}
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold">{client.fullName}</h3>
-              <p className="text-sm text-muted-foreground">Acc: {client.accountNumber}</p>
-              <Badge variant="secondary" className={`mt-1 ${getStatusColor(client.status)}`}>
+              <h3 className="text-lg font-semibold">{selectedClient?.fullName}</h3>
+              <p className="text-sm text-muted-foreground">Acc: {selectedClient?.accountNumber}</p>
+              <Badge variant="secondary" className={`mt-1 ${getStatusColor(selectedClient?.status!)}`}>
                 {client.status}
               </Badge>
             </div>
@@ -149,7 +180,7 @@ export function ClientDetailsDrawer({ client, open, onOpenChange }: ClientDetail
                     required
                     />
                 ) : (
-                    <p className="text-sm text-muted-foreground">{client.fullName}</p>
+                    <p className="text-sm text-muted-foreground">{selectedClient?.fullName}</p>
                 )}
                 </div>
 
@@ -167,7 +198,7 @@ export function ClientDetailsDrawer({ client, open, onOpenChange }: ClientDetail
                     required
                     />
                 ) : (
-                    <p className="text-sm text-muted-foreground">{client.email}</p>
+                    <p className="text-sm text-muted-foreground">{selectedClient?.email}</p>
                 )}
                 </div>
             </div>
@@ -185,7 +216,7 @@ export function ClientDetailsDrawer({ client, open, onOpenChange }: ClientDetail
                     required
                     />
                 ) : (
-                    <p className="text-sm text-muted-foreground">{client.phoneNumber}</p>
+                    <p className="text-sm text-muted-foreground">{selectedClient?.phoneNumber}</p>
                 )}
                 </div>
 
@@ -202,7 +233,7 @@ export function ClientDetailsDrawer({ client, open, onOpenChange }: ClientDetail
                     required
                     />
                 ) : (
-                    <p className="text-sm text-muted-foreground">{client.address}</p>
+                    <p className="text-sm text-muted-foreground">{selectedClient?.address}</p>
                 )}
                 </div>
             </div>
@@ -382,14 +413,14 @@ export function ClientDetailsDrawer({ client, open, onOpenChange }: ClientDetail
             {/* Associated Accounts Table */}
             {/* Associated Accounts Table */}
             {/* Associated Accounts */}
-            {!isEditing && client.accounts && client.accounts.length > 0 && (
+            {!isEditing && clientAccounts && clientAccounts.length > 0 && (
               <div className="mt-8 space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold">Associated Accounts</h3>
-                  <Button disabled={true} type="button" size="sm" onClick={()=>setOpenAddAccount({open: true, isEditing: false, selectedAccount: null})}><IconPlus /> Add Account</Button>
+                  {selectedClient && <Button type="button" size="sm" onClick={()=>setOpenAddAccount({open: true, isEditing: false, selectedAccount: null})}><IconPlus /> Add Account</Button>}
                 </div>
 
-                {client.accounts.map((acc) => (
+                {clientAccounts.map((acc) => (
                   <Card key={acc.id} className="border rounded-xl shadow-sm">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
                       <CardTitle className="text-base font-semibold">
@@ -403,9 +434,17 @@ export function ClientDetailsDrawer({ client, open, onOpenChange }: ClientDetail
                           <Pencil className="h-4 w-4" />
                         </Button>
 
-                        <Button variant="destructive" size="icon" className="h-8 w-8">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <DeleteConfirmAction
+                          title="Delete Client Account"
+                          message="Are you sure you want to delete this client associated account?"
+                          triggerButton={
+                            <Button disabled={deletingAccount} type="button" variant="destructive" size="icon" className="h-8 w-8"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          }
+                          onConfirm={()=>handleDeleteAccount(acc.id)}
+                        />
                       </div>
                     </CardHeader>
 
@@ -471,15 +510,15 @@ export function ClientDetailsDrawer({ client, open, onOpenChange }: ClientDetail
                 type="button"
                 variant="outline"
                 onClick={handleCancel}
-                disabled={isLoading}
+                disabled={updatingAccount}
                 className="gap-2 bg-transparent"
               >
                 <X className="h-4 w-4" />
                 Cancel
               </Button>
-              <Button type="submit" disabled={isLoading} className="gap-2">
+              <Button type="submit" disabled={updatingAccount} className="gap-2">
                 <Save className="h-4 w-4" />
-                {isLoading ? "Saving..." : "Save Changes"}
+                {updatingAccount ? "Saving..." : "Save Changes"}
               </Button>
             </SheetFooter>
           )}
@@ -488,9 +527,11 @@ export function ClientDetailsDrawer({ client, open, onOpenChange }: ClientDetail
       <CreateAccountDialog 
         open={openAddAccount.open} 
         isEditing={openAddAccount.isEditing} 
-        onOpenChange={(open) => setOpenAddAccount({open, isEditing: false, selectedAccount: null})} 
+        onOpenChange={(open) => {setOpenAddAccount({open, isEditing: false, selectedAccount: null})}} 
         account={openAddAccount.selectedAccount!} 
-        clientId={client.id} 
+        clientId={selectedClient?.id}
+        onAddClientAccount={(acc) => handleAddClientAccount(acc)}
+        onUpdateClientAccount={(acc)=>handleUpdateClientAccount(acc)}
       />
     </Sheet>
   )

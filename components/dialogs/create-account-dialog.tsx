@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog'
-import { Accounts } from '@/types/clients'
+import { Accounts, ClientDataSchema } from '@/types/clients'
 import { Label } from '../ui/label'
 import { Input } from '../ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -25,7 +25,9 @@ interface DialogProps {
   onOpenChange: (open: boolean) => void
   account?: Accounts
   isEditing?: boolean,
-  clientId?: string
+  clientId?: string,
+  onAddClientAccount: (acc: Accounts) => void
+  onUpdateClientAccount?: (acc: Accounts) => void
 }
 
 const CreateAccountDialog = ({
@@ -33,7 +35,9 @@ const CreateAccountDialog = ({
   onOpenChange,
   account,
   isEditing,
-  clientId
+  clientId,
+  onAddClientAccount,
+  onUpdateClientAccount
 }: DialogProps) => {
 
   const { data: servicePlans } = useGetServicePlanQuery()
@@ -53,7 +57,6 @@ const CreateAccountDialog = ({
   const [createBill, setCreateBill] = useState<BillType>()
 
   const [formData, setFormData] = useState({
-    clientId: clientId,
     accountNumber: "",
     address: "",
     installationDate: "",
@@ -83,13 +86,13 @@ const CreateAccountDialog = ({
   }, [selectedOdp])
 
   useEffect(() => {
+    console.log(clientId)
   if (isEditing && account) {
     setSelectedOdp(account.odpPort?.odp ?? null)
     setSelectedOdpPort(account.odpPort ?? null)
 
     // Prefill form
     setFormData({
-      clientId: undefined,
       accountNumber: account.accountNumber,
       address: account.address ?? "",
       installationDate: account.installationDate
@@ -115,7 +118,6 @@ const CreateAccountDialog = ({
 
   const resetForm = () => {
     setFormData({
-        clientId: "",
         accountNumber: "",
       address: "",
       installationDate: "",
@@ -142,8 +144,6 @@ const getNewSelectedPort = async () => {
 
   try {
     const port = await getOdpPort(currentAccountId).unwrap()
-
-    // Make sure the port belongs to the current account
     if (account.id !== currentAccountId) return
 
     if (port) {
@@ -165,20 +165,21 @@ const getNewSelectedPort = async () => {
     try {
       if (isEditing && account) {
         // UPDATE ACCOUNT
-        await updateAccount({
+        const newAcc = await updateAccount({
           id: account.id,
-          data: formData,
+          data: {...formData, clientId},
         }).unwrap()
-        window.location.reload()
+        onUpdateClientAccount && onUpdateClientAccount(newAcc)
       } else {
         // CREATE ACCOUNT
-        await createAccount({
+        const newAccount = await createAccount({
           ...formData,
           generateBill: showCreateBilling ? createBill : null,
           proRatedDays: formData.proRatedDays || undefined,
+          clientId
         }).unwrap()
+        onAddClientAccount(newAccount)
       }
-
       resetForm()
       onOpenChange(false)
     } catch (error) {
