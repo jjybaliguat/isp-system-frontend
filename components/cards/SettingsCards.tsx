@@ -231,7 +231,7 @@ const handleSaveDocumentsSettings = async() => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email-port">SMTP PORT (eg. 587)</Label>
+                  <Label htmlFor="email-port">SMTP PORT (eg. 465)</Label>
                   <Input
                     id="email-port"
                     name="email-port"

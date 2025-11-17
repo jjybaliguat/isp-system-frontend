@@ -37,6 +37,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { useGetCoverageQuery } from '@/redux/fetures/converage-api-slice'
+import { IconArrowRight } from '@tabler/icons-react'
 
 interface smsDataProps {
   recipients: string
@@ -212,6 +213,10 @@ const SemaphoreIntegrationPage = () => {
                 <CardTitle>Semaphore Api Key</CardTitle>
                 <CardDescription>Configure your semaphore api key</CardDescription>
                 <CardDescription>Note: Your Api Key is encrypted first before storing in the database</CardDescription>
+                <CardDescription>Do&apos;t have semaphore account? Sign-up 
+                  <span className='flex items-center gap-2'><IconArrowRight className='h-3 w-3' /> 
+                  <a href='https://semaphore.co/' target='_blank' className='underline'>https://semaphore.co/</a></span>
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className='space-y-4'>
