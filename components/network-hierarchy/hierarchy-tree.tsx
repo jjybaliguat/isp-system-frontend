@@ -169,7 +169,7 @@ function TreeNode({
   const childTypesMap: Record<string, string[]> = {
     OLT: ["PonPort"],
     PonPort: ["LCP"],
-    LCP: ["ODC"],
+    LCP: ["ODP", "ODC"],
     ODC: ["ODP"],
     ODP: ["OdpPort"],
     OdpPort: ["Client"]
@@ -287,13 +287,13 @@ function LCPNode({
     <div key={lcp.id}>
       <TreeNode
         type="LCP"
-        name={lcp.lcpCode}
+        name={`${lcp.lcpCode} - ${lcp.location}`}
         id={lcp.id}
         isExpanded={expanded[lcp.id]}
         onToggle={() => onToggle(lcp.id)}
         isSelected={selectedItem?.id === lcp.id}
         onSelect={() => onSelectItem({ type: "LCP", id: lcp.id })}
-        hasChildren={lcp.odcs && lcp.odcs.length > 0}
+        hasChildren={lcp.odps && lcp.odps.length > 0}
         colorClass={getMarkerColor("LCP")}
         level={2}
         onEdit={onEdit}
@@ -303,6 +303,26 @@ function LCPNode({
         setHoveredId={setHoveredId}
       />
 
+      {expanded[lcp.id] && lcp.odps && (
+        <div className="ml-4">
+          {lcp.odps.map((odp) => (
+            <ODPNode
+              key={odp.id}
+              odp={odp}
+              expanded={expanded}
+              onToggle={onToggle}
+              selectedItem={selectedItem}
+              onSelectItem={onSelectItem}
+              getMarkerColor={getMarkerColor}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              onAdd={onAdd}
+              hoveredId={hoveredId}
+              setHoveredId={setHoveredId}
+            />
+          ))}
+        </div>
+      )}
       {expanded[lcp.id] && lcp.odcs && (
         <div className="ml-4">
           {lcp.odcs.map((odc) => (
@@ -358,7 +378,7 @@ function ODCNode({
     <div key={odc.id}>
       <TreeNode
         type="ODC"
-        name={odc.name}
+        name={`${odc.cabinetCode!} - ${odc.location}`}
         id={odc.id}
         isExpanded={expanded[odc.id]}
         onToggle={() => onToggle(odc.id)}
@@ -426,12 +446,11 @@ function ODPNode({
   setHoveredId,
 }: ODPNodeProps) {
   const hasChildren = odp.ports && odp.ports.length > 0;
-
   return (
     <div key={odp.id}>
       <TreeNode
         type="ODP"
-        name={odp.name}
+        name={`${odp.odpCode!} - ${odp.location}`}
         id={odp.id}
         isExpanded={expanded[odp.id]}
         onToggle={() => onToggle(odp.id)}
@@ -465,7 +484,7 @@ function ODPNode({
                   level={5}
                   onEdit={onEdit}
                   onDelete={onDelete}
-                  onAdd={onAdd}
+                  onAdd={port.status === "OCCUPIED" ? undefined : onAdd}
                   hoveredId={hoveredId}
                   setHoveredId={setHoveredId}
                 />
@@ -474,12 +493,12 @@ function ODPNode({
                   <div className="ml-4">
                     <TreeNode
                       type="Client"
-                      name={port.client?.fullName!}
-                      id={port.clientId!}
+                      name={`${port.account?.client.fullName!} | Acc: ${port.account.accountNumber}`}
+                      id={port.account?.id!}
                       isExpanded={false}
                       onToggle={() => {}}
-                      isSelected={selectedItem?.id === port.clientId}
-                      onSelect={() => onSelectItem({ type: "Client", id: port.clientId! })}
+                      isSelected={selectedItem?.id === port.account?.id}
+                      onSelect={() => onSelectItem({ type: "Client", id: port.account?.id! })}
                       hasChildren={false}
                       colorClass={getMarkerColor("Client")}
                       level={6}

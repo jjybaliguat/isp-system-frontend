@@ -189,7 +189,10 @@ const getNewSelectedPort = async () => {
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) resetForm(); onOpenChange(o) }}>
-      <DialogContent>
+      <DialogContent
+        className="max-h-[90vh] h-auto overflow-y-auto sm:max-w-[600px] 
+        p-4 sm:p-6 rounded-xl"
+      >
         <DialogHeader>
           <DialogTitle>
             {isEditing ? `Edit Account ${account?.accountNumber}` : "Add Account"}

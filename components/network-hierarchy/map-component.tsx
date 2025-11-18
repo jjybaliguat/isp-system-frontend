@@ -14,6 +14,7 @@ import { renderToStaticMarkup } from "react-dom/server"
 interface Marker {
   id: string
   type: string
+  location: string
   name: string
   lat: number
   lng: number
@@ -28,6 +29,7 @@ interface Marker {
   totalPorts?: number
   cabinetCode?: string
   odpCode?: string
+  lcpCode?: string
 }
 
 interface MapComponentProps {
@@ -158,22 +160,45 @@ export default function MapComponent({ markers, selectedItem, onSelectItem }: Ma
       const popupContent = `
         <div style="font-size:14px; line-height:1.4">
           <strong style="font-size:16px; color:${color};">${marker.type}</strong><br/>
-          <span><b>Name:</b> ${marker.name}</span><br/>
+
+          ${
+            marker.name
+              ? `<span><b>Name:</b> ${marker.name}</span><br/>`
+              : `<span><b>Location:</b> ${marker.location}</span><br/>`
+          }
+
           <span><b>Latitude:</b> ${marker.lat.toFixed(6)}</span><br/>
           <span><b>Longitude:</b> ${marker.lng.toFixed(6)}</span><br/>
+
           ${
             marker.type === "OLT"
-              ? "<span><b>Model:</b> " + (marker.model ?? "N/A") + "</span><br/><span><b>Brand:</b> " + (marker.brand ?? "N/A") + "</span><br/><span><b>Ip:</b> " + (marker.ipAddress ?? "N/A") + "</span><br/><span><b>Pon Count:</b> " + (marker.ponCount ?? "N/A") + "</span><br/><span><b>Connected LCPs:</b> " + (marker.lcpCount ?? "N/A") + "</span><br/>"
+              ? `
+                <span><b>Model:</b> ${marker.model ?? "N/A"}</span><br/>
+                <span><b>Brand:</b> ${marker.brand ?? "N/A"}</span><br/>
+                <span><b>IP:</b> ${marker.ipAddress ?? "N/A"}</span><br/>
+                <span><b>PON Count:</b> ${marker.ponCount ?? "N/A"}</span><br/>
+                <span><b>Connected LCPs:</b> ${marker.lcpCount ?? "N/A"}</span><br/>
+              `
               : marker.type === "LCP"
-              ? "<span><b>Connected ODCs:</b> " + (marker.odcCount ?? "N/A") + "</span><br/>"
+              ? `
+                <span><b>LCP Code:</b> ${marker.lcpCode ?? "N/A"}</span><br/>
+                <span><b>Connected ODCs:</b> ${marker.odcCount ?? "N/A"}</span><br/>
+              `
               : marker.type === "ODC"
-              ? "<span><b>ODC Code:</b> " + (marker.cabinetCode ?? "N/A") + "</span><br/><span><b>Connected ODPs:</b> " + (marker.odpCount ?? "N/A") + "</span><br/>"
+              ? `
+                <span><b>ODC Code:</b> ${marker.cabinetCode ?? "N/A"}</span><br/>
+                <span><b>Connected ODPs:</b> ${marker.odpCount ?? "N/A"}</span><br/>
+              `
               : marker.type === "ODP"
-              ? "<span><b>ODP Code:</b> " + (marker.odpCode ?? "N/A") + "</span><br/><span><b>Total Ports:</b> " + (marker.totalPorts ?? "N/A") + "</span><br/>"
+              ? `
+                <span><b>ODP Code:</b> ${marker.odpCode ?? "N/A"}</span><br/>
+                <span><b>Total Ports:</b> ${marker.totalPorts ?? "N/A"}</span><br/>
+              `
               : ""
           }
         </div>
-      `
+      `;
+
 
       const leafletMarker = L.marker([marker.lat, marker.lng], { icon })
         .bindPopup(popupContent)

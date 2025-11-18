@@ -123,7 +123,7 @@ export const networkHierarchyApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["NetworkHierarchy"],
     }),
-    createODP: builder.mutation<ODP, Partial<ODP> & { odcId: string }>({
+    createODP: builder.mutation<ODP, Partial<ODP> & { lcpId: string, odcId: string }>({
       query: (body) => ({
         url: "/network-hierarchy/odp",
         method: "POST",
@@ -147,7 +147,7 @@ export const networkHierarchyApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["NetworkHierarchy", "Clients"],
     }),
-    unAssignClientToPort: builder.mutation<void, {clientId: string}>({
+    unAssignClientToPort: builder.mutation<void, {accountId: string}>({
       query: (body) => ({
         url: `/network-hierarchy/odp-port/unassign`,
         method: "PATCH",

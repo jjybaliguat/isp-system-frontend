@@ -47,20 +47,34 @@ export default function NetworkMap({ olts, selectedItem, onSelectItem }: Network
             newMarkers.push({
               id: lcp.id,
               type: "LCP",
-              name: lcp.lcpCode,
+              location: lcp.location,
+              lcpCode: lcp.lcpCode,
               lat: lcp.latitude,
               lng: lcp.longitude,
               color: "green",
               odcCount: lcp.odcs?.length || 0,
             })
           }
-
+          lcp.odps?.forEach((odp) => {
+              if (odp.latitude && odp.longitude) {
+                newMarkers.push({
+                  id: odp.id,
+                  type: "ODP",
+                  location: odp.location,
+                  lat: odp.latitude,
+                  lng: odp.longitude,
+                  color: "red",
+                  odpCode: odp.odpCode,
+                  totalPorts: odp.ports?.length || 0,
+                })
+              }
+            })
           lcp.odcs?.forEach((odc) => {
             if (odc.latitude && odc.longitude) {
               newMarkers.push({
                 id: odc.id,
                 type: "ODC",
-                name: odc.name,
+                location: odc.location,
                 lat: odc.latitude,
                 lng: odc.longitude,
                 color: "orange",
@@ -74,7 +88,7 @@ export default function NetworkMap({ olts, selectedItem, onSelectItem }: Network
                 newMarkers.push({
                   id: odp.id,
                   type: "ODP",
-                  name: odp.name,
+                  location: odp.location,
                   lat: odp.latitude,
                   lng: odp.longitude,
                   color: "red",

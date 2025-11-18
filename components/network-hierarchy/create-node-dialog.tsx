@@ -70,6 +70,7 @@ export default function CreateNodeDialog({
           break
         case "ODP":
           mutation = createODP
+          payload.lcpId = parentId
           payload.odcId = parentId
           break
         case "OdpPort":
@@ -123,19 +124,19 @@ export default function CreateNodeDialog({
         { label: "Remarks", key: "remarks", type: "textarea" },
       ],
       ODC: [
-        { label: "Name", key: "name", type: "text" },
+        // { label: "Name", key: "name", type: "text" },
+        { label: "Cabinet/Enclosure Code", key: "cabinetCode", type: "text" },
         { label: "Location", key: "location", type: "text" },
         { label: "Latitude", key: "latitude", type: "number" },
         { label: "Longitude", key: "longitude", type: "number" },
-        { label: "Cabinet Code", key: "cabinetCode", type: "text" },
         { label: "Remarks", key: "remarks", type: "textarea" },
       ],
       ODP: [
-        { label: "Name", key: "name", type: "text" },
+        // { label: "Name", key: "name", type: "text" },
+        { label: "ODP Code", key: "odpCode", type: "text" },
         { label: "Location", key: "location", type: "text" },
         { label: "Latitude", key: "latitude", type: "number" },
         { label: "Longitude", key: "longitude", type: "number" },
-        { label: "ODP Code", key: "odpCode", type: "text" },
         { label: "Port Count", key: "portCount", type: "number" },
         { label: "Remarks", key: "remarks", type: "textarea" },
       ],

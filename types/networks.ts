@@ -1,4 +1,4 @@
-import { ClientDataSchema } from "./clients"
+import { Accounts, ClientDataSchema } from "./clients"
 
 export enum PonPortStatus {
   ACTIVE = "ACTIVE",
@@ -53,6 +53,7 @@ export interface LCP {
   oltId: string
   providerId: string
   odcs: ODC[]
+  odps: ODP[]
   createdAt: string
   updatedAt: string
 }
@@ -95,6 +96,7 @@ export interface OdpPort {
   remarks?: string
   odp?: ODP
   odpId: string
+  account: Accounts
   client?: {
     fullName: string
   }

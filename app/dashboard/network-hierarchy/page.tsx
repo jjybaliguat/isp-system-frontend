@@ -25,8 +25,6 @@ export default function NetworkHierarchyPage() {
   const { data: olts, isLoading, error } = useGetNetworkHierarchyQuery()
   const [selectedItem, setSelectedItem] = useState<{ type: string; id: string } | null>(null)
 
-  console.log(olts)
-
   const [createDialog, setCreateDialog] = useState<{ open: boolean; type: string; parentId?: string }>({
     open: false,
     type: "",
@@ -82,7 +80,7 @@ export default function NetworkHierarchyPage() {
           await deleteOdpPort(id).unwrap()
           break
         case "Client":
-          await unAssignClientToPort({clientId: id}).unwrap()
+          await unAssignClientToPort({accountId: id}).unwrap()
           break
       }
       toast.success(`${type} deleted successfully`)
@@ -133,8 +131,30 @@ export default function NetworkHierarchyPage() {
             New OLT
           </Button>
         </div>
+        <div className="bg-muted/40 p-4 rounded-lg border space-y-2">
+          <h2 className="text-lg font-semibold">Network Component Definitions</h2>
+          <ul className="text-sm text-muted-foreground space-y-1">
+            <li>
+              <strong>OLT</strong> – Optical Line Terminal: Main fiber controller in the ISP data center that manages PON traffic.
+            </li>
+            <li>
+              <strong>PON Port</strong> – Passive Optical Network Port: Port on the OLT that starts the fiber distribution tree.
+            </li>
+            <li>
+              <strong>LCP</strong> – Local Convergence Point: Mid-network node that distributes fiber toward ODC/ODP locations.
+            </li>
+            <li>
+              <strong>ODC/Enclosure</strong> – Outside Drop Cabinet: A small outdoor enclosure where the ISP terminates or organizes subscriber lines. ODC can have multiple ODPs
+            </li>
+            <li>
+              <strong>ODP/NAP</strong> – Optical Distribution Point: Near-client distribution box that connects to drop fibers.
+            </li>
+            <li>
+              <strong>ODP Port / Nap Port</strong> – Client fiber port on an ODP; each port may be <em>Available</em> or <em>Occupied</em>.
+            </li>
+          </ul>
+        </div>
       </div>
-
       <div className="grid grid-cols-1 gap-4">
         <div className="overflow-auto min-h-[300px] max-h-[500px]">
           <Card className="p-4 h-fit min-h-full">
