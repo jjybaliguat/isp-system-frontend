@@ -9,6 +9,7 @@ import {
   IconFileAi,
   IconFileBarcode,
   IconFileDescription,
+  IconFileSpreadsheet,
   IconFileWord,
   IconFolder,
   IconHelp,
@@ -43,7 +44,7 @@ import {
 } from "@/components/ui/sidebar"
 import { Logo } from "../ui/logo"
 import { useAppSelector } from "@/redux/store/store"
-import { Ticket } from "lucide-react"
+import { FileSpreadsheet, Ticket } from "lucide-react"
 import { useGetProviderQuery } from "@/redux/fetures/provider-api-slice"
 
 const data = {
@@ -62,6 +63,11 @@ const data = {
       title: "Billing",
       url: "/dashboard/billing",
       icon: IconReport,
+    },
+    {
+      title: "Billing Matrix",
+      url: "/dashboard/billing-matrix",
+      icon: IconFileSpreadsheet,
     },
     {
       title: "Tickets",
@@ -158,7 +164,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       case "ADMIN":
         return {
           navMain: data.navMain.filter(item =>
-            ["/dashboard", "/dashboard/clients", "/dashboard/billing", "/dashboard/tickets"].includes(item.url)
+            ["/dashboard", "/dashboard/clients", "/dashboard/billing", "/dashboard/tickets", "/dashboard/billing-matrix"].includes(item.url)
           ),
           integrations: null,
         }

@@ -1,4 +1,4 @@
-import { BillType } from "./billing";
+import { BillingDataSchema, BillType } from "./billing";
 import { CoverageDataSchema } from "./coverage";
 import { OdpPort } from "./networks";
 
@@ -71,6 +71,7 @@ export interface Accounts {
     odpPort?: OdpPort
     generateBill?: BillType | undefined
     proRatedDays?: string
+    billings?: BillingDataSchema[]
 }
 
 export interface servicePlanSchema {

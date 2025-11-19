@@ -26,8 +26,10 @@ export interface BillingDataSchema {
   dueDate: string
   amount: number
   paidAmount: number
+  paidAt?: string
   status: BillingStatus
-  description?: string
+  description?: string,
+  discounts: Discounts[]
   createdAt: string
   updatedAt: string
 }
@@ -92,6 +94,13 @@ export interface CreateBillingForAccountInput {
   amount: number
   description?: string,
   dueDate?: string
+  discounts?: Discounts[]
+}
+
+interface Discounts {
+  id: string;
+  description: string;
+  amount: number
 }
 
 export interface ConfirmPaymentInput {

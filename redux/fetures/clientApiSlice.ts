@@ -8,13 +8,14 @@ interface GetClientsParams {
   search?: string
   status?: string
   coverageId?: string
+  billingYear?: number
 }
 
 export const clientApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getClients: builder.query<PaginatedResponse<ClientDataSchema>, GetClientsParams>({
-      query: ({ page = 1, limit = 10, search = "", status = "", coverageId="" }) => ({
-        url: `/clients?page=${page}&limit=${limit}&search=${search}&status=${status}&coverageId=${coverageId}`,
+      query: ({ page = 1, limit = 10, search = "", status = "", coverageId="", billingYear }) => ({
+        url: `/clients?page=${page}&limit=${limit}&search=${search}&status=${status}&coverageId=${coverageId}&billingYear=${billingYear}`,
         method: "GET",
       }),
       providesTags: ["Clients"],

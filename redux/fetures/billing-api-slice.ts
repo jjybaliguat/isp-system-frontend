@@ -49,9 +49,17 @@ export const billingApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body: billing,
       }),
-      invalidatesTags: [{ type: "Billings", id: "LIST" }, { type: "Finance", id: "LIST" }, { type: "Logs", id: "LIST" } ],
+      invalidatesTags: [{ type: "Billings", id: "LIST" }, { type: "Finance", id: "LIST" }, { type: "Logs", id: "LIST" }, "Clients", ],
     }),
 
+    updateBilling: builder.mutation<BillingDataSchema, {id: string, data: CreateBillingForAccountInput}>({
+      query: ({id, data}) => ({
+          url: `/billing/v2/${id}`,
+          method: "PATCH",
+          body: data
+      }),
+      invalidatesTags: [{ type: "Billings", id: "LIST" }, { type: "Finance", id: "LIST" }, { type: "Logs", id: "LIST" }, "Clients", ],
+    }), 
     confirmPayment: builder.mutation<BillingDataSchema, ConfirmPaymentInput>({
       query: (payment) => ({
         url: `/billing/${payment.billingId}/confirm-payment`,
@@ -64,6 +72,7 @@ export const billingApiSlice = apiSlice.injectEndpoints({
         { type: "Payments", id: "LIST" },
         { type: "Finance", id: "LIST" },
         { type: "Logs", id: "LIST" },
+        "Clients",
       ],
     }),
 
@@ -72,7 +81,7 @@ export const billingApiSlice = apiSlice.injectEndpoints({
         url: `/billing/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: [{ type: "Billings", id: "LIST" }, { type: "Payments", id: "LIST" }, { type: "Finance", id: "LIST" }, { type: "Logs", id: "LIST" }],
+      invalidatesTags: [{ type: "Billings", id: "LIST" }, { type: "Payments", id: "LIST" }, { type: "Finance", id: "LIST" }, { type: "Logs", id: "LIST" }, "Clients",],
     }),
 
     bulkDeleteBillings: builder.mutation<void, string[]>({
@@ -107,5 +116,6 @@ export const {
   useBulkDeleteBillingsMutation,
   useGetFullYearBillingByIdQuery,
   useSendBillingReminderEmailMutation,
-  useSendBillingReminderSmsMutation
+  useSendBillingReminderSmsMutation,
+  useUpdateBillingMutation
 } = billingApiSlice
