@@ -49,6 +49,7 @@ export function CreateBillingDialog({ open, onOpenChange, billing, onUpdateBill 
 
   // edit mode flag
   const isEdit = Boolean(billing)
+  console.log("Editing billing:", billing)
 
   const [formData, setFormData] = useState<FormDataProps>({
     accountId: billing?.account?.id || "",
