@@ -49,7 +49,6 @@ export function CreateBillingDialog({ open, onOpenChange, billing, onUpdateBill 
 
   // edit mode flag
   const isEdit = Boolean(billing)
-  console.log("Editing billing:", billing)
 
   const [formData, setFormData] = useState<FormDataProps>({
     accountId: billing?.account?.id || "",
@@ -72,8 +71,8 @@ export function CreateBillingDialog({ open, onOpenChange, billing, onUpdateBill 
   const accountsData = data?.data || []
 
   const selectedAccount = useMemo(() => {
-    return accountsData?.find((acc) => acc.id === formData.accountId)
-  }, [accountsData, formData.accountId])
+    return isEdit? billing?.account : accountsData?.find((acc) => acc.id === formData.accountId)
+  }, [accountsData, formData.accountId, billing])
 
   const baseAmount = useMemo(() => {
     return Number(selectedAccount?.servicePlan?.monthlyFee) || 0
@@ -157,7 +156,7 @@ export function CreateBillingDialog({ open, onOpenChange, billing, onUpdateBill 
           {/* Client selector */}
           <div className="space-y-2">
             <Label htmlFor="clientId">Client *</Label>
-            <Popover open={comboboxOpen && !isEdit} onOpenChange={setComboboxOpen}>
+            <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
