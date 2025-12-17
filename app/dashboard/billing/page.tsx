@@ -17,14 +17,16 @@ import {
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { FileClock, Plus } from "lucide-react";
 import { CreateBillingDialog } from "@/components/dialogs/create-billing-dialog";
 import { PaymentsTableWrapper } from "@/components/wrapper/PaymentsTableWrapper";
 import PageWrapper from "@/components/wrapper/page-wrapper";
+import GenerateBillDialog from "@/components/dialogs/generate-bill-dialog";
 
 export default function BillingPage() {
   const [selectedTab, setSelectedTab] = useState('billing')
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [isGenerateBillDialogOpen, setIsGenerateBillDialogOpen] = useState(false)
 
   return (
     <PageWrapper
@@ -32,10 +34,14 @@ export default function BillingPage() {
       description="Manage your billings and payments"
     >
       <div className="container mx-auto">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+        <div className="flex flex-col md:flex-row md:items-center gap-2">
           <Button onClick={() => setIsCreateDialogOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Create Bill
+          </Button>
+          <Button onClick={() => setIsGenerateBillDialogOpen(true)}>
+            <FileClock className="mr-2 h-4 w-4" />
+            Generate
           </Button>
         </div>
         <Tabs
@@ -102,6 +108,7 @@ export default function BillingPage() {
           </div>
         </Tabs>
         <CreateBillingDialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen} />
+        <GenerateBillDialog open={isGenerateBillDialogOpen} onOpenChange={setIsGenerateBillDialogOpen} />
       </div>
     </PageWrapper>
   )

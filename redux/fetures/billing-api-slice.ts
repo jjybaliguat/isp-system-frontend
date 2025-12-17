@@ -104,6 +104,14 @@ export const billingApiSlice = apiSlice.injectEndpoints({
         method: "POST"
       })
     }),
+    generateBill: builder.mutation<void, {month: string, year: string}>({
+      query: (data) => ({
+        url: `/billing/generate-bill`,
+        method: "POST",
+        body: data
+      }),
+      invalidatesTags: [{ type: "Billings", id: "LIST" }],
+    }),
   }),
 })
 
@@ -117,5 +125,6 @@ export const {
   useGetFullYearBillingByIdQuery,
   useSendBillingReminderEmailMutation,
   useSendBillingReminderSmsMutation,
-  useUpdateBillingMutation
+  useUpdateBillingMutation,
+  useGenerateBillMutation
 } = billingApiSlice
