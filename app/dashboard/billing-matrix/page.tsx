@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
-import { Loader2, Search } from "lucide-react"
+import { Loader2, Search, Settings2 } from "lucide-react"
 import { formatCurrency } from "@/utils/formatCurrency"
 import { useGetClientsQuery } from "@/redux/fetures/clientApiSlice"
 import { BillingDataSchema, BillingStatus } from "@/types/billing"
@@ -51,7 +51,6 @@ const aggStatus = (bills: BillingDataSchema[]) => {
 }
 
 const DEFAULT_COLUMNS = {
-    client: true,
     January: true,
     February: true,
     March: true,
@@ -189,7 +188,7 @@ const rows = useMemo(() => {
               <SelectTrigger className="w-36"><SelectValue placeholder="Select year" /></SelectTrigger>
               <SelectContent>
                 {Array.from({ length: 6 }).map((_, i) => {
-                  const y = new Date().getFullYear() - i
+                  const y = new Date().getFullYear() - i + 1
                   return <SelectItem key={y} value={String(y)}>{y}</SelectItem>
                 })}
               </SelectContent>
@@ -197,36 +196,16 @@ const rows = useMemo(() => {
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="text-sm text-muted-foreground">Rows</div>
-            <Select value={String(limit)} onValueChange={(v) => { setLimit(Number(v)); setPage(1) }}>
-              <SelectTrigger className="w-20"><SelectValue placeholder="Limit" /></SelectTrigger>
-              <SelectContent>
-                {[10, 25, 50, 100].map(n => <SelectItem key={n} value={String(n)}>{n}</SelectItem>)}
-              </SelectContent>
-            </Select>
-            <Button variant="ghost" onClick={() => { setSearch(""); setDebounced(""); setPage(1) }}>Reset</Button>
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="gap-2 bg-transparent">
+                  <Settings2 className="h-4 w-4" />
                   Columns
                 </Button>
               </PopoverTrigger>
 
               <PopoverContent className="w-56 space-y-2">
                 <div className="text-sm font-semibold">Toggle Columns</div>
-
-                {/* Client column */}
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={visibleColumns.client}
-                    onChange={() =>
-                      setVisibleColumns(v => ({ ...v, client: !v.client }))
-                    }
-                  />
-                  Client
-                </label>
-
                 <div className="border-t pt-2 space-y-1">
                   {MONTH_NAMES.map((m) => (
                     <label key={m} className="flex items-center gap-2 text-sm">
@@ -252,6 +231,14 @@ const rows = useMemo(() => {
                 </Button>
               </PopoverContent>
             </Popover>
+            <div className="text-sm text-muted-foreground">Rows</div>
+            <Select value={String(limit)} onValueChange={(v) => { setLimit(Number(v)); setPage(1) }}>
+              <SelectTrigger className="w-20"><SelectValue placeholder="Limit" /></SelectTrigger>
+              <SelectContent>
+                {[10, 25, 50, 100].map(n => <SelectItem key={n} value={String(n)}>{n}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Button variant="ghost" onClick={() => { setSearch(""); setDebounced(""); setPage(1) }}>Reset</Button>
           </div>
         </div>
 
@@ -260,9 +247,7 @@ const rows = useMemo(() => {
           <Table className="w-fit table-auto">
             <TableHeader>
               <TableRow className="bg-muted/50 sticky top-0 z-10">
-              {visibleColumns.client && (
                 <TableHead className="px-3 py-2 text-left">Client</TableHead>
-              )}
                 {MONTH_NAMES.map((m) => visibleColumns[m] && (<TableHead key={m} className="px-3 py-2 text-center">{m.slice(0,3)}</TableHead>))}
               </TableRow>
             </TableHeader>
@@ -283,14 +268,12 @@ const rows = useMemo(() => {
 
               {!isLoading && rows?.map((r) => (
                 <TableRow key={r.id} className="hover:bg-muted/10">
-                  {visibleColumns.client && (
                     <TableCell className="px-3 py-2 align-top">
                       <div className="font-medium">{r.fullName}</div>
                       <div className="text-xs text-muted-foreground">
                         {r.accounts.map((acc) => acc.accountNumber).join(" | ")}
                       </div>
                     </TableCell>
-                  )}
 
                   {r.months.map((m, mi) => {
                     const monthName = MONTH_NAMES[mi]
