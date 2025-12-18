@@ -67,6 +67,7 @@ const CreateAccountDialog = ({
     coverageId: "",
     odpPortId: "",
     notes: "",
+    status: "ACTIVE",
     proRatedDays: "",
   })
 
@@ -105,6 +106,7 @@ const CreateAccountDialog = ({
       coverageId: account.coverageId ?? "",
       odpPortId: account.odpPort?.id ?? "",
       notes: account.notes ?? "",
+      status: account.status ?? "ACTIVE",
       proRatedDays: "",
     })
 
@@ -128,6 +130,7 @@ const CreateAccountDialog = ({
       coverageId: "",
       odpPortId: "",
       notes: "",
+      status: "ACTIVE",
       proRatedDays: "",
     })
     setShowCreateBilling(false)
@@ -362,6 +365,24 @@ const getNewSelectedPort = async () => {
                 </Select>
             </div>
           </div>
+
+          {isEditing && <div className="space-y-2">
+            <Label>Account Status</Label>
+            <Select
+              value={formData.status}
+              onValueChange={(value) => setFormData({ ...formData, status: value })}
+              required
+            >
+              <SelectTrigger className='w-full'>
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                {["ACTIVE", "PARTIALLY_DISCONNECTED", "TERMINATED"]?.map((status) => (
+                  <SelectItem key={status} value={status}>{status}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>}
 
           {/* Notes */}
           <div className="space-y-2">

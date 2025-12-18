@@ -50,6 +50,22 @@ const aggStatus = (bills: BillingDataSchema[]) => {
   return bills.reduce((worst, b) => (statusPriority(b.status) < statusPriority(worst) ? b.status : worst), "PAID")
 }
 
+const DEFAULT_COLUMNS = {
+    client: true,
+    January: true,
+    February: true,
+    March: true,
+    April: true,
+    May: true,
+    June: true,
+    July: true,
+    August: true,
+    September: true,
+    October: true,
+    November: true,
+    December: true,
+  }
+
 function ClientYearBillingTable() {
   const [year, setYear] = useState<number>(new Date().getFullYear())
   const [search, setSearch] = useState<string>("")
@@ -62,6 +78,27 @@ function ClientYearBillingTable() {
   const [commentDialogOpen, setCommentDialogOpen] = useState(false);
   const [openConfirmPayment, setOpenConfirmPayment] = useState(false);
   const [openViewBilling, setOpenViewBilling] = useState(false);
+
+  const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>(() => {
+    if (typeof window === "undefined") return DEFAULT_COLUMNS
+
+    try {
+      const saved = localStorage.getItem("billing-columns")
+      return saved
+        ? { ...DEFAULT_COLUMNS, ...JSON.parse(saved) }
+        : DEFAULT_COLUMNS
+    } catch {
+      return DEFAULT_COLUMNS
+    }
+  })
+
+  useEffect(() => {
+    localStorage.setItem(
+      "billing-columns",
+      JSON.stringify(visibleColumns)
+    )
+  }, [visibleColumns])
+
 
   const { data: clients, isLoading } = useGetClientsQuery({
     search: debounced,
@@ -168,16 +205,65 @@ const rows = useMemo(() => {
               </SelectContent>
             </Select>
             <Button variant="ghost" onClick={() => { setSearch(""); setDebounced(""); setPage(1) }}>Reset</Button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm">
+                  Columns
+                </Button>
+              </PopoverTrigger>
+
+              <PopoverContent className="w-56 space-y-2">
+                <div className="text-sm font-semibold">Toggle Columns</div>
+
+                {/* Client column */}
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={visibleColumns.client}
+                    onChange={() =>
+                      setVisibleColumns(v => ({ ...v, client: !v.client }))
+                    }
+                  />
+                  Client
+                </label>
+
+                <div className="border-t pt-2 space-y-1">
+                  {MONTH_NAMES.map((m) => (
+                    <label key={m} className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={visibleColumns[m]}
+                        onChange={() =>
+                          setVisibleColumns(v => ({ ...v, [m]: !v[m] }))
+                        }
+                      />
+                      {m}
+                    </label>
+                  ))}
+                </div>
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => setVisibleColumns(DEFAULT_COLUMNS)}
+                >
+                  Reset Columns
+                </Button>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
 
         {/* Table */}
         <div className="overflow-auto border rounded-lg shadow-sm max-h-[70vh]">
-          <Table className="min-w-[1200px]">
+          <Table className="w-fit table-auto">
             <TableHeader>
               <TableRow className="bg-muted/50 sticky top-0 z-10">
+              {visibleColumns.client && (
                 <TableHead className="px-3 py-2 text-left">Client</TableHead>
-                {MONTH_NAMES.map((m) => <TableHead key={m} className="px-3 py-2 text-center">{m.slice(0,3)}</TableHead>)}
+              )}
+                {MONTH_NAMES.map((m) => visibleColumns[m] && (<TableHead key={m} className="px-3 py-2 text-center">{m.slice(0,3)}</TableHead>))}
               </TableRow>
             </TableHeader>
 
@@ -197,12 +283,18 @@ const rows = useMemo(() => {
 
               {!isLoading && rows?.map((r) => (
                 <TableRow key={r.id} className="hover:bg-muted/10">
-                  <TableCell className="px-3 py-2 align-top">
-                    <div className="font-medium">{r.fullName}</div>
-                    <div className="text-xs text-muted-foreground">{r.accounts.map((acc)=>acc.accountNumber).join(" | ")}</div>
-                  </TableCell>
+                  {visibleColumns.client && (
+                    <TableCell className="px-3 py-2 align-top">
+                      <div className="font-medium">{r.fullName}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {r.accounts.map((acc) => acc.accountNumber).join(" | ")}
+                      </div>
+                    </TableCell>
+                  )}
 
                   {r.months.map((m, mi) => {
+                    const monthName = MONTH_NAMES[mi]
+                    if (!visibleColumns[monthName]) return null
                     const amountDisplay = m.amount > 0 ? formatCurrency(m.amount) : formatCurrency(m.paidAmount)
                     return (
                       <TableCell key={mi} className="px-3 py-2 align-center text-center">

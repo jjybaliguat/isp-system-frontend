@@ -24,7 +24,7 @@ export default function CheckBillSection() {
 
     try {
       setLoading(true);
-      const res = await fetch(`http://localhost:7000/api/billing/get-bills/${accountNumber}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/billing/get-bills/${accountNumber}`);
       if (!res.ok) throw new Error("No bill found for this account number.");
       const data = await res.json();
       setBilling(data);

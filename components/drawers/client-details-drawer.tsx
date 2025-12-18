@@ -23,6 +23,7 @@ import EditAccountDialog from "../dialogs/create-account-dialog"
 import CreateAccountDialog from "../dialogs/create-account-dialog"
 import { IconPlus } from "@tabler/icons-react"
 import DeleteConfirmAction from "../dialogs/confirmation-dialog"
+import { cn } from "@/lib/utils"
 
 
 interface ClientDetailsDrawerProps {
@@ -463,7 +464,12 @@ const handleUpdateClientAccount = (acc: Accounts) => {
 
                       <div className="flex justify-between">
                         <span className="font-medium">Status:</span>
-                        <span className="capitalize">{acc.status}</span>
+                        <span className={(cn({
+                          "capitalize": true,
+                          "text-green-600": acc.status === "ACTIVE",
+                          "text-yellow-600": acc.status === "PARTIALLY_DISCONNECTED",
+                          "text-red-600": acc.status === "TERMINATED",
+                        }))}>{acc.status}</span>
                       </div>
 
                       <div className="flex justify-between">
