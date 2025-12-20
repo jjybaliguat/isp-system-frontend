@@ -32,7 +32,7 @@ export const employeesApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["Employees"],
+      invalidatesTags: ["Employees", "Logs"],
     }),
     updateEmployee: builder.mutation<EmployeesDataSchema, {id: string, data: EmployeesDataSchema}>({
       query: ({id, data}) => ({
@@ -40,14 +40,14 @@ export const employeesApiSlice = apiSlice.injectEndpoints({
         method: "PATCH",
         body: data
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: "Employees", id }, "Employees"],
+      invalidatesTags: ["Employees", "Logs", "Teams"],
     }),
     deleteEmployee: builder.mutation<void, { id: string }>({
       query: ({ id }) => ({
         url: `/employees/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Employees"],
+      invalidatesTags: ["Employees", "Logs", "Teams"],
     }),
   }),
 })

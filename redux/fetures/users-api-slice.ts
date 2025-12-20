@@ -30,7 +30,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         url: `/users/${id}`,
         method: "DELETE"
       }),
-      invalidatesTags: ["Users"]
+      invalidatesTags: ["Users", "Logs"]
     }),
     changePassword: builder.mutation<void, {id: string, data: ChangePasswordInput}>({
       query: ({id, data}) => ({

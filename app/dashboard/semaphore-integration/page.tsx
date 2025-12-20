@@ -7,14 +7,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAppSelector } from '@/redux/store/store'
-import { useGetStoredKeyQuery, useStoreSemaphoreApiKeyMutation, useStoreXenditApiKeyMutation, useTestSmsKeyMutation } from '@/redux/fetures/provider-api-slice'
+import { SmsIntegrationSettingsInput, useGetSmsSettingsQuery, useGetStoredKeyQuery, useSaveSmsintegrationSettingsMutation, useStoreSemaphoreApiKeyMutation, useStoreXenditApiKeyMutation, useTestSmsKeyMutation } from '@/redux/fetures/provider-api-slice'
 import { useDispatch } from 'react-redux'
 import { toast } from 'sonner'
 import { setSemaphoreKey } from '@/redux/authSlice'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { ChevronsUpDown, Loader2, SendIcon } from 'lucide-react'
+import { Car, Check, ChevronsUpDown, Loader2, SendIcon } from 'lucide-react'
 import { useGetClientsQuery, useGetPhoneNumbersMutation } from '@/redux/fetures/clientApiSlice'
 import { cn } from '@/lib/utils'
 import {
@@ -38,16 +38,31 @@ import {
 } from "@/components/ui/select"
 import { useGetCoverageQuery } from '@/redux/fetures/converage-api-slice'
 import { IconArrowRight } from '@tabler/icons-react'
+import { Checkbox } from '@/components/ui/checkbox'
+import SmsTemplateDrawer from '@/components/drawers/SmsTemplateDrawer'
 
 interface smsDataProps {
   recipients: string
   message: string
 }
 
+export interface SmsSettingsProps {
+  sendWhenBillIsMade: boolean
+  sendWhenBillIsDue: boolean
+  sendWhenPaymentIsMade: boolean
+  sendWhenCustomerAdded: boolean
+  sendDaysBeforeDue: {
+    enabled: boolean
+    daysBefore: number
+  }
+}
+
 const SemaphoreIntegrationPage = () => {
   const { data, isLoading } = useGetStoredKeyQuery();
+  const {data: smsSettingsData, isLoading: isSmsSettingsLoading} = useGetSmsSettingsQuery();
   const [sendSms, {isLoading: sendingSms}] = useSendSmsMutation()
   const [getPhoneNumbers] = useGetPhoneNumbersMutation()
+  const [saveSmsintegrationSettings] = useSaveSmsintegrationSettingsMutation()
   const [storeKey, {isLoading: submittting}] = useStoreSemaphoreApiKeyMutation();
   const semaphoreKeyFromStore = useAppSelector((state) => state.auth.semaphoreKey);
   const [connectionStatus, setConnectionStatus] = useState<string | null>(null)
@@ -66,7 +81,34 @@ const SemaphoreIntegrationPage = () => {
   const [searchValue, setSearchValue] = useState("")
   const [filteredArea, setFilteredArea] = useState("")
 
+  const [openSmsTemplateDrawer, setOpenSmsTemplateDrawer] = useState(false)
+  const [smsSettings, setSmsSettings] = useState<SmsSettingsProps>({
+    sendWhenBillIsMade: smsSettingsData?.sendWhenBillIsMade || false,
+    sendWhenBillIsDue: smsSettingsData?.sendWhenBillIsDue || false,
+    sendWhenPaymentIsMade: smsSettingsData?.sendWhenPaymentIsMade || false,
+    sendWhenCustomerAdded: smsSettingsData?.sendWhenCustomerAdded || false,
+    sendDaysBeforeDue: {
+      enabled: smsSettingsData?.sendDaysBeforeDueEnabled || false,
+      daysBefore: smsSettingsData?.sendDaysBeforeDueDays || 2
+    }
+  })
+
   const clientsData = clients?.data || []
+
+  useEffect(() => {
+    if (!isSmsSettingsLoading && smsSettingsData) {
+      setSmsSettings({
+        sendWhenBillIsMade: smsSettingsData?.sendWhenBillIsMade || false,
+        sendWhenBillIsDue: smsSettingsData?.sendWhenBillIsDue || false,
+        sendWhenPaymentIsMade: smsSettingsData?.sendWhenPaymentIsMade || false,
+        sendWhenCustomerAdded: smsSettingsData?.sendWhenCustomerAdded || false,
+        sendDaysBeforeDue: {
+          enabled: smsSettingsData?.sendDaysBeforeDueEnabled || false,
+          daysBefore: smsSettingsData?.sendDaysBeforeDueDays || 2
+        }
+      })
+    }
+  }, [isSmsSettingsLoading, smsSettingsData])
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -202,6 +244,20 @@ const SemaphoreIntegrationPage = () => {
       </Card>
     )
 
+    const handleSaveSettings = async() => {
+      try {
+        await saveSmsintegrationSettings(smsSettings).unwrap()
+        toast("Success", {
+          description: "Sms Integration Settings saved"
+        })
+      } catch (error) {
+        toast("Error", {
+          description: "Something went wrong, please try again"
+        })
+        console.log(error)
+      }
+    }
+
   return (
     <PageWrapper
         pageName='Semaphore Sms Integration'
@@ -257,7 +313,10 @@ const SemaphoreIntegrationPage = () => {
                 }
               </CardContent>
             </Card>
-            {semaphoreKeyFromStore && <Card className='max-w-[500px] flex-1'>
+            {semaphoreKeyFromStore && (
+              <>
+              
+              <Card className='max-w-[500px] flex-1'>
               <CardHeader>
                 <CardTitle>Send SMS</CardTitle>
                 <CardDescription></CardDescription>
@@ -382,8 +441,78 @@ const SemaphoreIntegrationPage = () => {
                   </div>
                 </form>
               </CardContent>
-            </Card>}
+            </Card>
+            <Card className='max-w-[500px] flex-1'>
+              <CardHeader>
+                <CardTitle>Settings</CardTitle>
+                <CardDescription></CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className='space-y-4'>
+                  <div className='flex items-center gap-2'>
+                    <Checkbox
+                      id='settings-1'
+                      checked={smsSettings.sendWhenBillIsMade}
+                      onCheckedChange={(checked) => setSmsSettings({...smsSettings, sendWhenBillIsMade: checked as boolean})}
+                    />
+                    <Label htmlFor='settings-1' className='font-medium'>Send when the bill is made</Label>
+                  </div>
+                  <div className='flex items-center gap-2'>
+                    <Checkbox
+                      id='settings-2'
+                      checked={smsSettings.sendWhenBillIsDue}
+                      onCheckedChange={(checked) => setSmsSettings({...smsSettings, sendWhenBillIsDue: checked as boolean})}
+                    />
+                    <Label htmlFor='settings-2' className='font-medium'>Send when the bill is due</Label>
+                  </div>
+                  <div className='flex items-center gap-2'>
+                    <Checkbox
+                      id='settings-3'
+                      checked={smsSettings.sendWhenPaymentIsMade}
+                      onCheckedChange={(checked) => setSmsSettings({...smsSettings, sendWhenPaymentIsMade: checked as boolean})}
+                    />
+                    <Label htmlFor='settings-3' className='font-medium'>Send when the payment is made</Label>
+                  </div>
+                  <div className='flex items-center gap-2'>
+                    <Checkbox
+                      id='settings-4'
+                      checked={smsSettings.sendWhenCustomerAdded}
+                      onCheckedChange={(checked) => setSmsSettings({...smsSettings, sendWhenCustomerAdded: checked as boolean})}
+                    />
+                    <Label htmlFor='settings-4' className='font-medium'>Send when the customer is added</Label>
+                  </div>
+                  <div className='space-y-2'>
+                    <div className='flex items-center gap-2'>
+                      <Checkbox
+                        id='settings-5'
+                        checked={smsSettings.sendDaysBeforeDue.enabled}
+                        onCheckedChange={(checked) => setSmsSettings({...smsSettings, sendDaysBeforeDue: {...smsSettings.sendDaysBeforeDue, enabled: checked as boolean}})}
+                      />
+                      <Label htmlFor='settings-5' className='font-medium'>Send days before due date</Label>
+                    </div>
+                    {smsSettings.sendDaysBeforeDue.enabled && <div className='space-y-2'>
+                      <Label htmlFor='settings-5-days' className='mr-2'>Days before due:</Label>
+                      <Input
+                        id='settings-5-days'
+                        type='number'
+                        placeholder='Send sms days before due'
+                        min={1}
+                        value={smsSettings.sendDaysBeforeDue.daysBefore}
+                        onChange={(e) => setSmsSettings({...smsSettings, sendDaysBeforeDue: {...smsSettings.sendDaysBeforeDue, daysBefore: parseInt(e.target.value) || 0}})}
+                      />
+                    </div>}
+                  </div>
+                </div>
+                <div className='flex items-center gap-2 mt-4'>
+                  <Button variant="outline" onClick={()=>setOpenSmsTemplateDrawer(true)}>Edit SMS Templates</Button>
+                  <Button onClick={handleSaveSettings}>Save Settings</Button>
+                </div>
+              </CardContent>
+            </Card>
+            </>
+            )}
         </div>
+        {openSmsTemplateDrawer && <SmsTemplateDrawer open={openSmsTemplateDrawer} onOpenChange={setOpenSmsTemplateDrawer} />}
         {semaphoreKeyFromStore && <div className='mt-4 space-y-2'>
           <h1 className='font-medium text-xl'>Message Logs</h1>
           <SmsTableWrapper />

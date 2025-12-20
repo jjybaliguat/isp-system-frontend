@@ -139,7 +139,7 @@ const rows = useMemo(() => {
         billingDate: b.billingDate,
         dueDate: b.dueDate,
         period: b.period,
-        account: { id: String(acc.id), accountNumber: acc.accountNumber, client: acc.client},
+        account: { id: String(acc.id), accountNumber: acc.accountNumber, client: acc.client, billingDay: acc.billingDay, servicePlan: acc.servicePlan },
         discounts: b.discounts || [],
         createdAt: b.createdAt,
         updatedAt: b.updatedAt
@@ -318,7 +318,7 @@ const rows = useMemo(() => {
                                 <ContextMenuContent>
                                   <ContextMenuItem
                                     onClick={() => {
-                                      console.log(b)
+                                      console.log("View Billing:", b)
                                       setSelectedBilling(b);
                                       setOpenViewBilling(true);
                                     }}
@@ -328,6 +328,7 @@ const rows = useMemo(() => {
                                   {b.status !== "PAID" && (
                                     <ContextMenuItem
                                       onClick={() => {
+                                        console.log(b)
                                         setSelectedBilling(b);
                                         setOpenConfirmPayment(true);
                                       }}

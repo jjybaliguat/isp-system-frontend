@@ -20,3 +20,11 @@ export enum SmsStatus {
     Pending = "Pending",
     Failed = "Failed"
 }
+
+export enum SmsSettingsTemplate {
+    SendWhenBillIsMadeTemplate = "sendWhenBillIsMadeTemplate",
+    SendWhenBillIsDueTemplate = "sendWhenBillIsDueTemplate",
+    SendWhenPaymentIsMadeTemplate = "sendWhenPaymentIsMadeTemplate",
+    SendWhenCustomerAddedTemplate = "sendWhenCustomerAddedTemplate",
+    SendDaysBeforeDueTemplate = "sendDaysBeforeDueTemplate"
+}

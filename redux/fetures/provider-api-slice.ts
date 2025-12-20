@@ -1,5 +1,7 @@
 import { ProviderDataSchema } from "@/types/provider"
 import { apiSlice } from "../apiSlice"
+import { use } from "react";
+import { get } from "lodash";
 
 interface StoreKeyInput {
     key: string
@@ -15,6 +17,21 @@ export interface ProfileDataSchema {
     companyAddress: string;
     phoneNumber: string;
     companyLogoUrl: string;
+}
+
+export interface SmsIntegrationSettingsInput {
+    sendWhenBillIsMade?: boolean;
+    sendWhenBillIsDue?: boolean;
+    sendWhenPaymentIsMade?: boolean;
+    sendWhenCustomerAdded?: boolean;
+    sendDaysBeforeDue?: {enabled: boolean, daysBefore: number};
+    sendDaysBeforeDueEnabled?: boolean;
+    sendDaysBeforeDueDays?: number;
+    sendWhenBillIsMadeTemplate?: string;
+    sendWhenBillIsDueTemplate?: string;
+    sendWhenPaymentIsMadeTemplate?: string;
+    sendWhenCustomerAddedTemplate?: string;
+    sendDaysBeforeDueTemplate?: string;
 }
 
 export const providerApiSlice = apiSlice.injectEndpoints({
@@ -67,7 +84,22 @@ export const providerApiSlice = apiSlice.injectEndpoints({
             body
         }),
         invalidatesTags: ["Provider"]
-    })
+    }),
+    saveSmsintegrationSettings: builder.mutation<any, SmsIntegrationSettingsInput>({
+        query: (body) => ({
+            url: "/providers/sms-integration-settings",
+            method: "POST",
+            body
+        }),
+        invalidatesTags: ["SmsSettings"]
+    }),
+    getSmsSettings: builder.query<SmsIntegrationSettingsInput, void>({
+        query: () => ({
+            url: "/providers/sms-integration-settings",
+            method: "GET"
+        }),
+        providesTags: ["SmsSettings"],
+    }),
   }),
 })
 
@@ -78,5 +110,7 @@ export const {
     useTestXenditKeyMutation,
     useTestSmsKeyMutation,
     useGetProviderQuery,
-    useUpdateAccountMutation
+    useUpdateAccountMutation,
+    useSaveSmsintegrationSettingsMutation,
+    useGetSmsSettingsQuery
 } = providerApiSlice

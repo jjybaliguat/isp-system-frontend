@@ -16,7 +16,7 @@ export const servicePlanApiSlice = apiSlice.injectEndpoints({
                 method: "POST",
                 body
             }),
-            invalidatesTags: ["ServicePlan"]
+            invalidatesTags: ["ServicePlan", "Logs"]
         }),
         updateServicePlan: builder.mutation<ServicePlanDataSchema, {id: string, body: ServicePlanInput}>({
             query: ({id, body}) => ({
@@ -24,14 +24,14 @@ export const servicePlanApiSlice = apiSlice.injectEndpoints({
                 method: "PATCH",
                 body
             }),
-            invalidatesTags: ["ServicePlan"]
+            invalidatesTags: ["ServicePlan", "Logs"]
         }),
         deleteServicePlan: builder.mutation<void, {id: string}>({
             query: ({id}) => ({
                 url: `/service-plans/${id}`,
                 method: "DELETE"
             }),
-            invalidatesTags: ["ServicePlan"]
+            invalidatesTags: ["ServicePlan", "Logs"]
         })
     })
 })

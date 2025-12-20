@@ -37,7 +37,7 @@ export const networkHierarchyApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["NetworkHierarchy"],
+      invalidatesTags: ["NetworkHierarchy", "Logs"],
     }),
     updateOLT: builder.mutation<OLT, { id: string; data: Partial<OLT> }>({
       query: ({ id, data }) => ({
@@ -45,14 +45,14 @@ export const networkHierarchyApiSlice = apiSlice.injectEndpoints({
         method: "PATCH",
         body: data,
       }),
-      invalidatesTags: ["NetworkHierarchy"],
+      invalidatesTags: ["NetworkHierarchy", "Logs"],
     }),
     deleteOLT: builder.mutation<void, string>({
       query: (id) => ({
         url: `/network-hierarchy/olt/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["NetworkHierarchy"],
+      invalidatesTags: ["NetworkHierarchy", "Logs"],
     }),
     createPonPort: builder.mutation<PonPort, Partial<PonPort> & { oltId: string }>({
       query: (body) => ({
@@ -60,7 +60,7 @@ export const networkHierarchyApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["NetworkHierarchy"],
+      invalidatesTags: ["NetworkHierarchy", "Logs"],
     }),
     updatePonPort: builder.mutation<PonPort, { id: string; data: Partial<PonPort> }>({
       query: ({ id, data }) => ({
@@ -68,14 +68,14 @@ export const networkHierarchyApiSlice = apiSlice.injectEndpoints({
         method: "PATCH",
         body: data,
       }),
-      invalidatesTags: ["NetworkHierarchy"],
+      invalidatesTags: ["NetworkHierarchy", "Logs"],
     }),
     deletePonPort: builder.mutation<void, string>({
       query: (id) => ({
         url: `/network-hierarchy/pon-port/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["NetworkHierarchy"],
+      invalidatesTags: ["NetworkHierarchy", "Logs"],
     }),
     createLCP: builder.mutation<LCP, Partial<LCP> & { ponPortId: string }>({
       query: (body) => ({
@@ -83,7 +83,7 @@ export const networkHierarchyApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["NetworkHierarchy"],
+      invalidatesTags: ["NetworkHierarchy", "Logs"],
     }),
     updateLCP: builder.mutation<LCP, { id: string; data: Partial<LCP> }>({
       query: ({ id, data }) => ({
@@ -91,14 +91,14 @@ export const networkHierarchyApiSlice = apiSlice.injectEndpoints({
         method: "PATCH",
         body: data,
       }),
-      invalidatesTags: ["NetworkHierarchy"],
+      invalidatesTags: ["NetworkHierarchy", "Logs"],
     }),
     deleteLCP: builder.mutation<void, string>({
       query: (id) => ({
         url: `/network-hierarchy/lcp/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["NetworkHierarchy"],
+      invalidatesTags: ["NetworkHierarchy", "Logs"],
     }),
     createODC: builder.mutation<ODC, Partial<ODC> & { lcpId: string }>({
       query: (body) => ({
@@ -106,7 +106,7 @@ export const networkHierarchyApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["NetworkHierarchy"],
+      invalidatesTags: ["NetworkHierarchy", "Logs"],
     }),
     updateODC: builder.mutation<ODC, { id: string; data: Partial<ODC> }>({
       query: ({ id, data }) => ({
@@ -114,14 +114,14 @@ export const networkHierarchyApiSlice = apiSlice.injectEndpoints({
         method: "PATCH",
         body: data,
       }),
-      invalidatesTags: ["NetworkHierarchy"],
+      invalidatesTags: ["NetworkHierarchy", "Logs"],
     }),
     deleteODC: builder.mutation<void, string>({
       query: (id) => ({
         url: `/network-hierarchy/odc/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["NetworkHierarchy"],
+      invalidatesTags: ["NetworkHierarchy", "Logs"],
     }),
     createODP: builder.mutation<ODP, Partial<ODP> & { lcpId: string, odcId: string }>({
       query: (body) => ({
@@ -129,7 +129,7 @@ export const networkHierarchyApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["NetworkHierarchy"],
+      invalidatesTags: ["NetworkHierarchy", "Logs"],
     }),
     createOdpPort: builder.mutation<ODP, Partial<OdpPort> & { odpId: string }>({
       query: (body) => ({
@@ -137,23 +137,23 @@ export const networkHierarchyApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["NetworkHierarchy"],
+      invalidatesTags: ["NetworkHierarchy", "Logs"],
     }),
-    assignClientToPort: builder.mutation<ODP, Partial<OdpPort> & { portId: string }>({
+    assignAccountToPort: builder.mutation<ODP, Partial<OdpPort> & { portId: string }>({
       query: (body) => ({
         url: `/network-hierarchy/odp-port/assign`,
         method: "PATCH",
         body,
       }),
-      invalidatesTags: ["NetworkHierarchy", "Clients"],
+      invalidatesTags: ["NetworkHierarchy", "Clients", "Logs"],
     }),
-    unAssignClientToPort: builder.mutation<void, {accountId: string}>({
+    unAssignAccountToPort: builder.mutation<void, {accountId: string}>({
       query: (body) => ({
         url: `/network-hierarchy/odp-port/unassign`,
         method: "PATCH",
         body,
       }),
-      invalidatesTags: ["NetworkHierarchy", "Clients"],
+      invalidatesTags: ["NetworkHierarchy", "Clients", "Logs"],
     }),
     updateODP: builder.mutation<ODP, { id: string; data: Partial<ODP> }>({
       query: ({ id, data }) => ({
@@ -161,21 +161,21 @@ export const networkHierarchyApiSlice = apiSlice.injectEndpoints({
         method: "PATCH",
         body: data,
       }),
-      invalidatesTags: ["NetworkHierarchy"],
+      invalidatesTags: ["NetworkHierarchy", "Logs"],
     }),
     deleteODP: builder.mutation<void, string>({
       query: (id) => ({
         url: `/network-hierarchy/odp/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["NetworkHierarchy"],
+      invalidatesTags: ["NetworkHierarchy", "Logs"],
     }),
     deleteOdpPort: builder.mutation<void, string>({
       query: (id) => ({
         url: `/network-hierarchy/odp-port/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["NetworkHierarchy"],
+      invalidatesTags: ["NetworkHierarchy", "Logs"],
     }),
   }),
 })
@@ -199,8 +199,8 @@ export const {
   useUpdateODPMutation,
   useDeleteODPMutation,
   useDeleteOdpPortMutation,
-  useAssignClientToPortMutation,
-  useUnAssignClientToPortMutation,
+  useAssignAccountToPortMutation,
+  useUnAssignAccountToPortMutation,
   useGetOdpsQuery,
   useGetOdpPortsMutation,
   useGetOdpPortMutation

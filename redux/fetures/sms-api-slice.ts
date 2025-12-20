@@ -22,7 +22,7 @@ export const smsApiSlice = apiSlice.injectEndpoints({
             method: "POST",
             body
         }),
-        invalidatesTags: ["SMS"]
+        invalidatesTags: ["SMS", "Logs"],
     })
   }),
 })

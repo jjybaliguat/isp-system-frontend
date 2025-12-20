@@ -12,18 +12,18 @@ export function middleware(req: NextRequest) {
   const token = req.cookies.get(process.env.JWT_COOKIE_NAME!)?.value
   const { pathname } = req.nextUrl
 
-
-  // --- 1. Authenticated user on login page → redirect to dashboard ---
+  // Logged-in user hitting login → dashboard
   if (token && pathname === "/login") {
-      return NextResponse.redirect(new URL("/dashboard", req.url))
+    const url = req.nextUrl.clone()
+    url.pathname = '/dashboard'
+    return NextResponse.redirect(url)
   }
 
-  // --- 2. Protected routes (/dashboard/**) ---
-  if (pathname.startsWith("/dashboard")) {
-    if (!token) {
-      return NextResponse.redirect(new URL("/login", req.url))
-    }
-    return NextResponse.next() // valid token → allow access
+  // Protected routes
+  if (pathname.startsWith("/dashboard") && !token) {
+    const url = req.nextUrl.clone()
+    url.pathname = '/login'
+    return NextResponse.redirect(url)
   }
 
   // --- 3. All other routes (landing page, etc.) ---

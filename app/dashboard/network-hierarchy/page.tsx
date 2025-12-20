@@ -18,7 +18,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { useDeleteLCPMutation, useDeleteODCMutation, useDeleteODPMutation, useDeleteOdpPortMutation, useDeleteOLTMutation, useDeletePonPortMutation, useGetNetworkHierarchyQuery, useUnAssignClientToPortMutation } from "@/redux/fetures/network-hierarchy-api-slice"
+import { useDeleteLCPMutation, useDeleteODCMutation, useDeleteODPMutation, useDeleteOdpPortMutation, useDeleteOLTMutation, useDeletePonPortMutation, useGetNetworkHierarchyQuery, useUnAssignAccountToPortMutation } from "@/redux/fetures/network-hierarchy-api-slice"
 import { toast } from "sonner"
 
 export default function NetworkHierarchyPage() {
@@ -42,7 +42,7 @@ export default function NetworkHierarchyPage() {
   const [deleteOdc] = useDeleteODCMutation()
   const [deleteOdp] = useDeleteODPMutation()
   const [deleteOdpPort] = useDeleteOdpPortMutation()
-  const [unAssignClientToPort] = useUnAssignClientToPortMutation()
+  const [unAssignAccountToPort] = useUnAssignAccountToPortMutation()
 
   const handleEdit = (type: string, item: string) => {
     setEditDialog({ open: true, type, item })
@@ -79,8 +79,8 @@ export default function NetworkHierarchyPage() {
         case "OdpPort":
           await deleteOdpPort(id).unwrap()
           break
-        case "Client":
-          await unAssignClientToPort({accountId: id}).unwrap()
+        case "Account":
+          await unAssignAccountToPort({accountId: id}).unwrap()
           break
       }
       toast.success(`${type} deleted successfully`)

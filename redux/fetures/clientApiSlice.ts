@@ -59,7 +59,7 @@ export const clientApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["Clients", "ClientsCount", "ClientsAnalytics", "NetworkHierarchy"],
+      invalidatesTags: ["Clients", "ClientsCount", "ClientsAnalytics", "NetworkHierarchy", "Logs"],
     }),
 
     updateClient: builder.mutation<ClientDataSchema, { id: string; data: Partial<ClientDataSchema> }>({
@@ -84,7 +84,7 @@ export const clientApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body
       }),
-      invalidatesTags: ["Clients", "NetworkHierarchy", "Accounts"]
+      invalidatesTags: ["Clients", "NetworkHierarchy", "Accounts", "Logs"]
     }),
     updateClientAccount: builder.mutation<Accounts, {id: string, data: Partial<Accounts>}>({
       query: ({id, data}) => ({
@@ -92,14 +92,14 @@ export const clientApiSlice = apiSlice.injectEndpoints({
         method: "PATCH",
         body: data
       }),
-      invalidatesTags: ["Clients", "NetworkHierarchy", "Accounts"]
+      invalidatesTags: ["Clients", "NetworkHierarchy", "Accounts", "Logs"]
     }),
     deleteClientAccount: builder.mutation<void, string>({
       query: (id) => ({
         url: `/clients/account/${id}`,
         method: "DELETE"
       }),
-      invalidatesTags: ["Clients", "NetworkHierarchy", "Accounts"]
+      invalidatesTags: ["Clients", "NetworkHierarchy", "Accounts", "Logs"]
     })
   }),
 })

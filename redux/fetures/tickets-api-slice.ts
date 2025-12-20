@@ -48,7 +48,7 @@ export const ticketApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["Tickets"],
+      invalidatesTags: ["Tickets", "Logs"],
     }),
 
     updateTicket: builder.mutation<TicketDataSchema, { id: string; data: UpdateTicketInput }>({
@@ -65,7 +65,7 @@ export const ticketApiSlice = apiSlice.injectEndpoints({
         url: `/tickets/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Tickets"],
+      invalidatesTags: ["Tickets", "Logs"],
     }),
 
     getTicketComments: builder.query<TicketCommentDataSchema[], string>({

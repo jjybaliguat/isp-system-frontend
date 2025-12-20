@@ -17,6 +17,7 @@ export default function PaymentDetailsPage() {
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/billing/${invoiceId}`);
         const json = await res.json();
+        console.log(json)
         setData(json);
         setProcessing(false)
       } catch (err) {

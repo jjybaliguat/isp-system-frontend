@@ -15,6 +15,7 @@ import { useDeleteTeamMutation } from "@/redux/fetures/teams-api-slice"
 import CreateTeamDialog from "../dialogs/create-team-dialog"
 import { useUpdateEmployeeMutation } from "@/redux/fetures/employees-api-slice"
 import DeleteConfirmAction from "../dialogs/confirmation-dialog"
+import { Button } from "./button"
 
 interface KanbanColumnProps {
   team: TeamsDataSchema
@@ -81,6 +82,24 @@ export function TeamsKanbanColumn({ team, employees, draggedEmployee, onDragStar
     }
   }
 
+  const handleUnAssignToTeam = async(employeeId: string) => {
+    try {
+      await updateEmployee({
+        id: employeeId,
+        data: { id: employeeId, teamId: null } as EmployeesDataSchema
+      }).unwrap()
+
+      toast("Success", {
+        description: "Employee unassigned from team",
+      })
+    } catch (error) {
+      console.log(error)
+      toast("Error", {
+        description: "Failed to unassign employee",
+      })
+    }
+  }
+
   return (
     <div
       className={`flex flex-col gap-4 p-4 rounded-lg border-2 transition-colors ${
@@ -119,9 +138,16 @@ export function TeamsKanbanColumn({ team, employees, draggedEmployee, onDragStar
               onDragStart={()=>onDragStart(employee)}
               onDragEnd={onDragEnd}
               // onClick={() => setIsDetailsOpen(true)}
-              className="p-3 rounded-lg border bg-card shadow-sm hover:shadow-md transition-shadow"
+              className="relative pt-6 px-4 rounded-lg border bg-card shadow-sm hover:shadow-md transition-shadow"
               key={employee.id}
             >
+              <Button
+                variant="destructive"
+                className="absolute top-0 right-0 text-xs p-1 h-6 w-12 flex items-center justify-center cursor-pointer"
+                onClick={() => handleUnAssignToTeam(employee.id)}
+              >
+                remove
+              </Button>
             <div className="flex items-center justify-between ">
                 <div className="flex flex-col">
                     <h1 className="font-semibold text-base text-foreground">

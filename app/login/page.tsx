@@ -17,6 +17,7 @@ export default function LoginPage() {
     const [login] = useLoginMutation()
     const dispatch = useDispatch()
     const [errorMess, setErrorMess] = useState<string | null>(null)
+    const router = useRouter()
     const [loginData, setLoginData] = useState({
         email: '',
         password: ''
@@ -37,7 +38,7 @@ export default function LoginPage() {
                 password: ''
             })
             setIsloading(false)
-            window.location.href = "/dashboard"
+            router.push('/dashboard')
         } catch (error: any) {
             setIsloading(false)
             if(!error.status){

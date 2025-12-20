@@ -19,6 +19,8 @@ import { CreateBillingDialog } from "../dialogs/create-billing-dialog"
 import CreateCoverageDialog from "../dialogs/create-coverage-dialog"
 import CreateServicePlanDialog from "../dialogs/create-service-plan-dialog"
 import CreateClientTypeDialog from "../dialogs/create-client-type-dialog"
+import { useAppSelector } from "@/redux/store/store"
+import { UserRole } from "@/types/users"
 
 export function NavMain({
   items,
@@ -31,6 +33,7 @@ export function NavMain({
 }) {
   const { isMobile } = useSidebar()
   const {toggleSidebar} = useSidebar()
+  const user = useAppSelector((state) => state.auth)
   const [openDialog, setOpenDialog] = useState({
     client: false,
     billing: false,
@@ -69,18 +72,23 @@ export function NavMain({
                     <IconReport />
                     Billing
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={()=>setOpenDialog({...openDialog, coverage: true})}>
-                    <IconMap2 />
-                    Coverage
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={()=>setOpenDialog({...openDialog, servicePlan: true})}>
-                    <IconCardsFilled />
-                    Service Plan
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={()=>setOpenDialog({...openDialog, clientType: true})}>
-                    <IconStackMiddle />
-                    Client Type
-                  </DropdownMenuItem>
+                  {user.role === UserRole.SUPERADMIN && (
+                    <>
+                      <DropdownMenuItem onClick={()=>setOpenDialog({...openDialog, coverage: true})}>
+                        <IconMap2 />
+                        Coverage
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={()=>setOpenDialog({...openDialog, servicePlan: true})}>
+                        <IconCardsFilled />
+                        Service Plan
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={()=>setOpenDialog({...openDialog, clientType: true})}>
+                        <IconStackMiddle />
+                        Client Type
+                      </DropdownMenuItem>
+                      </>
+                    )
+                  }
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>

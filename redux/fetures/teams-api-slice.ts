@@ -19,7 +19,7 @@ export const teamsApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["Teams"],
+      invalidatesTags: ["Teams", "Employees", "Logs"],
     }),
     updateTeam: builder.mutation<TeamsDataSchema, {id: string, data: CreateTeamInput}>({
       query: ({id, data}) => ({
@@ -27,14 +27,14 @@ export const teamsApiSlice = apiSlice.injectEndpoints({
         method: "PATCH",
         body: data
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: "Teams", id }, "Teams"],
+      invalidatesTags: ["Teams", "Employees", "Logs"],
     }),
     deleteTeam: builder.mutation<void, { id: string }>({
       query: ({ id }) => ({
         url: `/teams/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Teams"],
+      invalidatesTags: ["Teams", "Employees", "Logs"],
     }),
   }),
 })

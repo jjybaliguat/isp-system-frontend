@@ -21,9 +21,9 @@ export function BillingDetailsDrawer({ billing, open, onOpenChange }: BillingDet
   const totalDiscount = billingState?.discounts?.reduce((sum, d) => sum + (d.amount || 0), 0) || 0
 
   useEffect(() => {
-    console.log(billing)
     if(billing){
       setBillingState(billing)
+      console.log("Billing updated in drawer:", billing)
     }
   }, [billing])
 

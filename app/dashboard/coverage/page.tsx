@@ -15,6 +15,7 @@ import { CoverageDataSchema } from '@/types/coverage'
 import DeleteConfirmAction from '@/components/dialogs/confirmation-dialog'
 import { toast } from 'sonner'
 import { withRoleGuard } from '@/lib/withRoleGuard'
+import CoverageTable from '@/components/tables/coverage-table'
 
 const customIcon = L.icon({
   iconUrl: "/marker-icon.png",
@@ -133,6 +134,7 @@ const CoveragePage = () => {
                   ))}
                 </MapContainer>
             </div>
+            <CoverageTable data={coverage || []} />
             <CreateCoverageDialog 
                 open={openCreateCoverage || edit.isEditing} 
                 onOpenChange={(open)=>{setopenCreateCoverage(open); setEdit({...edit, isEditing: open, coverage: null})}} 

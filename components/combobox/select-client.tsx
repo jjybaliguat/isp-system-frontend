@@ -5,8 +5,8 @@ import { Check, ChevronsUpDown, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { useGetClientsQuery } from "@/redux/fetures/clientApiSlice"
-import { ClientDataSchema } from "@/types/clients"
+import { useGetAccountsQuery, useGetClientsQuery } from "@/redux/fetures/clientApiSlice"
+import { Accounts, ClientDataSchema } from "@/types/clients"
 
 function useDebounce<T>(value: T, delay: number) {
   const [debouncedValue, setDebouncedValue] = React.useState(value)
@@ -22,11 +22,11 @@ function useDebounce<T>(value: T, delay: number) {
 export function SelectClient({ onSelect }: { onSelect: (clientId: string) => void }) {
   const [comboboxOpen, setComboboxOpen] = React.useState(false)
   const [search, setSearch] = React.useState("")
-  const [selectedClient, setSelectedClient] = React.useState<ClientDataSchema | null>(null)
+  const [selectedAccount, setSelectedAccount] = React.useState<Accounts | null>(null)
   
   const debouncedSearch = useDebounce(search, 500)
-  const { data, isLoading } = useGetClientsQuery({ search: debouncedSearch, limit: 100 })
-  const clients = data?.data || []
+  const { data, isLoading } = useGetAccountsQuery({ search: debouncedSearch, limit: 100 })
+  const accounts = data?.data || []
 
   return (
     <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
@@ -37,7 +37,7 @@ export function SelectClient({ onSelect }: { onSelect: (clientId: string) => voi
             aria-expanded={comboboxOpen}
             className="w-full justify-between bg-transparent"
           >
-            {selectedClient ? selectedClient.fullName : "Search client..."}
+            {selectedAccount ? `${selectedAccount.client.fullName} | BillingDay: ${selectedAccount.billingDay}` : "Search account..."}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
@@ -57,34 +57,35 @@ export function SelectClient({ onSelect }: { onSelect: (clientId: string) => voi
                 Loading clients...
               </div>
             )}
-            {!isLoading && (!clients || clients.length === 0) && (
+            {!isLoading && (!accounts || accounts.length === 0) && (
               <div className="p-4 text-center text-muted-foreground">
                 No client found.
               </div>
             )}
-            {!isLoading && (!clients || clients.filter((client)=>client.odpPort == null).length === 0) && (
+            {!isLoading && (!accounts || accounts.filter((account)=>account.odpPort == null).length === 0) && (
               <div className="p-4 text-center text-muted-foreground">
                 All Clients are assigned to specific port.
               </div>
             )}
-            {!isLoading && clients?.length > 0 && (
+            {!isLoading && accounts?.length > 0 && (
               <ul className="p-2">
-                {clients.filter((client)=>client.odpPort == null).map(client => (
-                  <li key={client.id}>
+                {accounts.filter((account)=>account.odpPort == null).map(account => (
+                  <li key={account.id}>
                     <button
                       type="button"
                       className={cn(
                         "w-full text-left hover:bg-primary/10 flex items-center gap-3 rounded-md py-1 px-2"
                       )}
                       onClick={() => {
-                        setSelectedClient(client)
-                        onSelect(client.id)
+                        setSelectedAccount(account)
+                        onSelect(account.id)
                         setComboboxOpen(false)
                       }}
                     >
                       <div className="flex flex-col">
-                        <span className="font-medium">{client.fullName}</span>
-                        <span className="text-xs text-muted-foreground">{client.phoneNumber}</span>
+                        <span className="font-medium">{account.client.fullName}</span>
+                        <span className="text-xs text-muted-foreground">AccNum: {account.accountNumber}</span>
+                        <span className="text-xs text-muted-foreground">BillingDay: {account.billingDay}</span>
                       </div>
                     </button>
                   </li>

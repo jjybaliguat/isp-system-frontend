@@ -16,14 +16,14 @@ export const clientTypeApiSlice = apiSlice.injectEndpoints({
                 method: "POST",
                 body
             }),
-            invalidatesTags: ["ClientType"]
+            invalidatesTags: ["ClientType", "Clients", "Logs"]
         }),
         deleteClientType: builder.mutation<void, {id: string}>({
             query: ({id}) => ({
                 url: `/client-types/${id}`,
                 method: "DELETE"
             }),
-            invalidatesTags: ["ClientType", "Clients"]
+            invalidatesTags: ["ClientType", "Clients", "Logs"]
         }),
         updatedClientType: builder.mutation<clientTypeSchema, {id: string, body: {name: string}}>({
             query: ({id, body}) => ({
@@ -31,7 +31,7 @@ export const clientTypeApiSlice = apiSlice.injectEndpoints({
                 method: "PATCH",
                 body
             }),
-            invalidatesTags: ["ClientType", "Clients"]
+            invalidatesTags: ["ClientType", "Clients", "Logs"]
         })
     })
 })

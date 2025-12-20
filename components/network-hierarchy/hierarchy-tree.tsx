@@ -46,7 +46,7 @@ export default function HierarchyTree({
       ODC: "bg-orange-100 text-orange-700 border-orange-300",
       ODP: "bg-red-100 text-red-700 border-red-300",
       OdpPort: "bg-purple-100 text-purple-700 border-purple-300",
-      Client: "bg-gray-100 text-gray-700 border-gray-300",  
+      Account: "bg-gray-100 text-gray-700 border-gray-300",  
       OCCUPIED: "bg-red-200 text-red-700 border-red-400",
       AVAILABLE: "bg-green-200 text-green-700 border-green-400",
       DAMAGED: "bg-gray-100 text-gray-700 border-gray-300"
@@ -172,7 +172,7 @@ function TreeNode({
     LCP: ["ODP", "ODC"],
     ODC: ["ODP"],
     ODP: ["OdpPort"],
-    OdpPort: ["Client"]
+    OdpPort: ["Account"]
   }
   const childTypes = childTypesMap[type] || []
 
@@ -242,7 +242,7 @@ function TreeNode({
                 <DropdownMenuContent>
                   {childTypes.map((childType) => (
                     <DropdownMenuItem key={childType} onClick={() => onAdd(childType, id)}>
-                      {childType === "Client"? "Assign" : "Add"} {childType}
+                      {childType === "Account"? "Assign" : "Add"} {childType}
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuContent>
@@ -492,15 +492,15 @@ function ODPNode({
                 {expanded[port.id] && port.status === "OCCUPIED" && (
                   <div className="ml-4">
                     <TreeNode
-                      type="Client"
+                      type="Account"
                       name={`${port.account?.client.fullName!} | Acc: ${port.account.accountNumber}`}
                       id={port.account?.id!}
                       isExpanded={false}
                       onToggle={() => {}}
                       isSelected={selectedItem?.id === port.account?.id}
-                      onSelect={() => onSelectItem({ type: "Client", id: port.account?.id! })}
+                      onSelect={() => onSelectItem({ type: "Account", id: port.account?.id! })}
                       hasChildren={false}
-                      colorClass={getMarkerColor("Client")}
+                      colorClass={getMarkerColor("Account")}
                       level={6}
                       onEdit={onEdit}
                       onDelete={onDelete}

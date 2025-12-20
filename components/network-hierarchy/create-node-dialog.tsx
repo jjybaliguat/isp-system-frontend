@@ -14,7 +14,7 @@ import {
   useCreateODCMutation,
   useCreateODPMutation,
   useCreateOdpPortMutation,
-  useAssignClientToPortMutation,
+  useAssignAccountToPortMutation,
 } from "@/redux/fetures/network-hierarchy-api-slice"
 import { SelectClient } from "../combobox/select-client"
 
@@ -43,7 +43,7 @@ export default function CreateNodeDialog({
   const [createODC] = useCreateODCMutation()
   const [createODP] = useCreateODPMutation()
   const [createOdpPort] = useCreateOdpPortMutation()
-  const [assignClient] = useAssignClientToPortMutation()
+  const [assignAccountToPort] = useAssignAccountToPortMutation()
 
   const handleCreate = async () => {
     try {
@@ -77,8 +77,8 @@ export default function CreateNodeDialog({
           mutation = createOdpPort
           payload.odpId = parentId
           break
-        case "Client":
-          mutation = assignClient
+        case "Account":
+          mutation = assignAccountToPort
           payload.portId = parentId
           break
         default:
@@ -87,6 +87,7 @@ export default function CreateNodeDialog({
 
       await mutation(payload).unwrap()
       toast.success(`${nodeType} created successfully`)
+      console.log("Created:", nodeType, payload)
       setFormData({})
       onOpenChange(false)
       onSuccess()
@@ -144,8 +145,8 @@ export default function CreateNodeDialog({
         { label: "Port Number", key: "portNumber", type: "number" },
         { label: "Remarks", key: "remarks", type: "textarea" },
       ],
-      Client: [
-        {label: "Select Client", key: "clientId", type: "select"}
+      Account: [
+        {label: "Select Account", key: "accountId", type: "select"}
       ]
     }
 
@@ -179,8 +180,8 @@ export default function CreateNodeDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{nodeType === "Client"? "Assign Client" : `Create ${nodeType}`}</DialogTitle>
-          <DialogDescription>{nodeType === "Client"? "Assign Client to odp port" : `Add a new ${nodeType} to your network hierarchy`}</DialogDescription>
+          <DialogTitle>{nodeType === "Account"? "Assign Account" : `Create ${nodeType}`}</DialogTitle>
+          <DialogDescription>{nodeType === "Account"? "Assign Account to odp port" : `Add a new ${nodeType} to your network hierarchy`}</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">{renderFields()}</div>
         <div className="flex gap-2 justify-end">
@@ -188,7 +189,7 @@ export default function CreateNodeDialog({
             Cancel
           </Button>
           <Button onClick={handleCreate} disabled={isLoading}>
-            {isLoading ? "Creating..." : nodeType === "Client" ? "Assign" : "Create"}
+            {isLoading ? "Creating..." : nodeType === "Account" ? "Assign" : "Create"}
           </Button>
         </div>
       </DialogContent>

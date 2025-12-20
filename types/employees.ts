@@ -7,7 +7,7 @@ export interface EmployeesDataSchema {
     role: string,
     hireDate: string,
     status: EmployeeStatus
-    teamId?: string
+    teamId?: string | null
     team?: {
         id: string,
         name: string

@@ -16,7 +16,7 @@ export const coverageApiSlice = apiSlice.injectEndpoints({
                 method: "POST",
                 body
             }),
-            invalidatesTags: ["Coverage"]
+            invalidatesTags: ["Coverage", "Clients", "Logs"]
         }),
         updateCoverage: builder.mutation<CoverageDataSchema, {id: string, data: CoverageInput}>({
             query: ({id, data}) => ({
@@ -24,14 +24,14 @@ export const coverageApiSlice = apiSlice.injectEndpoints({
                 method: "PATCH",
                 body: data
             }),
-            invalidatesTags: ["Coverage"]
+            invalidatesTags: ["Coverage", "Clients", "Logs"]
         }),
         deleteCoverage: builder.mutation<void, {id: string}>({
             query: ({id}) => ({
                 url: `/coverage/${id}`,
                 method: "DELETE"
             }),
-            invalidatesTags: ["Clients", "Coverage"]
+            invalidatesTags: ["Clients", "Coverage", "Logs"]
         })
     })
 })

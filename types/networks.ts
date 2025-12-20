@@ -101,6 +101,7 @@ export interface OdpPort {
     fullName: string
   }
   clientId?: string
+  accountId?: string
   createdAt: string
   updatedAt: string
 }

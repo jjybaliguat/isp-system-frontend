@@ -96,21 +96,23 @@ export const billingApiSlice = apiSlice.injectEndpoints({
       query: (billingId) => ({
         url: `/billing/send-email-reminder/${billingId}`,
         method: "POST"
-      })
+      }),
+      invalidatesTags: ["Logs"]
     }),
     sendBillingReminderSms: builder.mutation<void, string>({
       query: (billingId) => ({
         url: `/billing/send-sms-reminder/${billingId}`,
         method: "POST"
-      })
+      }),
+      invalidatesTags: ["Logs"]
     }),
-    generateBill: builder.mutation<void, {month: string, year: string}>({
+    generateBill: builder.mutation<void, {month: string, year: string, startDay: string, endDay: string}>({
       query: (data) => ({
         url: `/billing/generate-bill`,
         method: "POST",
         body: data
       }),
-      invalidatesTags: [{ type: "Billings", id: "LIST" }],
+      invalidatesTags: ["Billings", "Finance", "Logs", "Clients"],
     }),
   }),
 })
