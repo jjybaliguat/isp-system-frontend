@@ -260,7 +260,7 @@ export function EmployeeDetailsDrawer({ employee, open, onOpenChange }: Employee
               <div className='flex flex-col gap-2 flex-1'>
                   <Label htmlFor='team'>Assigned to Team</Label>
                   {isEditing ? (
-                      <Select value={formData.teamId}
+                      <Select value={formData.teamId!}
                         onValueChange={(value: string)=>setFormData({...formData, teamId: value})}
                     >
                         <SelectTrigger id="team" className="w-full">
