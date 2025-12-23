@@ -412,4 +412,4 @@ const rows = useMemo(() => {
   )
 }
 
-export default withRoleGuard(ClientYearBillingTable, [UserRole.SUPERADMIN, UserRole.ADMIN])
+export default withRoleGuard(ClientYearBillingTable, {roles: [UserRole.SUPERADMIN, UserRole.ADMIN]})

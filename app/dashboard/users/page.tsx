@@ -3,6 +3,7 @@
 import PageWrapper from '@/components/wrapper/page-wrapper'
 import { UserstableWrapper } from '@/components/wrapper/users-table-wrapper'
 import { withRoleGuard } from '@/lib/withRoleGuard'
+import { UserRole } from '@/types/users'
 import React from 'react'
 
 const UsersPage = () => {
@@ -16,4 +17,4 @@ const UsersPage = () => {
   )
 }
 
-export default withRoleGuard(UsersPage, ["SUPERADMIN"])
+export default withRoleGuard(UsersPage, {roles: [UserRole.SUPERADMIN]})

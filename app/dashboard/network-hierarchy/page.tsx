@@ -20,8 +20,10 @@ import {
 } from "@/components/ui/alert-dialog"
 import { useDeleteLCPMutation, useDeleteODCMutation, useDeleteODPMutation, useDeleteOdpPortMutation, useDeleteOLTMutation, useDeletePonPortMutation, useGetNetworkHierarchyQuery, useUnAssignAccountToPortMutation } from "@/redux/fetures/network-hierarchy-api-slice"
 import { toast } from "sonner"
+import { withRoleGuard } from "@/lib/withRoleGuard"
+import { UserRole } from "@/types/users"
 
-export default function NetworkHierarchyPage() {
+const NetworkHierarchyPage = () => {
   const { data: olts, isLoading, error } = useGetNetworkHierarchyQuery()
   const [selectedItem, setSelectedItem] = useState<{ type: string; id: string } | null>(null)
 
@@ -221,3 +223,5 @@ export default function NetworkHierarchyPage() {
     </div>
   )
 }
+
+export default withRoleGuard(NetworkHierarchyPage, {roles: [UserRole.SUPERADMIN]})

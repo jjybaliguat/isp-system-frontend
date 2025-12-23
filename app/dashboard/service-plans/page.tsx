@@ -14,6 +14,7 @@ import { ServicePlanDataSchema } from '@/types/service-plan'
 import { toast } from 'sonner'
 import DeleteConfirmAction from '@/components/dialogs/confirmation-dialog'
 import { withRoleGuard } from '@/lib/withRoleGuard'
+import { UserRole } from '@/types/users'
 
 const ServicePlanPlage = () => {
     const {data: servicePlans, isLoading} = useGetServicePlanQuery()
@@ -114,4 +115,4 @@ const ServicePlanPlage = () => {
   )
 }
 
-export default withRoleGuard(ServicePlanPlage, ["SUPERADMIN"])
+export default withRoleGuard(ServicePlanPlage, {roles: [UserRole.SUPERADMIN]})

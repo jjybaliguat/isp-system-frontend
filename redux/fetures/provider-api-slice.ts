@@ -2,6 +2,7 @@ import { ProviderDataSchema } from "@/types/provider"
 import { apiSlice } from "../apiSlice"
 import { use } from "react";
 import { get } from "lodash";
+import { PaginatedResponse } from "@/types/billing";
 
 interface StoreKeyInput {
     key: string
@@ -32,6 +33,21 @@ export interface SmsIntegrationSettingsInput {
     sendWhenPaymentIsMadeTemplate?: string;
     sendWhenCustomerAddedTemplate?: string;
     sendDaysBeforeDueTemplate?: string;
+}
+
+export interface ProviderCreateInput {
+  name: string
+  companyName: string
+  companyAddress: string
+  email: string
+  phoneNumber: string
+}
+
+interface GetProviderParams {
+  page?: number
+  limit?: number
+  search?: string
+  status?: string
 }
 
 export const providerApiSlice = apiSlice.injectEndpoints({
@@ -77,6 +93,13 @@ export const providerApiSlice = apiSlice.injectEndpoints({
         }),
         providesTags: ["Provider"],
     }),
+    getProviders: builder.query<PaginatedResponse<ProviderDataSchema>, GetProviderParams>({
+          query: ({ page = 1, limit = 10, search = "", status = "" }) => ({
+            url: `/providers?page=${page}&limit=${limit}&search=${search}&status=${status}`,
+            method: "GET",
+          }),
+          providesTags: ["Providers"],
+        }),
     updateAccount: builder.mutation<ProfileDataSchema, ProfileDataSchema>({
         query: (body) => ({
             url: "/providers/update-account",
@@ -100,6 +123,21 @@ export const providerApiSlice = apiSlice.injectEndpoints({
         }),
         providesTags: ["SmsSettings"],
     }),
+    createProvider: builder.mutation<ProviderDataSchema, ProviderCreateInput>({
+        query: (body) => ({
+            url: "/providers",
+            method: "POST",
+            body
+        }),
+        invalidatesTags: ["Providers"]
+    }),
+    deleteProvider: builder.mutation<void, string>({
+        query: (id) => ({
+            url: `/providers/${id}`,
+            method: "DELETE"
+        }),
+        invalidatesTags: ["Providers"]
+    })
   }),
 })
 
@@ -110,7 +148,10 @@ export const {
     useTestXenditKeyMutation,
     useTestSmsKeyMutation,
     useGetProviderQuery,
+    useGetProvidersQuery,
     useUpdateAccountMutation,
     useSaveSmsintegrationSettingsMutation,
-    useGetSmsSettingsQuery
+    useGetSmsSettingsQuery,
+    useCreateProviderMutation,
+    useDeleteProviderMutation
 } = providerApiSlice

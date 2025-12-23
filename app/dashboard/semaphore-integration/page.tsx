@@ -40,6 +40,7 @@ import { useGetCoverageQuery } from '@/redux/fetures/converage-api-slice'
 import { IconArrowRight } from '@tabler/icons-react'
 import { Checkbox } from '@/components/ui/checkbox'
 import SmsTemplateDrawer from '@/components/drawers/SmsTemplateDrawer'
+import { UserRole } from '@/types/users'
 
 interface smsDataProps {
   recipients: string
@@ -521,4 +522,4 @@ const SemaphoreIntegrationPage = () => {
   )
 }
 
-export default withRoleGuard(SemaphoreIntegrationPage, ["SUPERADMIN"])
+export default withRoleGuard(SemaphoreIntegrationPage, {roles: [UserRole.SUPERADMIN]})

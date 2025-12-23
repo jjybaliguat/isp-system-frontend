@@ -9,6 +9,7 @@ import PageWrapper from '@/components/wrapper/page-wrapper'
 import { withRoleGuard } from '@/lib/withRoleGuard'
 import { useDeleteClientTypeMutation, useGetClientTypesQuery } from '@/redux/fetures/client-type-slice'
 import { clientTypeSchema } from '@/types/clients'
+import { UserRole } from '@/types/users'
 import { IconPencil, IconPlus, IconTrash } from '@tabler/icons-react'
 import React, { useState } from 'react'
 import { toast } from 'sonner'
@@ -80,4 +81,4 @@ const ClientTypePage = () => {
   )
 }
 
-export default withRoleGuard(ClientTypePage, ["SUPERADMIN"])
+export default withRoleGuard(ClientTypePage, {roles: [UserRole.SUPERADMIN]})

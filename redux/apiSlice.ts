@@ -70,7 +70,8 @@ export const apiSlice = createApi({
     "Provider",
     "NetworkHierarchy",
     "Accounts",
-    "SmsSettings"
+    "SmsSettings",
+    "Providers"
   ],
   endpoints: (builder) => ({}),
 })

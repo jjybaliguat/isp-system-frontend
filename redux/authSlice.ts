@@ -1,11 +1,13 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "./store/store";
+import { ProviderType } from "@/types/provider";
 
 interface UserState {
   id: string | null;
   fullName: string | null;
   email: string | null;
   role: string | null;
+  providerType: ProviderType | null
   accessToken: string | null,
   xenditKey: string | null,
   semaphoreKey: string | null,
@@ -16,6 +18,7 @@ const initialState: UserState = {
   fullName: null,
   email: null,
   role: null,
+  providerType: null,
   accessToken: null,
   xenditKey: null,
   semaphoreKey: null
@@ -30,6 +33,7 @@ const userSlice = createSlice({
       state.fullName = action.payload.fullName;
       state.email = action.payload.email;
       state.role = action.payload.role;
+      state.providerType = action.payload.providerType;
       state.accessToken = action.payload.accessToken;
       state.xenditKey = null;
       state.semaphoreKey = null;
@@ -42,6 +46,7 @@ const userSlice = createSlice({
       state.fullName = null;
       state.email = null;
       state.role = null;
+      state.providerType = null;
       state.accessToken = null;
       state.xenditKey = null;
       state.semaphoreKey = null;

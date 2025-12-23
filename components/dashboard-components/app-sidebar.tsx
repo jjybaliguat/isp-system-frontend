@@ -110,6 +110,11 @@ const data = {
       icon: IconNetwork,
     },
     {
+      title: "Branches",
+      url: "/dashboard/branches",
+      icon: IconUsersGroup,
+    },
+    {
       title: "Logs",
       url: "/dashboard/logs",
       icon: IconHistory,
@@ -151,16 +156,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const {data: provider, isLoading} = useGetProviderQuery()
 
    const accessibleNav = React.useMemo(() => {
-    if (!user?.role) return { navMain: [], integrations: [] }
+    if (!user.role) return { navMain: [], integrations: [] }
 
     switch (user.role) {
-      case "SUPERADMIN":
-        // Hide assigned tickets
-        return {
-          navMain: data.navMain.filter(item => item.url !== "/dashboard/assigned-tickets"),
-          integrations: data.integrations,
-        }
-
+      case "SUPERADMIN": {
+         return {
+            navMain: data.navMain.filter(item =>
+              item.url !== "/dashboard/assigned-tickets" &&
+              !(user.providerType === "BRANCH" && item.url === "/dashboard/branches")
+            ),
+            integrations: data.integrations,
+          }
+      }
       case "ADMIN":
         return {
           navMain: data.navMain.filter(item =>

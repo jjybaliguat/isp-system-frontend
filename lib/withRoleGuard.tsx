@@ -8,7 +8,10 @@ import { UserRole } from "@/types/users"
 
 export function withRoleGuard<P extends object>(
   WrappedComponent: React.ComponentType<P>,
-  allowedRoles: string[]
+  options: {
+    roles: UserRole[]
+    providerTypes?: ("MAIN" | "BRANCH")[]
+  }
 ) {
   const GuardedPage: React.FC<P> = (props) => {
     const user = useAppSelector((store) => store.auth)
@@ -22,8 +25,17 @@ export function withRoleGuard<P extends object>(
         return
       }
 
-      // Role not allowed → 404
-      if (!allowedRoles.includes(user.role!)) {
+       // ❌ Role not allowed
+      if (!options.roles?.includes(user.role as UserRole)) {
+        setAuthorized(false)
+        return
+      }
+
+      // ❌ Provider type not allowed (if specified)
+      if (
+        options.providerTypes &&
+        !options.providerTypes.includes(user.providerType as "MAIN" | "BRANCH")
+      ) {
         setAuthorized(false)
         return
       }

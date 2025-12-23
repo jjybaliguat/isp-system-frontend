@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { EmployeesTableWrapper } from '@/components/wrapper/employees-table-wrapper'
 import PageWrapper from '@/components/wrapper/page-wrapper'
 import { withRoleGuard } from '@/lib/withRoleGuard'
+import { UserRole } from '@/types/users'
 import React from 'react'
 
 function EmployeesPage() {
@@ -29,4 +30,4 @@ function EmployeesPage() {
   )
 }
 
-export default withRoleGuard(EmployeesPage, ["SUPERADMIN"])
+export default withRoleGuard(EmployeesPage, {roles: [UserRole.SUPERADMIN]})

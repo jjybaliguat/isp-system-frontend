@@ -1,3 +1,5 @@
+import { ClientDataSchema } from "./clients"
+
 export interface ProviderDataSchema {
     id:               string
     name:             string
@@ -6,6 +8,9 @@ export interface ProviderDataSchema {
     email:            string
     phoneNumber?:      string
     companyLogoUrl?: string
+    parentProviderId?: string
+    branchStatus?: string
+    providerType?: ProviderType
     settings?: {
         billing: {
             autoInvoicing:      boolean
@@ -34,4 +39,10 @@ export interface ProviderDataSchema {
             footerMessage:  string
         }
     }
+    clients?: ClientDataSchema[]
+}
+
+export enum ProviderType {
+    MAIN = "MAIN",
+    BRANCH = "BRANCH"
 }

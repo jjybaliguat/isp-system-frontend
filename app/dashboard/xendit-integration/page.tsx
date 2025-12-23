@@ -11,6 +11,7 @@ import { withRoleGuard } from '@/lib/withRoleGuard'
 import { setXenditKey } from '@/redux/authSlice'
 import { useGetStoredKeyQuery, useStoreXenditApiKeyMutation, useTestXenditKeyMutation } from '@/redux/fetures/provider-api-slice'
 import { useAppSelector } from '@/redux/store/store'
+import { UserRole } from '@/types/users'
 import Image from 'next/image'
 import React, { FormEvent, useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
@@ -154,4 +155,4 @@ const XenditIntegrationPage = () => {
   )
 }
 
-export default withRoleGuard(XenditIntegrationPage, ["SUPERADMIN"])
+export default withRoleGuard(XenditIntegrationPage, {roles: [UserRole.SUPERADMIN]})

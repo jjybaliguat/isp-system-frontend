@@ -4,11 +4,13 @@ import LoadingComponent from '@/components/Loading'
 import { Button } from '@/components/ui/button'
 import { KanbanBoard } from '@/components/ui/kanban-board'
 import PageWrapper from '@/components/wrapper/page-wrapper'
+import { withRoleGuard } from '@/lib/withRoleGuard'
 import { useGetTicketsQuery } from '@/redux/fetures/tickets-api-slice'
+import { UserRole } from '@/types/users'
 import { Plus, PlusIcon } from 'lucide-react'
 import React, { useState } from 'react'
 
-export default function TicketsPage() {
+const TicketsPage = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const { data, isLoading, error } = useGetTicketsQuery({
     page: 1,
@@ -48,3 +50,5 @@ export default function TicketsPage() {
     </PageWrapper>
   )
 }
+
+export default withRoleGuard(TicketsPage, {roles: [UserRole.SUPERADMIN, UserRole.ADMIN]})

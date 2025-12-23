@@ -20,6 +20,7 @@ import BillCards from "./cards-overview/bills"
 import { FinanceTab } from "./finance-tab"
 import MikroTikPage from "./mikrotik-tab"
 import { withRoleGuard } from "@/lib/withRoleGuard"
+import { UserRole } from "@/types/users"
 
 function DashboardOverview() {
 
@@ -95,4 +96,4 @@ function DashboardOverview() {
   )
 }
 
-export default withRoleGuard(DashboardOverview, ["SUPERADMIN", "ADMIN"])
+export default withRoleGuard(DashboardOverview, {roles: [UserRole.SUPERADMIN, UserRole.ADMIN]})

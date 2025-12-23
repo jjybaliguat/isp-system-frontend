@@ -16,6 +16,7 @@ import DeleteConfirmAction from '@/components/dialogs/confirmation-dialog'
 import { toast } from 'sonner'
 import { withRoleGuard } from '@/lib/withRoleGuard'
 import CoverageTable from '@/components/tables/coverage-table'
+import { UserRole } from '@/types/users'
 
 const customIcon = L.icon({
   iconUrl: "/marker-icon.png",
@@ -146,4 +147,4 @@ const CoveragePage = () => {
   )
 }
 
-export default withRoleGuard(CoveragePage, ["SUPERADMIN"])
+export default withRoleGuard(CoveragePage, {roles: [UserRole.SUPERADMIN]})
