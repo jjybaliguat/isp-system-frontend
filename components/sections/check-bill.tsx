@@ -3,10 +3,23 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { formatDate } from "@/utils/formatDate";
 import Link from "next/link";
 import { BillingData } from "@/types/billing";
+import { Badge } from "../ui/badge";
+
+const statusStyles = {
+  PENDING: "bg-yellow-500/10 text-yellow-600 border-yellow-500/20",
+  OVERDUE: "bg-red-500/10 text-red-600 border-red-500/20",
+  PARTIALLY_PAID: "bg-blue-500/10 text-blue-600 border-blue-500/20",
+}
 
 export default function CheckBillSection() {
   const [accountNumber, setAccountNumber] = useState("");
@@ -17,15 +30,18 @@ export default function CheckBillSection() {
   const handleCheckBill = async () => {
     setError("");
     setBilling(null);
+
     if (!accountNumber.trim()) {
-      setError("Please enter your account number.");
+      setError("Please enter a valid account number.");
       return;
     }
 
     try {
       setLoading(true);
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/billing/get-bills/${accountNumber}`);
-      if (!res.ok) throw new Error("No bill found for this account number.");
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/billing/get-bills/${accountNumber}`
+      );
+      if (!res.ok) throw new Error("No billing records found.");
       const data = await res.json();
       setBilling(data);
     } catch (err: any) {
@@ -36,78 +52,116 @@ export default function CheckBillSection() {
   };
 
   return (
-    <section id="bill" className="py-20 bg-muted/80 dark:bg-gray-900">
-      <div className="mx-auto max-w-5xl px-6">
-        <div className={`grid gap-8 ${
-          billing && billing.length > 0
-          ? "md:grid-cols-2"
-          : "grid-cols-1"
-        }`}>
-          <div
-            className={`flex flex-col text-center md:text-left transition-all duration-300 ${
-              billing && billing.length > 0
-                ? "justify-start md:justify-center"
-                : "justify-center min-h-[480px]"
-            }`}
-          >
-            <h2 className="text-3xl font-semibold text-gray-900 dark:text-white md:text-4xl text-center">
-              Check Your Bill
-            </h2>
-            <p className="mt-3 text-gray-600 dark:text-gray-400 text-center">
-              Enter your account number to view your current balance and pay instantly.
-            </p>
+    <section
+      id="bill"
+      className="relative py-24 bg-muted/60 dark:bg-background"
+    >
+      <div className="mx-auto max-w-6xl px-6">
+        <div
+          className={`grid gap-10 transition-all duration-300 ${
+            billing && billing.length > 0
+              ? "lg:grid-cols-[420px_1fr]"
+              : "grid-cols-1"
+          }`}
+        >
+          {/* LEFT PANEL */}
+          <Card className="flex flex-col justify-center border bg-background shadow-sm">
+            <CardHeader className="text-center">
+              <CardTitle className="text-3xl font-semibold">
+                Check Your Bill
+              </CardTitle>
+              <CardDescription className="mt-2">
+                View your current balance and pay securely online
+              </CardDescription>
+            </CardHeader>
 
-            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <CardContent className="space-y-6">
               <Input
-                placeholder="Enter your account number"
+                placeholder="Account Number"
                 value={accountNumber}
                 onChange={(e) => setAccountNumber(e.target.value)}
-                className="w-full sm:w-80 dark:bg-gray-800"
+                className="h-11"
               />
+
               <Button
                 onClick={handleCheckBill}
                 disabled={loading}
-                className="px-6 text-base cursor-pointer"
+                size="lg"
+                className="w-full"
               >
-                {loading ? "Checking..." : "Check Bill"}
+                {loading ? "Checking Account..." : "Check Bill"}
               </Button>
-            </div>
 
-            {error && <p className="mt-4 text-sm text-red-500 text-center">{error}</p>}
-          </div>
-          
+              {error && (
+                <p className="text-sm text-red-500 text-center">{error}</p>
+              )}
+
+              <p className="text-xs text-muted-foreground text-center">
+                Need help? Contact our billing support.
+              </p>
+            </CardContent>
+          </Card>
+
+           {/* RIGHT – BILL RESULTS */}
           {billing && billing.length > 0 && (
-            <div className="max-h-[480px] overflow-y-auto space-y-6 pr-2 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
+            <div className="max-h-[520px] overflow-y-auto space-y-6 pr-2">
               {billing.map((bill) => (
-                <Card key={bill.id} className="bg-white dark:bg-gray-800 text-left">
-                  <CardHeader>
-                    <CardTitle className="text-xl font-semibold">
-                      Billing Details
+                <Card
+                  key={bill.id}
+                  className="border bg-background shadow-sm"
+                >
+                  <CardHeader className="flex flex-row items-center justify-between">
+                    <CardTitle className="text-lg">
+                      Billing Statement
                     </CardTitle>
+
+                    <Badge
+                      variant="outline"
+                      className={statusStyles[bill.status as keyof typeof statusStyles]}
+                    >
+                      {bill.status.replace("_", " ")}
+                    </Badge>
                   </CardHeader>
-                  <CardContent className="space-y-3">
-                    <p>
-                      <span className="font-medium">Client Name:</span>{" "}
-                      {bill.client.fullName}
-                    </p>
-                    <p>
-                      <span className="font-medium">Account Number:</span>{" "}
-                      {bill.client.accountNumber}
-                    </p>
-                    <p>
-                      <span className="font-medium">Due Date:</span>{" "}
-                      {formatDate(bill.dueDate)}
-                    </p>
-                    <p>
-                      <span className="font-medium">Amount Due:</span>{" "}
-                      ₱{bill.amount}
-                    </p>
+
+                  <CardContent className="space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">
+                        Client Name
+                      </span>
+                      <span className="font-medium">
+                        {bill.client.fullName}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">
+                        Account Number
+                      </span>
+                      <span>
+                        {bill.client.accountNumber}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">
+                        Due Date
+                      </span>
+                      <span>
+                        {formatDate(bill.dueDate)}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between text-base font-semibold pt-2">
+                      <span>Amount Due</span>
+                      <span>₱{bill.amount}</span>
+                    </div>
+
                     <div className="pt-4">
-                      <Link href={`/checkout/payment/${bill.id}`} target="_blank">
-                        <Button
-                          size="lg"
-                          className="w-full sm:w-auto cursor-pointer"
-                        >
+                      <Link
+                        href={`/checkout/payment/${bill.id}`}
+                        target="_blank"
+                      >
+                        <Button size="lg" className="w-full">
                           Pay Now
                         </Button>
                       </Link>

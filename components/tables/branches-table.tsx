@@ -324,12 +324,13 @@ const getPageNumbers = () => {
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             {/* <DropdownMenuItem>Send email</DropdownMenuItem> */}
                             <DropdownMenuSeparator />
+                            {/* <DropdownMenuItem>Edit</DropdownMenuItem> */}
                             <DropdownMenuItem
                               onClick={(e) => e.preventDefault()}
                             >
                               <DeleteConfirmAction
                                 title="Delete Confirmation" 
-                                message="Are you sure you want to delete this provider? This can't be undone."
+                                message="Are you sure you want to delete this provider? All data related to this branch will also be deleted."
                                 triggerButton={<Button variant="destructive" size="sm" className="w-full" disabled={isDeleting}>Delete</Button>}
                                 onConfirm={() => handleDelete(provider.id)}
                               />

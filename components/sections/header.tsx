@@ -1,89 +1,136 @@
 'use client'
+
+import React from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import React from 'react'
 import { ThemeToggler } from '../ui/theme-toggler'
-import Image from 'next/image'
 import { menuItems } from '@/app/constants/menuItems'
 import { Logo } from '../ui/logo'
 
 export const HeroHeader = () => {
-    const [menuState, setMenuState] = React.useState(false)
-    return (
-        <header>
-            <nav
-                data-state={menuState && 'active'}
-                className="bg-background/50 fixed z-20 w-full border-b backdrop-blur-3xl">
-                <div className="mx-auto max-w-6xl px-6 transition-all duration-300">
-                    <div className="relative flex flex-wrap items-center justify-between gap-6 py-3 lg:gap-0 lg:py-4">
-                        <div className="flex w-full items-center justify-between gap-12 lg:w-auto">
-                            <Link
-                                href="/"
-                                aria-label="home"
-                                className="flex items-center space-x-2">
-                                <Logo logoUrl='/images/sierra-logo.png' height={80} width={80} />
-                            </Link>
+  const [menuOpen, setMenuOpen] = React.useState(false)
 
-                            <button
-                                onClick={() => setMenuState(!menuState)}
-                                aria-label={menuState == true ? 'Close Menu' : 'Open Menu'}
-                                className="relative z-20 -m-2.5 -mr-4 block cursor-pointer p-2.5 lg:hidden">
-                                <Menu className="in-data-[state=active]:rotate-180 in-data-[state=active]:scale-0 in-data-[state=active]:opacity-0 m-auto size-6 duration-200" />
-                                <X className="in-data-[state=active]:rotate-0 in-data-[state=active]:scale-100 in-data-[state=active]:opacity-100 absolute inset-0 m-auto size-6 -rotate-180 scale-0 opacity-0 duration-200" />
-                            </button>
+  return (
+    <header>
+      <nav
+        data-state={menuOpen && 'open'}
+        className="fixed inset-x-0 top-0 z-50 border-b bg-background/70 backdrop-blur-xl"
+      >
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="flex items-center justify-between py-3 lg:py-4">
 
-                            <div className="hidden lg:block">
-                                <ul className="flex gap-8 text-sm">
-                                    {menuItems.map((item, index) => (
-                                        <li key={index}>
-                                            <Link
-                                                href={item.href}
-                                                className="text-muted-foreground hover:text-accent-foreground block duration-150">
-                                                <span>{item.name}</span>
-                                            </Link>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        </div>
+            {/* LOGO */}
+            <Link
+              href="/"
+              aria-label="Sierra Communications Home"
+              className="flex items-center gap-2"
+            >
+              <Logo
+                logoUrl="/images/sierra-logo.png"
+                width={48}
+                height={48}
+              />
+              <div className="hidden sm:block leading-tight">
+                <p className="text-sm font-semibold">
+                  Sierra Communications
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Fiber Internet Provider
+                </p>
+              </div>
+            </Link>
 
-                        <div className="bg-background in-data-[state=active]:block lg:in-data-[state=active]:flex mb-6 hidden w-full flex-wrap items-center justify-end space-y-8 rounded-3xl border p-6 shadow-2xl shadow-zinc-300/20 md:flex-nowrap lg:m-0 lg:flex lg:w-fit lg:gap-6 lg:space-y-0 lg:border-transparent lg:bg-transparent lg:p-0 lg:shadow-none dark:shadow-none dark:lg:bg-transparent">
-                            <div className="lg:hidden">
-                                <ul className="space-y-6 text-base">
-                                    {menuItems.map((item, index) => (
-                                        <li key={index}>
-                                            <Link
-                                                href={item.href}
-                                                className="text-muted-foreground hover:text-accent-foreground block duration-150">
-                                                <span>{item.name}</span>
-                                            </Link>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                            <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
-                                <Button
-                                    asChild
-                                    variant="outline"
-                                    size="sm">
-                                    <Link href="/login">
-                                        <span>Login</span>
-                                    </Link>
-                                </Button>
-                                <Button
-                                    asChild
-                                    size="sm">
-                                    <Link href="#">
-                                        <span>Apply Now</span>
-                                    </Link>
-                                </Button>
-                                <ThemeToggler />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </nav>
-        </header>
-    )
+            {/* DESKTOP MENU */}
+            <ul className="hidden lg:flex items-center gap-8 text-sm">
+              {menuItems.map((item, index) => (
+                <li key={index}>
+                  <Link
+                    href={item.href}
+                    className="text-muted-foreground hover:text-foreground transition"
+                  >
+                    {item.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+
+            {/* ACTIONS */}
+            <div className="hidden lg:flex items-center gap-3">
+              <Button asChild variant="outline" size="sm">
+                <Link href="/login">Client Portal</Link>
+              </Button>
+
+              <Button asChild size="sm">
+                <Link href="/apply">Check Availability</Link>
+              </Button>
+
+              <ThemeToggler />
+            </div>
+
+            {/* MOBILE MENU BUTTON */}
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+              className="lg:hidden"
+            >
+              {menuOpen ? (
+                <X className="size-6" />
+              ) : (
+                <Menu className="size-6" />
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* MOBILE MENU */}
+        <div
+          data-state={menuOpen && 'open'}
+          className="lg:hidden data-[state=open]:block hidden border-t bg-background"
+        >
+          <div className="mx-auto max-w-6xl px-6 py-6 space-y-6">
+
+            {/* NAV LINKS */}
+            <ul className="space-y-4">
+              {menuItems.map((item, index) => (
+                <li key={index}>
+                  <Link
+                    href={item.href}
+                    onClick={() => setMenuOpen(false)}
+                    className="block text-base text-muted-foreground hover:text-foreground"
+                  >
+                    {item.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+
+            {/* MOBILE ACTIONS */}
+            <div className="flex flex-col gap-3">
+              <Button asChild variant="outline">
+                <Link href="/login">Client Portal</Link>
+              </Button>
+
+              <Button asChild>
+                <Link href="/apply">Check Availability</Link>
+              </Button>
+
+              <div className="pt-2">
+                <ThemeToggler />
+              </div>
+            </div>
+
+            {/* COVERAGE NOTE */}
+            <p className="text-xs text-muted-foreground">
+              Serving Montalban, Rizal
+            </p>
+          </div>
+        </div>
+      </nav>
+
+      {/* SPACER FOR FIXED HEADER */}
+      <div className="h-[72px]" />
+    </header>
+  )
 }
