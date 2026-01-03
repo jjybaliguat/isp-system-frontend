@@ -25,6 +25,7 @@ import ClientPaymentsDialog from "../dialogs/client-payments-dialog"
 import { useGetCoverageQuery } from "@/redux/fetures/converage-api-slice"
 import { CoverageDataSchema } from "@/types/coverage"
 import DeleteConfirmAction from "../dialogs/confirmation-dialog"
+import GenerateSoaDialog from "../dialogs/generate-soa-dialog"
 
 interface ClientsTableProps {
   searchQuery: string
@@ -41,6 +42,10 @@ export function ClientsTable({ searchQuery }: ClientsTableProps) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [openClientPaymentsDialog, setOpenClientPaymentsDialog] = useState(false)
   const [selectedCoverage, setSelectedCoverage] = useState<CoverageDataSchema | null>(null)
+  const [openGenerateSoaDialog, setOpenGenerateSoaDialog] = useState({
+    open: false,
+    client: null as ClientDataSchema | null,
+  })
 
   const {data: coverage} = useGetCoverageQuery()
 
@@ -390,6 +395,7 @@ const getPageNumbers = () => {
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuItem onClick={() => handleViewDetails(client)}>View details</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleViewPayments(client)}>View Billings</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setOpenGenerateSoaDialog({ open: true, client })}>Generate SOA</DropdownMenuItem>
                             {/* <DropdownMenuItem>Send email</DropdownMenuItem> */}
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
@@ -536,6 +542,7 @@ const getPageNumbers = () => {
       {/* Client Details Drawer */}
       <ClientDetailsDrawer client={selectedClient} open={isDrawerOpen} onOpenChange={setIsDrawerOpen} />
       <ClientPaymentsDialog client={selectedClient} open={openClientPaymentsDialog} onOpenChange={setOpenClientPaymentsDialog} />
+      <GenerateSoaDialog open={openGenerateSoaDialog.open} onOpenChange={(open) => setOpenGenerateSoaDialog({...openGenerateSoaDialog, open})} client={openGenerateSoaDialog.client} />
     </>
   )
 }

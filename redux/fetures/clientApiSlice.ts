@@ -1,6 +1,6 @@
 import { PaginatedResponse } from "@/types/billing"
 import { apiSlice } from "../apiSlice"
-import { Accounts, ChartData, ClientDataSchema, ClientsCountSchema } from "@/types/clients"
+import { Accounts, ChartData, ClientDataSchema, ClientsCountSchema, SoaData } from "@/types/clients"
 
 interface GetClientsParams {
   page?: number
@@ -100,7 +100,14 @@ export const clientApiSlice = apiSlice.injectEndpoints({
         method: "DELETE"
       }),
       invalidatesTags: ["Clients", "NetworkHierarchy", "Accounts", "Logs"]
-    })
+    }),
+    generateSoa: builder.query<SoaData, { clientId: string; startDate: string; endDate: string }>({
+      query: ({ clientId, startDate, endDate }) => ({
+        url: `/clients/soa/${clientId}`,
+        params: { startDate, endDate },
+        method: "GET",
+      })
+    }),
   }),
 })
 
@@ -115,5 +122,6 @@ export const {
   useDeleteClientMutation,
   useCreateAccountMutation,
   useUpdateClientAccountMutation,
-  useDeleteClientAccountMutation
+  useDeleteClientAccountMutation,
+  useGenerateSoaQuery
 } = clientApiSlice
