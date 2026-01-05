@@ -22,9 +22,51 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { useGetFinanceMetricsQuery } from "@/redux/fetures/analytics-api-slice"
 import { formatCurrency } from "@/utils/formatCurrency"
+import { Button } from "@/components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useEffect, useState } from "react"
+
+const currentYear = new Date().getFullYear()
+  const years = Array.from({ length: 5 }, (_, i) => currentYear - i)
+  const months = [
+    { value: "1", label: "January" },
+    { value: "2", label: "February" },
+    { value: "3", label: "March" },
+    { value: "4", label: "April" },
+    { value: "5", label: "May" },
+    { value: "6", label: "June" },
+    { value: "7", label: "July" },
+    { value: "8", label: "August" },
+    { value: "9", label: "September" },
+    { value: "10", label: "October" },
+    { value: "11", label: "November" },
+    { value: "12", label: "December" },
+  ]
 
 export function FinanceTab() {
-  const { data: metrics, isLoading, error } = useGetFinanceMetricsQuery()
+  const now = new Date()
+  const [month, setMonth] = useState("")
+  const [year, setYear] = useState(now.getFullYear().toString())
+
+  // Debounced state
+  const [debouncedMonth, setDebouncedMonth] = useState(month)
+  const [debouncedYear, setDebouncedYear] = useState(year)
+
+  // --- debounce logic ---
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedMonth(month)
+      setDebouncedYear(year)
+    }, 500) // 500ms debounce
+
+    return () => clearTimeout(handler)
+  }, [month, year])
+
+  // --- RTK Query using debounced values ---
+  const { data: metrics, isLoading, error } = useGetFinanceMetricsQuery({
+    month: debouncedMonth,
+    year: debouncedYear,
+  })
 
   if (isLoading) {
     return <FinanceLoadingSkeleton />
@@ -62,7 +104,7 @@ export function FinanceTab() {
 
   return (
     <div className="container mx-auto space-y-6">
-      {/* Alerts & KPI Highlights */}
+      {/* Alerts & KPI Highlights
       {(alerts?.revenueTarget?.variance < 0 || alerts?.arThreshold?.exceeded || alerts?.pendingRefunds > 0) && (
         <div className="grid gap-4 md:grid-cols-3">
           {alerts?.revenueTarget.variance < 0 && (
@@ -88,51 +130,108 @@ export function FinanceTab() {
             </Alert>
           )}
         </div>
-      )}
+      )} */}
+      <div className="flex gap-2">
+        <Select
+          value={month}
+          onValueChange={(value) =>setMonth(value === "all" ? "" : value)}
+        >
+          <SelectTrigger className="w-full md:w-[150px]">
+            <SelectValue placeholder="Month" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Months</SelectItem>
+            {months.map((m) => (
+              <SelectItem key={m.value} value={m.value}>
+                {m.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
+        <Select
+          value={year}
+          onValueChange={(value) => setYear(value === "all" ? "" : value)}
+        >
+          <SelectTrigger className="w-full md:w-[120px]">
+            <SelectValue placeholder="Year" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Years</SelectItem>
+            {years.map((y) => (
+              <SelectItem key={y} value={y.toString()}>
+                {y}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
       {/* Revenue Overview KPIs */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+        {/* Monthly Revenue */}
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader className="flex items-center justify-between pb-2">
+            <CardTitle className="text-sm font-semibold">Monthly Revenue</CardTitle>
+            <DollarSign className="h-5 w-5 text-blue-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(revenue?.totalMonthly)}</div>
-            <p className="text-xs text-muted-foreground">Current month</p>
+            <p className="text-xs text-muted-foreground mt-1">Current month</p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">YTD Revenue</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+        {/* Total Revenue */}
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader className="flex items-center justify-between pb-2">
+            <CardTitle className="text-sm font-semibold">Total Revenue</CardTitle>
+            <TrendingUp className="h-5 w-5 text-green-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(revenue?.totalYTD)}</div>
-            <p className="text-xs text-muted-foreground">Year to date</p>
+            <p className="text-xs text-muted-foreground mt-1">Year to date</p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Revenue/Client</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+        {/* Average Revenue per Client */}
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader className="flex items-center justify-between pb-2">
+            <CardTitle className="text-sm font-semibold">Avg Revenue/Client</CardTitle>
+            <Users className="h-5 w-5 text-purple-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(revenue?.averagePerClient)}</div>
-            <p className="text-xs text-muted-foreground">Per client</p>
+            <p className="text-xs text-muted-foreground mt-1">Per client</p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Invoices</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
+        {/* Billing Summary */}
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader className="flex items-center justify-between pb-2">
+            <CardTitle className="text-sm font-semibold">Billing Summary</CardTitle>
+            <FileText className="h-5 w-5 text-orange-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{billing?.totalInvoices}</div>
-            <p className="text-xs text-muted-foreground">This period</p>
+            <div className="text-2xl font-bold mb-2">{billing?.totalInvoices}</div>
+            <p className="text-xs text-muted-foreground mb-3">Total invoices this period</p>
+
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div className="flex flex-col">
+                <span className="font-medium">Paid</span>
+                <span className="text-green-500 font-semibold">{billing?.paid}</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="font-medium">Pending</span>
+                <span className="text-yellow-500 font-semibold">{billing?.pending}</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="font-medium">Overdue</span>
+                <span className="text-red-500 font-semibold">{billing?.overdue}</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="font-medium">Partial Payments</span>
+                <span className="text-orange-500 font-semibold">{billing?.partialPayments}</span>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
