@@ -3,7 +3,7 @@
 import React from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table"
 import { Checkbox } from '../ui/checkbox'
-import { formatDateTime } from '@/utils/formatDateTime'
+import { formatDateTime, formatLocalDateTime } from '@/utils/formatDateTime'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { Button } from '../ui/button'
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
@@ -109,7 +109,7 @@ const LogsTable = ({
                     <TableCell>{log.entity}</TableCell>
                     <TableCell>{log.message}</TableCell>
                     <TableCell>{log.user?.fullName || log.user?.employee?.fullName}</TableCell>
-                    <TableCell>{formatDateTime(log.createdAt.toLocaleString())}</TableCell>
+                    <TableCell>{formatLocalDateTime(log.createdAt)}</TableCell>
                   </TableRow>
                 ))
               )}

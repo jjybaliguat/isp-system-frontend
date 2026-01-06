@@ -379,8 +379,8 @@ export function FinanceTab() {
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>AR Aging Report</CardTitle>
-            <CardDescription>(Accounts Receivable) Outstanding balances by age</CardDescription>
+            <CardTitle>Payment Methods Breakdown</CardTitle>
+            <CardDescription>Distribution by payment type</CardDescription>
           </CardHeader>
           <CardContent className="h-[300px]">
             <ChartContainer
@@ -393,10 +393,10 @@ export function FinanceTab() {
               className="h-full"
             >
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={accountsReceivable?.aging}>
+                <BarChart data={paymentMethods?.breakdown} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="range" stroke="hsl(var(--muted-foreground))" />
-                  <YAxis stroke="hsl(var(--muted-foreground))" />
+                  <XAxis type="number" stroke="hsl(var(--muted-foreground))" />
+                  <YAxis dataKey="method" type="category" stroke="hsl(var(--muted-foreground))" />
                   <ChartTooltip content={<ChartTooltipContent />} />
                   <Bar dataKey="amount" fill={COLORS.primary} />
                 </BarChart>
@@ -441,8 +441,8 @@ export function FinanceTab() {
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Payment Methods Breakdown</CardTitle>
-            <CardDescription>Distribution by payment type</CardDescription>
+            <CardTitle>AR Aging Report</CardTitle>
+            <CardDescription>(Accounts Receivable) Outstanding balances by age</CardDescription>
           </CardHeader>
           <CardContent className="h-[300px]">
             <ChartContainer
@@ -455,10 +455,10 @@ export function FinanceTab() {
               className="h-full"
             >
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={paymentMethods?.breakdown} layout="vertical">
+                <BarChart data={accountsReceivable?.aging}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis type="number" stroke="hsl(var(--muted-foreground))" />
-                  <YAxis dataKey="method" type="category" stroke="hsl(var(--muted-foreground))" />
+                  <XAxis dataKey="range" stroke="hsl(var(--muted-foreground))" />
+                  <YAxis stroke="hsl(var(--muted-foreground))" />
                   <ChartTooltip content={<ChartTooltipContent />} />
                   <Bar dataKey="amount" fill={COLORS.primary} />
                 </BarChart>
@@ -466,8 +466,7 @@ export function FinanceTab() {
             </ChartContainer>
           </CardContent>
         </Card>
-
-        <Card>
+        {/* <Card>
           <CardHeader>
             <CardTitle>Collections Trend</CardTitle>
             <CardDescription>Monthly payment collections</CardDescription>
@@ -493,7 +492,7 @@ export function FinanceTab() {
               </ResponsiveContainer>
             </ChartContainer>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
 
       {/* Discounts, Refunds & Customer Metrics */}
@@ -548,7 +547,7 @@ export function FinanceTab() {
       </div>
 
       {/* New vs Returning Clients Billing Trend */}
-      <Card>
+      {/* <Card>
         <CardHeader>
           <CardTitle>New vs Returning Clients Billing Trend</CardTitle>
           <CardDescription>Monthly comparison of client billing patterns</CardDescription>
@@ -586,7 +585,7 @@ export function FinanceTab() {
             </ResponsiveContainer>
           </ChartContainer>
         </CardContent>
-      </Card>
+      </Card> */}
     </div>
   )
 }

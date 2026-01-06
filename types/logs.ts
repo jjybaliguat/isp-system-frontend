@@ -2,7 +2,7 @@ interface LogsProps {
     id: string
     action: string
     entity: string
-    createdAt: Date
+    createdAt: string
     message: string
     user: {
         id: string
