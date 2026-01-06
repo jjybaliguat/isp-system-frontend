@@ -1,13 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true
-  },
-  rules: {
-    '@typescript-eslint/no-explicit-any': 'off', // disable 'any' warnings
-    'react-hooks/exhaustive-deps': 'off',       // disable hook dependency checks
-  },
   images: {
     remotePatterns: [
       {
@@ -23,7 +16,7 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
-  }
+  },
 };
 
 export default nextConfig;

@@ -8,7 +8,7 @@ export const config = {
   ],
 };
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const token = req.cookies.get(process.env.JWT_COOKIE_NAME!)?.value
   const { pathname } = req.nextUrl
 
