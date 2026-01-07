@@ -12,13 +12,14 @@ export const logsApiSlice = apiSlice.injectEndpoints({
             search?: string
             month?: string
             year?: string
+            entity?: string
           }>({
-          query: ({ page = 1, limit = 10, search = "", month = "", year = "" }) => {
+          query: ({ page = 1, limit = 10, search = "", month = "", year = "", entity = "" }) => {
             const params = new URLSearchParams({
               page: page.toString(),
               limit: limit.toString(),
               ...(search && { search }),
-              ...(status && { status }),
+              ...(entity && { entity }),
               ...(month && { month }),
               ...(year && { year }),
             })

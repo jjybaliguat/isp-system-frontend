@@ -10,17 +10,16 @@ import { BillingTable } from "../tables/billing-table"
 import LogsTable from "../tables/logs-table"
 import { useGetLogsQuery } from "@/redux/fetures/logs-api-slice"
 import LoadingComponent from "../Loading"
-import { de } from "zod/v4/locales"
-import { withRoleGuard } from "@/lib/withRoleGuard"
 
 export default function LogsTableWrapper() {
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
   const [search, setSearch] = useState("")
   const [debounceSearch, setDebounceSearch] = useState("")
-  const [status, setStatus] = useState("")
+  const [entity, setEntity] = useState("")
   const [month, setMonth] = useState("")
   const [year, setYear] = useState("")
+  const entities = ["User", "Billing", "Client", "Employee", "Coverage", "Service Plan", "Client Type", "Network", "SMS"]
 
   const { data, isLoading, error } = useGetLogsQuery({
     page,
@@ -28,9 +27,8 @@ export default function LogsTableWrapper() {
     search: debounceSearch,
     month,
     year,
+    entity
   })
-
-  console.log(data)
 
   const currentYear = new Date().getFullYear()
   const years = Array.from({ length: 5 }, (_, i) => currentYear - i)
@@ -72,6 +70,25 @@ export default function LogsTableWrapper() {
             className="pl-9"
           />
         </div>
+        <Select
+          value={entity}
+          onValueChange={(value) => {
+            setEntity(value === "all" ? "" : value)
+            setPage(1)
+          }}
+        >
+          <SelectTrigger className="w-full md:w-[150px]">
+            <SelectValue placeholder="Entity" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Entities</SelectItem>
+            {entities.map((entity) => (
+              <SelectItem key={entity} value={entity}>
+                {entity}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Select
           value={month}
           onValueChange={(value) => {
