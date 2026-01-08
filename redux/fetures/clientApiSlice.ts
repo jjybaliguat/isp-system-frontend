@@ -59,7 +59,7 @@ export const clientApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["Clients", "ClientsCount", "ClientsAnalytics", "NetworkHierarchy", "Logs"],
+      invalidatesTags: ["Clients", "ClientsCount", "ClientsAnalytics", "NetworkHierarchy", "Logs", "Billings"],
     }),
 
     updateClient: builder.mutation<ClientDataSchema, { id: string; data: Partial<ClientDataSchema> }>({

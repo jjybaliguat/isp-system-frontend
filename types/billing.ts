@@ -8,10 +8,27 @@ export interface BillingData {
   status: string;
   dueDate: Date;
   description?: string;
+  billingType?: BillingType;
+  billingCharges?: BillingCharges[];
+  remarks?: string;
   client: {
     fullName: string;
     accountNumber: string;
   }
+}
+
+interface BillingCharges {
+  id?: string;
+  name: string;
+  description: string | null;
+  amount: number;
+}
+
+enum BillingType {
+  REGULAR = "REGULAR",
+  PRORATED = "PRORATED",
+  INSTALLATION_FEE = "INSTALLATION_FEE",
+  LATE_FEE = "LATE_FEE"
 }
 
 export type BillType = "Full" | "ThisMonth" | "NextMonth" | "ProRated" | null
@@ -26,7 +43,10 @@ export interface BillingDataSchema {
   dueDate: string
   amount: number
   paidAmount: number
+  billingType?: BillingType;
+  billingCharges?: BillingCharges[];
   paidAt?: string
+  remarks?: string;
   status: BillingStatus
   description?: string,
   discounts: Discounts[]
@@ -92,14 +112,17 @@ export interface CreateBillingForAccountInput {
   accountId: string
   period: string
   amount: number
+  billingType?: BillingType;
+  remarks?: string | null;
+  billingCharges?: BillingCharges[];
   description?: string,
   dueDate?: string
   discounts?: Discounts[]
 }
 
 interface Discounts {
-  id: string;
-  description: string;
+  id?: string;
+  description: string | null;
   amount: number
 }
 

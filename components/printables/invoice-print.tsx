@@ -1,8 +1,8 @@
-import { BillingDataSchema } from "@/types/billing";
-import React, { forwardRef } from "react";
+import { BillingDataSchema } from "@/types/billing"
+import React, { forwardRef, useMemo } from "react"
 
 interface InvoicePrintProps {
-  billing: BillingDataSchema;
+  billing: BillingDataSchema
 }
 
 export const InvoicePrint = forwardRef<HTMLDivElement, InvoicePrintProps>(
@@ -11,14 +11,45 @@ export const InvoicePrint = forwardRef<HTMLDivElement, InvoicePrintProps>(
       new Intl.NumberFormat("en-PH", {
         style: "currency",
         currency: "PHP",
-      }).format(amount);
+      }).format(amount)
 
-    const formatDate = (date: string) =>
+    const formatDate = (date: Date | string) =>
       new Date(date).toLocaleDateString("en-PH", {
         year: "numeric",
         month: "long",
         day: "numeric",
-      });
+      })
+
+    /* =========================
+       COMPUTED TOTALS
+    ========================= */
+
+    const chargesSubtotal = useMemo(() => {
+      return (
+        billing.billingCharges?.reduce(
+          (sum, c) => sum + Number(c.amount || 0),
+          0
+        ) || 0
+      )
+    }, [billing.billingCharges])
+
+    const totalDiscount = useMemo(() => {
+      return (
+        billing.discounts?.reduce(
+          (sum, d) => sum + Number(d.amount || 0),
+          0
+        ) || 0
+      )
+    }, [billing.discounts])
+
+    const grandTotal = Math.max(chargesSubtotal - totalDiscount, 0)
+
+    const paidAmount = Number(billing.paidAmount || 0)
+    const balanceDue = Math.max(grandTotal - paidAmount, 0)
+
+    const billingTypeLabel = billing.billingType
+      ?.replace(/_/g, " ")
+      .toUpperCase()
 
     return (
       <div
@@ -32,7 +63,7 @@ export const InvoicePrint = forwardRef<HTMLDivElement, InvoicePrintProps>(
           lineHeight: 1.5,
         }}
       >
-        {/* HEADER */}
+        {/* ================= HEADER ================= */}
         <header
           style={{
             display: "flex",
@@ -43,23 +74,22 @@ export const InvoicePrint = forwardRef<HTMLDivElement, InvoicePrintProps>(
             marginBottom: 30,
           }}
         >
-          <div>
-            {/* Logo placeholder */}
-            <img
-              src={billing.client.provider?.companyLogoUrl}
-              alt="Sierra Communications"
-              style={{ height: 60, objectFit: "contain" }}
-            />
-          </div>
+          <img
+            src={billing.client.provider?.companyLogoUrl}
+            alt={billing.client.provider?.companyName}
+            style={{ height: 60, objectFit: "contain" }}
+          />
+
           <div style={{ textAlign: "right" }}>
             <h1 style={{ margin: 0, fontSize: 24 }}>INVOICE</h1>
             <p style={{ margin: 0, fontSize: 16, fontWeight: "bold" }}>
-              #{billing?.invoiceNumber}
+              #{billing.invoiceNumber}
             </p>
+            <p style={{ margin: 0, fontSize: 12 }}>{billingTypeLabel}</p>
           </div>
         </header>
 
-        {/* BILL TO / INFO */}
+        {/* ================= BILL TO ================= */}
         <section
           style={{
             display: "flex",
@@ -69,99 +99,175 @@ export const InvoicePrint = forwardRef<HTMLDivElement, InvoicePrintProps>(
         >
           <div>
             <h3 style={{ marginBottom: 5 }}>Bill To:</h3>
-            <p style={{ margin: 0 }}>{billing?.client.fullName}</p>
-            <p style={{ margin: 0 }}>{billing?.client.email}</p>
-            <p style={{ margin: 0 }}>Account #: {billing?.client.accountNumber}</p>
+            <p style={{ margin: 0 }}>{billing.client.fullName}</p>
+            <p style={{ margin: 0 }}>{billing.client.email}</p>
+            <p style={{ margin: 0 }}>
+              Account #: {billing.account?.accountNumber}
+            </p>
           </div>
 
           <div style={{ textAlign: "right" }}>
             <p>
-              <strong>Billing Date:</strong> {formatDate(billing?.billingDate)}
+              <strong>Due Date:</strong> {formatDate(billing.dueDate)}
             </p>
             <p>
-              <strong>Due Date:</strong> {formatDate(billing?.dueDate)}
+              <strong>Period:</strong> {billing.period}
             </p>
             <p>
-              <strong>Period:</strong> {billing?.period}
-            </p>
-            <p>
-              <strong>Status:</strong> {billing?.status.replace(/_/g, " ")}
+              <strong>Status:</strong>{" "}
+              {billing.status.replace(/_/g, " ")}
             </p>
           </div>
         </section>
 
-        {/* ITEMIZED TABLE */}
-        <section>
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
-              marginBottom: 30,
-            }}
-          >
-            <thead>
-              <tr>
-                <th
-                  style={{
-                    textAlign: "left",
-                    borderBottom: "2px solid #000",
-                    padding: "10px 5px",
-                  }}
-                >
-                  Description
-                </th>
-                <th
-                  style={{
-                    textAlign: "right",
-                    borderBottom: "2px solid #000",
-                    padding: "10px 5px",
-                  }}
-                >
-                  Amount
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style={{ padding: "10px 5px" }}>Billing Charges</td>
-                <td style={{ padding: "10px 5px", textAlign: "right" }}>
-                  {formatCurrency(billing?.amount)}
+        {/* ================= ITEMIZED TABLE ================= */}
+        <table
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            marginBottom: 30,
+          }}
+        >
+          <thead>
+            <tr>
+              <th
+                style={{
+                  textAlign: "left",
+                  borderBottom: "2px solid #000",
+                  padding: "10px 5px",
+                }}
+              >
+                Description
+              </th>
+              <th
+                style={{
+                  textAlign: "right",
+                  borderBottom: "2px solid #000",
+                  padding: "10px 5px",
+                }}
+              >
+                Amount
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {/* Charges */}
+            {billing.billingCharges?.map(c => (
+              <tr key={c.id}>
+                <td style={{ padding: "8px 5px" }}>{c.name}</td>
+                <td style={{ padding: "8px 5px", textAlign: "right" }}>
+                  {formatCurrency(c.amount)}
                 </td>
               </tr>
-              {billing?.description && (
+            ))}
+
+            {/* Subtotal */}
+            <tr>
+              <td
+                style={{
+                  padding: "8px 5px",
+                  fontWeight: "bold",
+                  borderTop: "1px solid #ccc",
+                }}
+              >
+                Subtotal
+              </td>
+              <td
+                style={{
+                  padding: "8px 5px",
+                  textAlign: "right",
+                  fontWeight: "bold",
+                  borderTop: "1px solid #ccc",
+                }}
+              >
+                {formatCurrency(chargesSubtotal)}
+              </td>
+            </tr>
+
+            {/* Discounts */}
+            {billing.discounts?.map(d => (
+              <tr key={d.id}>
+                <td style={{ padding: "8px 5px" }}>
+                  Discount – {d.description || "N/A"}
+                </td>
+                <td
+                  style={{
+                    padding: "8px 5px",
+                    textAlign: "right",
+                    color: "#c00",
+                  }}
+                >
+                  -{formatCurrency(d.amount)}
+                </td>
+              </tr>
+            ))}
+
+            {/* Total */}
+            <tr>
+              <td
+                style={{
+                  padding: "10px 5px",
+                  borderTop: "2px solid #000",
+                  fontWeight: "bold",
+                }}
+              >
+                TOTAL AMOUNT
+              </td>
+              <td
+                style={{
+                  padding: "10px 5px",
+                  textAlign: "right",
+                  borderTop: "2px solid #000",
+                  fontWeight: "bold",
+                }}
+              >
+                {formatCurrency(grandTotal)}
+              </td>
+            </tr>
+
+            {/* Payments */}
+            {paidAmount > 0 && (
+              <>
                 <tr>
-                  <td style={{ padding: "10px 5px" }}>Notes</td>
-                  <td style={{ padding: "10px 5px", textAlign: "right" }}>
-                    {billing?.description}
+                  <td style={{ padding: "8px 5px" }}>Amount Paid</td>
+                  <td style={{ padding: "8px 5px", textAlign: "right" }}>
+                    {formatCurrency(paidAmount)}
                   </td>
                 </tr>
-              )}
-              <tr>
-                <td
-                  style={{
-                    padding: "10px 5px",
-                    borderTop: "2px solid #000",
-                    fontWeight: "bold",
-                  }}
-                >
-                  Total Paid
-                </td>
-                <td
-                  style={{
-                    padding: "10px 5px",
-                    textAlign: "right",
-                    borderTop: "2px solid #000",
-                    fontWeight: "bold",
-                  }}
-                >
-                  {formatCurrency(billing?.paidAmount)}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </section>
+                <tr>
+                  <td
+                    style={{
+                      padding: "8px 5px",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Balance Due
+                  </td>
+                  <td
+                    style={{
+                      padding: "8px 5px",
+                      textAlign: "right",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {formatCurrency(balanceDue)}
+                  </td>
+                </tr>
+              </>
+            )}
+          </tbody>
+        </table>
 
-        {/* FOOTER */}
+        {/* ================= REMARKS ================= */}
+        {billing.remarks && (
+          <section style={{ marginBottom: 20 }}>
+            <strong>Remarks:</strong>
+            <p style={{ marginTop: 5 }}>{billing.remarks}</p>
+          </section>
+        )}
+
+        {/* ================= FOOTER ================= */}
         <footer
           style={{
             textAlign: "center",
@@ -171,11 +277,14 @@ export const InvoicePrint = forwardRef<HTMLDivElement, InvoicePrintProps>(
             paddingTop: 10,
           }}
         >
-          &copy; 2025 {billing.client.provider?.companyName}. All rights reserved.  
+          &copy; 2025 {billing.client.provider?.companyName}. All rights
+          reserved.
           <br />
-          {billing.client.provider?.companyAddress} | {billing.client.provider?.email} | {billing.client.provider?.phoneNumber}
+          {billing.client.provider?.companyAddress} |{" "}
+          {billing.client.provider?.email} |{" "}
+          {billing.client.provider?.phoneNumber}
         </footer>
       </div>
-    );
+    )
   }
-);
+)

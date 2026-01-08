@@ -2,69 +2,129 @@
 
 import type React from "react"
 import { useState, useMemo, useEffect } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "../ui/dialog"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
 import { Label } from "../ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../ui/table"
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useCreateBillingMutation, useUpdateBillingMutation } from "@/redux/fetures/billing-api-slice"
+import {
+  useCreateBillingMutation,
+  useUpdateBillingMutation,
+} from "@/redux/fetures/billing-api-slice"
 import { useGetAccountsQuery } from "@/redux/fetures/clientApiSlice"
 import { toast } from "sonner"
 import { Accounts } from "@/types/clients"
 import { formatCurrency } from "@/utils/formatCurrency"
-import { BillingDataSchema, CreateBillingForAccountInput } from "@/types/billing"
-
-interface CreateBillingDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  billing?: BillingDataSchema
-  onUpdateBill?: (bill: BillingDataSchema) => void
-}
+import {
+  BillingDataSchema,
+  CreateBillingForAccountInput,
+} from "@/types/billing"
+import { set } from "lodash"
 
 const MONTHS = [
-  "January","February","March","April","May","June","July","August","September","October","November","December"
+  "January","February","March","April","May","June",
+  "July","August","September","October","November","December",
 ]
 
 const YEARS = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - 2 + i)
+
+enum BillingType {
+  REGULAR = "REGULAR",
+  PRORATED = "PRORATED",
+  INSTALLATION_FEE = "INSTALLATION_FEE",
+  LATE_FEE = "LATE_FEE",
+}
 
 interface DiscountItem {
   description: string
   amount: number
 }
 
+interface BillingChargeItem {
+  name: string
+  amount: number
+  description?: string
+}
+
 interface FormDataProps {
   accountId: string
   month: string
   year: string
+  billingType: BillingType
+  proratedDays?: number
+  charges: BillingChargeItem[]
   discount: DiscountItem[]
+  remarks: string
 }
 
-export function CreateBillingDialog({ open, onOpenChange, billing, onUpdateBill }: CreateBillingDialogProps) {
+interface CreateBillingDialogProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  billing?: BillingDataSchema | null
+  onUpdateBill?: (bill: BillingDataSchema) => void
+}
+
+export function CreateBillingDialog({
+  open,
+  onOpenChange,
+  billing,
+  onUpdateBill,
+}: CreateBillingDialogProps) {
   const today = new Date()
   const currentMonthIndex = today.getMonth()
-
-  // edit mode flag
   const isEdit = Boolean(billing)
-
-  console.log("Editing billing:", billing)
 
   const [formData, setFormData] = useState<FormDataProps>({
     accountId: billing?.account?.id || "",
     month: billing?.period?.split(" ")[0] || MONTHS[currentMonthIndex],
     year: billing?.period?.split(" ")[1] || `${today.getFullYear()}`,
-    discount: billing?.discounts?.map(d => ({ description: d.description || "", amount: Number(d.amount) })) || [],
+    billingType: billing?.billingType || BillingType.REGULAR,
+    proratedDays: undefined,
+    charges:
+      billing?.billingCharges?.map(c => ({
+        name: c.name,
+        amount: Number(c.amount),
+        description: c.description || "",
+      })) || [],
+    discount:
+      billing?.discounts?.map(d => ({
+        description: d.description || "",
+        amount: Number(d.amount),
+      })) || [],
+    remarks: billing?.remarks || "",
   })
 
   const [comboboxOpen, setComboboxOpen] = useState(false)
   const [searchValue, setSearchValue] = useState("")
   const [debouncedSearch, setDebouncedSearch] = useState("")
 
-  const [createBilling, { isLoading: isCreating }] = useCreateBillingMutation()
-  const [updateBilling, { isLoading: isUpdating }] = useUpdateBillingMutation()
+  const [createBilling, { isLoading: isCreating }] =
+    useCreateBillingMutation()
+  const [updateBilling, { isLoading: isUpdating }] =
+    useUpdateBillingMutation()
 
   const { data, isLoading: isFetchingClients } = useGetAccountsQuery({
     search: debouncedSearch,
@@ -73,32 +133,135 @@ export function CreateBillingDialog({ open, onOpenChange, billing, onUpdateBill 
   const accountsData = data?.data || []
 
   const selectedAccount = useMemo(() => {
-    return isEdit? billing?.account : accountsData?.find((acc) => acc.id === formData.accountId)
-  }, [accountsData, formData.accountId, billing])
+    return isEdit
+      ? billing?.account
+      : accountsData.find(acc => acc.id === formData.accountId)
+  }, [accountsData, formData.accountId, billing, isEdit])
 
-  const baseAmount = useMemo(() => {
-    return Number(selectedAccount?.servicePlan?.monthlyFee) || 0
-  }, [selectedAccount])
+  const baseAmount = Number(selectedAccount?.servicePlan?.monthlyFee || 0)
 
-  const totalDiscount = useMemo(() => {
-    return formData.discount?.reduce((sum, d) => sum + Number(d.amount || 0), 0)
-  }, [formData.discount])
+  /* Auto-add default service plan charge */
+  useEffect(() => {
+    if (!selectedAccount || formData.charges.length > 0) return
 
-  const calculatedTotal = useMemo(() => {
-    const total = baseAmount - totalDiscount
-    return total >= 0 ? total : 0
-  }, [baseAmount, totalDiscount])
+    setFormData(prev => ({
+      ...prev,
+      charges: [
+        {
+          name: selectedAccount.servicePlan?.name || "Monthly Service",
+          amount: baseAmount,
+        },
+      ],
+    }))
+  }, [selectedAccount, baseAmount, formData.charges.length])
 
   useEffect(() => {
     const handler = setTimeout(() => setDebouncedSearch(searchValue), 500)
     return () => clearTimeout(handler)
   }, [searchValue])
 
+useEffect(() => {
+  if (!selectedAccount) return
+
+  const isDefaultCharge =
+    formData.charges.length === 0 ||
+    formData.charges.length === 1 &&
+      (
+        formData.charges[0].name === selectedAccount.servicePlan?.name ||
+        formData.charges[0].name.toUpperCase()?.startsWith("PRORATED") ||
+        formData.charges[0].name === formData.billingType.replace("_", " ")
+      )
+
+  // ⛔ If editing AND user already customized charges → do nothing
+  if (isEdit && !isDefaultCharge) return
+
+  if (formData.billingType === BillingType.PRORATED && formData.proratedDays) {
+    console.log("Setting prorated charge")
+    setFormData(prev => ({
+      ...prev,
+      charges: [
+        {
+          name: `ProRated Charge ${prev.proratedDays} days`,
+          amount: parseFloat(
+            ((baseAmount / 30) * prev.proratedDays!).toFixed(2)
+          ),
+        },
+      ],
+    }))
+  } else if (formData.billingType === BillingType.REGULAR) {
+    setFormData(prev => ({
+      ...prev,
+      proratedDays: undefined,
+      charges: [
+        {
+          name: selectedAccount.servicePlan?.name || "Monthly Service",
+          amount: baseAmount,
+        },
+      ],
+    }))
+  } else {
+    setFormData(prev => ({
+      ...prev,
+      proratedDays: undefined,
+      charges: [
+        {
+          name: prev.billingType.replace("_", " "),
+          amount: 0,
+        },
+      ],
+    }))
+  }
+}, [
+  formData.billingType,
+  formData.proratedDays,
+  baseAmount,
+  selectedAccount,
+  isEdit,
+])
+
+
+  const chargesTotal = useMemo(() => {
+    return formData.charges.reduce((sum, c) => sum + Number(c.amount || 0), 0)
+  }, [formData.charges])
+
+
+
+  const totalDiscount = useMemo(
+    () => formData.discount.reduce((s, d) => s + d.amount, 0),
+    [formData.discount]
+  )
+
+  const calculatedTotal = Math.max(chargesTotal - totalDiscount, 0)
+
+  useEffect(()=> {
+    console.log("Form Data Changed:", formData)
+    setFormData({
+      accountId: billing?.account?.id || "",
+      month: billing?.period?.split(" ")[0] || MONTHS[currentMonthIndex],
+      year: billing?.period?.split(" ")[1] || `${today.getFullYear()}`,
+      billingType: billing?.billingType || BillingType.REGULAR,
+      proratedDays: undefined,
+      charges:
+        billing?.billingCharges?.map(c => ({
+          name: c.name,
+          amount: Number(c.amount),
+          description: c.description || "",
+        })) || [],
+      discount:
+        billing?.discounts?.map(d => ({
+          description: d.description || "",
+          amount: Number(d.amount),
+        })) || [],
+      remarks: billing?.remarks || "",
+    })
+  }, [billing])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    console.log("Submitting form data:", formData)
 
     if (!formData.accountId) {
-      toast.error("Please select a client account")
+      toast.error("Please select a client")
       return
     }
 
@@ -106,19 +269,35 @@ export function CreateBillingDialog({ open, onOpenChange, billing, onUpdateBill 
       const period = `${formData.month} ${formData.year}`
       const monthIndex = MONTHS.indexOf(formData.month) + 1
       const billingDay = selectedAccount?.billingDay ?? 1
-      const dueDateString = `${formData.year}-${String(monthIndex).padStart(2, "0")}-${String(billingDay).padStart(2, "0")}`
+      const dueDate = `${formData.year}-${String(monthIndex).padStart(
+        2,
+        "0"
+      )}-${String(billingDay).padStart(2, "0")}`
 
-      const payload = {
+      const payload: CreateBillingForAccountInput = {
         accountId: formData.accountId,
         period,
+        dueDate,
         amount: calculatedTotal,
-        dueDate: dueDateString,
-        discounts: formData.discount.map((d) => ({ description: d.description || null, amount: Number(d.amount) })),
+        billingType: formData.billingType,
+        remarks: formData.remarks || null,
+        discounts: formData.discount.map(d => ({
+          description: d.description || null,
+          amount: d.amount,
+        })),
+        billingCharges: formData.charges.map(c => ({
+          name: c.name,
+          amount: c.amount,
+          description: c.description || null,
+        })),
       }
 
       if (isEdit && billing?.id) {
-        const newBill = await updateBilling({ id: billing.id, data: payload } as {id: string, data: CreateBillingForAccountInput}).unwrap()
-        onUpdateBill && onUpdateBill(newBill)
+        const updated = await updateBilling({
+          id: billing.id,
+          data: payload,
+        }).unwrap()
+        onUpdateBill?.(updated)
         toast.success("Billing updated successfully")
       } else {
         await createBilling(payload as any).unwrap()
@@ -126,20 +305,11 @@ export function CreateBillingDialog({ open, onOpenChange, billing, onUpdateBill 
       }
 
       onOpenChange(false)
-    } catch (error) {
-      console.error(error)
-      toast.error(isEdit ? "Failed to update billing" : "Failed to create billing")
+    } catch (err) {
+      console.error(err)
+      toast.error("Failed to save billing")
     }
   }
-
-  useEffect(()=> {
-    setFormData({
-      accountId: billing?.account?.id || "",
-      month: billing?.period?.split(" ")[0] || MONTHS[currentMonthIndex],
-      year: billing?.period?.split(" ")[1] || `${today.getFullYear()}`,
-      discount: billing?.discounts?.map(d => ({ description: d.description || "", amount: Number(d.amount) })) || [],
-    })
-  }, [billing])
 
   const handleSelectAccount = (acc: Accounts) => {
     setFormData({ ...formData, accountId: acc.id })
@@ -148,10 +318,14 @@ export function CreateBillingDialog({ open, onOpenChange, billing, onUpdateBill 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] h-auto overflow-y-auto sm:max-w-[700px] p-4 sm:p-6 rounded-xl">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[720px]">
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Edit Billing" : "Create New Bill"}</DialogTitle>
-          <DialogDescription>{isEdit ? "Update billing details" : "Fill in the details to create a new billing invoice"}</DialogDescription>
+          <DialogTitle>
+            {isEdit ? "Edit Billing" : "Create Billing"}
+          </DialogTitle>
+          <DialogDescription>
+            Billing information and charges
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -238,7 +412,7 @@ export function CreateBillingDialog({ open, onOpenChange, billing, onUpdateBill 
                 onValueChange={(value) => setFormData({ ...formData, month: value })}
                 required
               >
-                <SelectTrigger id="month">
+                <SelectTrigger id="month" className="w-full">
                   <SelectValue placeholder="Select month" />
                 </SelectTrigger>
                 <SelectContent>
@@ -258,7 +432,7 @@ export function CreateBillingDialog({ open, onOpenChange, billing, onUpdateBill 
                 onValueChange={(value) => setFormData({ ...formData, year: value })}
                 required
               >
-                <SelectTrigger id="year">
+                <SelectTrigger id="year" className="w-full">
                   <SelectValue placeholder="Select year" />
                 </SelectTrigger>
                 <SelectContent>
@@ -272,7 +446,92 @@ export function CreateBillingDialog({ open, onOpenChange, billing, onUpdateBill 
             </div>
           </div>
 
-          {/* Discounts editor */}
+          {/* BILLING TYPE */}
+          <div className="space-y-2">
+            <Label htmlFor="billingType">Billing Type</Label>
+            <Select
+              value={formData.billingType}
+              onValueChange={v =>
+                setFormData({ ...formData, billingType: v as BillingType })
+              }
+            >
+              <SelectTrigger id="billingType"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {Object.values(BillingType).map(t => (
+                  <SelectItem key={t} value={t}>{t.replace("_", " ")}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* PRORATED */}
+          {formData.billingType === BillingType.PRORATED && (
+            <Input
+              type="number"
+              min={1}
+              max={30}
+              placeholder="Prorated days"
+              value={formData.proratedDays || ""}
+              onChange={e =>
+                setFormData({
+                  ...formData,
+                  proratedDays: Number(e.target.value),
+                })
+              }
+              required
+            />
+          )}
+
+          {/* CHARGES */}
+          <Label>Billing Charges</Label>
+          {formData.charges.map((c, i) => (
+            <div key={i} className="flex gap-2">
+              <Input
+                value={c.name}
+                onChange={e => {
+                  const arr = [...formData.charges]
+                  arr[i].name = e.target.value
+                  setFormData({ ...formData, charges: arr })
+                }}
+              />
+              <Input
+                type="number"
+                value={c.amount}
+                onChange={e => {
+                  const arr = [...formData.charges]
+                  arr[i].amount = Number(e.target.value)
+                  setFormData({ ...formData, charges: arr })
+                }}
+                className="w-32"
+              />
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={() =>
+                  setFormData({
+                    ...formData,
+                    charges: formData.charges.filter((_, idx) => idx !== i),
+                  })
+                }
+              >
+                Remove
+              </Button>
+            </div>
+          ))}
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() =>
+              setFormData({
+                ...formData,
+                charges: [...formData.charges, { name: "", amount: 0 }],
+              })
+            }
+          >
+            + Add Charge
+          </Button>
+
+                    {/* Discounts editor */}
           <div className="space-y-2">
             <Label>Discounts</Label>
             {formData.discount.length === 0 && <div className="text-sm text-muted-foreground">No discounts applied.</div>}
@@ -326,53 +585,24 @@ export function CreateBillingDialog({ open, onOpenChange, billing, onUpdateBill 
             </Button>
           </div>
 
-          {/* Billing Details Preview */}
-          {selectedAccount && (
-            <div className="space-y-2">
-              <Label>Billing Details</Label>
-              <div className="border rounded-lg overflow-hidden">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Acc</TableHead>
-                      <TableHead className="text-right">Price</TableHead>
-                      <TableHead className="text-right">Discounts</TableHead>
-                      <TableHead className="text-right">Total</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell className="font-medium">{selectedAccount.client.fullName}</TableCell>
-                      <TableCell className="font-medium">{selectedAccount.accountNumber}</TableCell>
-                      <TableCell className="text-right">{formatCurrency(baseAmount)}</TableCell>
-                      <TableCell className="text-right">
-                        {formatCurrency(totalDiscount)}
-                        {formData.discount.length > 0 && (
-                          <div className="text-xs text-muted-foreground mt-1 text-right">
-                            {formData.discount.map((d, i) => (
-                              <div key={i}>
-                                {d.description ? `${d.description}: ` : ""}
-                                {formatCurrency(Number(d.amount || 0))}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right font-semibold">{formatCurrency(calculatedTotal)}</TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </div>
-            </div>
-          )}
+          {/* REMARKS */}
+          <Input
+            placeholder="Remarks (optional)"
+            value={formData.remarks}
+            onChange={e => setFormData({ ...formData, remarks: e.target.value })}
+          />
+
+          <div className="flex justify-between font-semibold">
+            <span>Total</span>
+            <span>{formatCurrency(calculatedTotal)}</span>
+          </div>
 
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
             <Button type="submit" disabled={isCreating || isUpdating}>
-              {isEdit ? (isUpdating ? "Updating..." : "Update Bill") : isCreating ? "Creating..." : "Create Bill"}
+              {isEdit ? "Update Billing" : "Create Billing"}
             </Button>
           </div>
         </form>

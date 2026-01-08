@@ -127,7 +127,6 @@ export function BillingTable({
   
   useEffect(() => {
     if (selectedBillingToPrint && contentRef.current) {
-      console.log("printing")
       reactToPrintFn()
       setSelectedBillingToPrint(null);
     }
