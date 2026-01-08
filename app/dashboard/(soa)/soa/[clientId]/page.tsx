@@ -87,7 +87,6 @@ const SoaPage = () => {
                   <th className="border px-2 py-1">Due Date</th>
                   <th className="border px-2 py-1">Period</th>
                   <th className="border px-2 py-1">Amount</th>
-                  <th className="border px-2 py-1">Discount</th>
                   <th className="border px-2 py-1">Paid</th>
                   <th className="border px-2 py-1">Status</th>
                 </tr>
@@ -104,7 +103,6 @@ const SoaPage = () => {
                     </td>
                     <td className="border px-2 py-1">{bill.period}</td>
                     <td className="border px-2 py-1">{bill.amount.toFixed(2)}</td>
-                    <td className="border px-2 py-1">{bill.discount.toFixed(2)}</td>
                     <td className="border px-2 py-1">{bill.paidAmount.toFixed(2)}</td>
                     <td className="border px-2 py-1">{bill.status}</td>
                   </tr>

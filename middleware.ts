@@ -7,27 +7,22 @@ export const config = {
 
 export function middleware(req: NextRequest) {
   const token = req.cookies.get(process.env.JWT_COOKIE_NAME!)?.value
-  const pathname = req.nextUrl.pathname
-
-  const url = req.nextUrl.clone()
-
-  if (process.env.NODE_ENV === "production") {
-    url.protocol = "https:"
-    url.host = "sierracommunication.net"
-    url.port = ""            // 🔑 THIS removes :3000
-  }
+  const { pathname } = req.nextUrl
 
   // Logged-in user hitting login → dashboard
   if (token && pathname === "/login") {
-    url.pathname = "/dashboard"
+    const url = req.nextUrl.clone()
+    url.pathname = '/dashboard'
     return NextResponse.redirect(url)
   }
 
   // Protected routes
   if (pathname.startsWith("/dashboard") && !token) {
-    url.pathname = "/login"
+    const url = req.nextUrl.clone()
+    url.pathname = '/login'
     return NextResponse.redirect(url)
   }
 
+  // --- 3. All other routes (landing page, etc.) ---
   return NextResponse.next()
 }
