@@ -2,13 +2,10 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
 export const config = {
-  matcher: [
-    '/dashboard/:path*',
-    '/login',
-  ],
-};
+  matcher: ["/dashboard/:path*", "/login"],
+}
 
-export function proxy(req: NextRequest) {
+export function middleware(req: NextRequest) {
   const token = req.cookies.get(process.env.JWT_COOKIE_NAME!)?.value
   const pathname = req.nextUrl.pathname
 
