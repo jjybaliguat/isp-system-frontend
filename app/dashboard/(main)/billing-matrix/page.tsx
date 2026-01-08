@@ -141,6 +141,8 @@ const rows = useMemo(() => {
         period: b.period,
         account: { id: String(acc.id), accountNumber: acc.accountNumber, client: acc.client, billingDay: acc.billingDay, servicePlan: acc.servicePlan },
         discounts: b.discounts || [],
+        billingCharges: b.billingCharges || [],
+        remarks: b.remarks,
         createdAt: b.createdAt,
         updatedAt: b.updatedAt
       })) || []) as BillingDataSchema[]

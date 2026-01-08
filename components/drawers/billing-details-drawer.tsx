@@ -16,7 +16,7 @@ import { getStatusBadge } from "../ui/getBillStatusBadge"
 import { Separator } from "../ui/separator"
 
 interface BillingDetailsDrawerProps {
-  billing: BillingDataSchema
+  billing?: BillingDataSchema | null
   open: boolean
   onOpenChange: (open: boolean) => void
 }
@@ -27,46 +27,68 @@ export function BillingDetailsDrawer({
   onOpenChange,
 }: BillingDetailsDrawerProps) {
   const [editBilling, setEditBilling] = useState(false)
-  const [billingState, setBillingState] = useState(billing)
+  const [billingState, setBillingState] =
+    useState<BillingDataSchema | null>(billing ?? null)
 
   useEffect(() => {
-    if (billing) setBillingState(billing)
+    setBillingState(billing ?? null)
   }, [billing])
 
   /* =========================
-     COMPUTED TOTALS
+     COMPUTED TOTALS (SAFE)
   ========================= */
 
   const chargesSubtotal = useMemo(() => {
+    if (!billingState) return 0
     return (
       billingState.billingCharges?.reduce(
         (sum, c) => sum + Number(c.amount || 0),
         0
       ) || 0
     )
-  }, [billingState.billingCharges])
+  }, [billingState])
 
   const totalDiscount = useMemo(() => {
+    if (!billingState) return 0
     return (
       billingState.discounts?.reduce(
         (sum, d) => sum + Number(d.amount || 0),
         0
       ) || 0
     )
-  }, [billingState.discounts])
+  }, [billingState])
 
   const grandTotal = Math.max(chargesSubtotal - totalDiscount, 0)
 
-  /* =========================
-     HELPERS
-  ========================= */
-
-  const billingTypeLabel = billingState.billingType
+  const billingTypeLabel = billingState?.billingType
     ?.replace("_", " ")
     .toUpperCase()
 
   /* =========================
-     RENDER
+     EMPTY STATE
+  ========================= */
+
+  if (!billingState) {
+    return (
+      <Sheet open={open} onOpenChange={onOpenChange}>
+        <SheetContent className="w-full sm:max-w-lg p-6">
+          <SheetHeader>
+            <SheetTitle>Billing Details</SheetTitle>
+            <SheetDescription>No billing selected</SheetDescription>
+          </SheetHeader>
+
+          <div className="flex flex-col items-center justify-center h-[300px] text-center space-y-3">
+            <p className="text-muted-foreground text-sm">
+              Select a billing record to view details
+            </p>
+          </div>
+        </SheetContent>
+      </Sheet>
+    )
+  }
+
+  /* =========================
+     MAIN RENDER
   ========================= */
 
   return (
