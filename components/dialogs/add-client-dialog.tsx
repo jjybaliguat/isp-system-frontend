@@ -172,7 +172,7 @@ export function AddClientDialog({ open, onOpenChange }: AddClientDialogProps) {
                 <Input
                 id="phoneNumber"
                 type="tel"
-                placeholder="+63 990 123 4567"
+                placeholder="0990 123 4567"
                 value={formData.phoneNumber}
                 onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
                 required
