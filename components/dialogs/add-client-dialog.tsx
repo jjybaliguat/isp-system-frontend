@@ -232,7 +232,7 @@ export function AddClientDialog({ open, onOpenChange }: AddClientDialogProps) {
           <div className="flex flex-col md:flex-row gap-2">
             {/* Mikrotik Account */}
             <div className="space-y-2 flex-1">
-                <Label htmlFor="mikrotikAccount">Mikrotik Account</Label>
+                <Label htmlFor="mikrotikAccount">Mikrotik Account <span className="text-destructive">*</span></Label>
                 <Input
                 id="mikrotikAccount"
                 placeholder="Enter Mikrotik account"
@@ -306,6 +306,7 @@ export function AddClientDialog({ open, onOpenChange }: AddClientDialogProps) {
           <div className="space-y-2">
               <Label htmlFor="coverageId">
               Coverage
+              <span className="text-destructive">*</span>
               </Label>
               <Select
               value={formData.coverageId}
