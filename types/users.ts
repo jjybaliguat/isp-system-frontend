@@ -23,12 +23,13 @@ export interface UsersDataSchema {
 export enum UserRole {
   SUPERADMIN = "SUPERADMIN",
   ADMIN = "ADMIN",
-  USER = "USER",
-  INSTALLER_TECHNICIAN = "INSTALLER_TECHNICIAN"
+  INSTALLER_TECHNICIAN = "INSTALLER_TECHNICIAN",
+  CLIENT = "CLIENT"
 }
 
 export interface CreateUserInput {
     employeeId?: string
+    clientId?: string
     role: string
     password: string
 }

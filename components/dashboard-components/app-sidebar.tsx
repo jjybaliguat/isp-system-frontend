@@ -173,7 +173,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           navMain: data.navMain.filter(item =>
             ["/dashboard", "/dashboard/clients", "/dashboard/billing", "/dashboard/tickets", "/dashboard/billing-matrix"].includes(item.url)
           ),
-          integrations: null,
+          integrations: undefined,
         }
 
       case "USER":
@@ -181,7 +181,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           navMain: data.navMain.filter(item =>
             ["/dashboard", "/dashboard/tickets"].includes(item.url)
           ),
-          integrations: null,
+          integrations: undefined,
         }
 
       case "INSTALLER_TECHNICIAN":
@@ -189,9 +189,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           navMain: data.navMain.filter(item =>
             ["/dashboard/assigned-tickets"].includes(item.url)
           ),
-          integrations: null,
+          integrations: undefined,
         }
-
       default:
         return { navMain: [], integrations: [] }
     }

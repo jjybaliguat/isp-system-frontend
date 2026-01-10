@@ -36,8 +36,10 @@ type ColumnKey = "client" | "contact" | "address" | "servicePlan" | "billingDay"
 export function ClientsTable({ searchQuery }: ClientsTableProps) {
   const [deleteClient, { isLoading: isDeleting }] = useDeleteClientMutation()
   const [statusFilter, setStatusFilter] = useState<string>("All")
+  
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(10)
+
   const [selectedClient, setSelectedClient] = useState<ClientDataSchema | null>(null)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [openClientPaymentsDialog, setOpenClientPaymentsDialog] = useState(false)

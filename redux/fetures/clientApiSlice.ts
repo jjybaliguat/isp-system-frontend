@@ -1,4 +1,4 @@
-import { PaginatedResponse } from "@/types/billing"
+import { BillingDataSchema, PaginatedResponse, PaymentDataSchema } from "@/types/billing"
 import { apiSlice } from "../apiSlice"
 import { Accounts, ChartData, ClientDataSchema, ClientsCountSchema, SoaData } from "@/types/clients"
 
@@ -9,6 +9,22 @@ interface GetClientsParams {
   status?: string
   coverageId?: string
   billingYear?: number
+}
+
+export interface ClientDashboardData {
+  accounts: {
+    id: string;
+    accountNumber: string;
+    activePlan: string;
+    nextDueDate: string;
+    outstandingBalance: number,
+    serviceStatus: string
+  }[]
+}
+
+interface ClientBillingWithPayment {
+  billings: BillingDataSchema[];
+  payments: PaymentDataSchema[]
 }
 
 export const clientApiSlice = apiSlice.injectEndpoints({
@@ -108,6 +124,12 @@ export const clientApiSlice = apiSlice.injectEndpoints({
         method: "GET",
       })
     }),
+    getDashboard: builder.query<ClientDashboardData, void>({
+      query: () => "/clients/portal",
+    }),
+    getClientBillings: builder.query<ClientBillingWithPayment, void>({
+      query: () => "/clients/billings"
+    })
   }),
 })
 
@@ -123,5 +145,7 @@ export const {
   useCreateAccountMutation,
   useUpdateClientAccountMutation,
   useDeleteClientAccountMutation,
-  useGenerateSoaQuery
+  useGenerateSoaQuery,
+  useGetDashboardQuery,
+  useGetClientBillingsQuery
 } = clientApiSlice

@@ -68,7 +68,7 @@ const CreateAccountDialog = ({
     odpPortId: "",
     notes: "",
     status: "ACTIVE",
-    proRatedDays: "",
+    proRatedDays: ""
   })
 
   // Load ports when ODP is selected

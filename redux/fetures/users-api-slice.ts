@@ -10,9 +10,9 @@ interface ChangePasswordInput {
 
 export const usersApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    getUsers: builder.query<UsersDataSchema[], {searchQuery: string}>({
-      query: ({searchQuery}) => ({
-        url: `/users?search=${searchQuery}`,
+    getUsers: builder.query<PaginatedResponse<UsersDataSchema>, {searchQuery: string, roleFilter?: string, page?: number, limit?: number}>({
+      query: ({searchQuery, roleFilter, page = 1, limit = 10}) => ({
+        url: `/users?page=${page}&limit=${limit}&search=${searchQuery}&role=${roleFilter || ""}`,
         method: "GET"
       }),
       providesTags: ["Users"]
