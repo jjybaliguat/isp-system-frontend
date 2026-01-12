@@ -14,6 +14,8 @@ import { CreateBillingDialog } from "../dialogs/create-billing-dialog"
 import { useEffect, useMemo, useState } from "react"
 import { getStatusBadge } from "../ui/getBillStatusBadge"
 import { Separator } from "../ui/separator"
+import { useAppSelector } from "@/redux/store/store"
+import { UserRole } from "@/types/users"
 
 interface BillingDetailsDrawerProps {
   billing?: BillingDataSchema | null
@@ -29,7 +31,7 @@ export function BillingDetailsDrawer({
   const [editBilling, setEditBilling] = useState(false)
   const [billingState, setBillingState] =
     useState<BillingDataSchema | null>(billing ?? null)
-
+  const user = useAppSelector((store)=>store.auth)
   useEffect(() => {
     setBillingState(billing ?? null)
   }, [billing])
@@ -101,14 +103,14 @@ export function BillingDetailsDrawer({
               Complete billing information
             </SheetDescription>
           </div>
-          <Button
+          {(user.role === UserRole.ADMIN || user.role === UserRole.SUPERADMIN) && <Button
             disabled={billingState.status === BillingStatus.PAID}
             size="sm"
             variant="outline"
             onClick={() => setEditBilling(true)}
           >
             Edit
-          </Button>
+          </Button>}
         </SheetHeader>
 
         <div className="space-y-6">
