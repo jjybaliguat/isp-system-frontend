@@ -9,6 +9,10 @@ import { useGetClientBillingsQuery } from "@/redux/fetures/clientApiSlice"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { BillingDetailsDrawer } from "@/components/drawers/billing-details-drawer"
+import { ChevronRight, Info, DollarSign, Plus, MessageSquare } from "lucide-react"
+import { CreateTicketDialogClient } from "@/components/dialogs/create-ticket-dialog-client"
+import { useAppSelector } from "@/redux/store/store"
 
 function StatusBadge({ status }: { status: string }) {
   const variant =
@@ -29,6 +33,8 @@ export default function ClientBilling() {
   const router = useRouter()
   const billings = data?.billings || []
   const payments = data?.payments || []
+  const [openDetails, setOpenDetails] = useState(false)
+  const [selectedBilling, setSelectedBilling] = useState<any | null>(null)
 
   const handleProceedPayment = async(invoiceId: string, amount: number) => {
     setProcessing(true)
@@ -55,130 +61,115 @@ export default function ClientBilling() {
     }
   };
 
+  const openBillingDetails = (b: any) => {
+    setSelectedBilling(b)
+    setOpenDetails(true)
+  }
+
   return (
-    <div className="p-4 sm:p-6 space-y-6">
-      <h1 className="text-2xl font-bold">My Billing & Payments</h1>
+    <div className="p-4 sm:p-6">
+      <div className="max-w-xl mx-auto">
+        <header className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-2xl font-bold">My Billing</h1>
+            <p className="text-sm text-muted-foreground">Payments & invoices</p>
+          </div>
+          {/* <Button variant="ghost" size="sm" className="hidden sm:inline-flex">
+            <Info className="h-4 w-4 mr-2" /> Help
+          </Button> */}
+        </header>
 
-      <Tabs defaultValue="billings">
-        <TabsList>
-          <TabsTrigger value="billings">Billings</TabsTrigger>
-          <TabsTrigger value="payments">Payments</TabsTrigger>
-        </TabsList>
+        <Tabs defaultValue="billings">
+          <TabsList className="rounded-full p-1 bg-muted/50">
+            <TabsTrigger value="billings" className="flex-1">Billings</TabsTrigger>
+            <TabsTrigger value="payments" className="flex-1">Payments</TabsTrigger>
+          </TabsList>
 
-        {/* ================= BILLINGS ================= */}
-        <TabsContent value="billings" className="space-y-4">
-          {loading ? (
-            [...Array(3)].map((_, i) => (
-              <Skeleton key={i} className="h-36 rounded-xl" />
-            ))
-          ) : billings.length === 0 ? (
-            <p className="text-muted-foreground">No billings found.</p>
-          ) : (
-            billings.map((b: any) => (
-              <Card key={b.id} className="rounded-xl">
-                <CardHeader className="flex flex-row justify-between items-start">
-                  <div>
-                    <CardTitle className="text-sm">
-                      Invoice #{b.invoiceNumber}
-                    </CardTitle>
-                    <p className="text-xs text-muted-foreground">
-                      Account: {b.account?.accountNumber || "N/A"}
-                    </p>
-                  </div>
-                  <div className="flex flex-row gap-2">
-                    <StatusBadge status={b.status} />
-                    {b.outstandingBalance > 0 && <Button disabled={processing} onClick={()=>handleProceedPayment(b.id, b.outstandingBalance)}>{processing? "Processing..." : "PayNow"}</Button>}
-                  </div>
-                </CardHeader>
+          {/* BILLINGS - mobile-friendly list */}
+          <TabsContent value="billings" className="space-y-3 mt-3">
+            {loading ? (
+              [...Array(4)].map((_, i) => (
+                <Skeleton key={i} className="h-20 rounded-xl" />
+              ))
+            ) : billings.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">No billings found.</p>
+            ) : (
+              billings.map((b: any) => (
+                <Card key={b.id} className="rounded-xl shadow-sm overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => openBillingDetails(b)}
+                    className="w-full text-left"
+                  >
+                    <CardHeader className="flex items-center justify-between px-4 py-3">
+                      <div>
+                        <CardTitle className="text-sm">Invoice #{b.invoiceNumber}</CardTitle>
+                        <p className="text-xs text-muted-foreground">{b.period || b.account?.accountNumber}</p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="text-right">
+                          <p className="text-sm font-semibold">₱{Number(b.outstandingBalance || b.amount).toLocaleString('en-PH')}</p>
+                          <p className="text-xs text-muted-foreground">Due {new Date(b.dueDate).toLocaleDateString()}</p>
+                        </div>
+                        <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                    </CardHeader>
+                  </button>
 
-                <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                  <div>
-                    <p className="text-muted-foreground">Due Date</p>
-                    <p>{new Date(b.dueDate).toLocaleDateString()}</p>
-                  </div>
-
-                  <div>
-                    <p className="text-muted-foreground">Amount</p>
-                    <p>
-                      ₱{b.amount.toLocaleString("en-PH")}
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="text-muted-foreground">Outstanding</p>
-                    <p className="font-semibold text-red-600">
-                      ₱{b.outstandingBalance.toLocaleString("en-PH")}
-                    </p>
-                  </div>
-
-                  {b.period && (
-                    <div className="col-span-full text-xs text-muted-foreground">
-                      {b.period}
+                  <CardContent className="flex items-center justify-between gap-3 px-4 pb-4 pt-0">
+                    <div className="flex items-center gap-3">
+                      <div className="rounded-lg bg-primary/10 p-2">
+                        <DollarSign className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Status</p>
+                        <StatusBadge status={b.status} />
+                      </div>
                     </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </TabsContent>
 
-        {/* ================= PAYMENTS ================= */}
-        <TabsContent value="payments" className="space-y-4">
-          {loading ? (
-            [...Array(3)].map((_, i) => (
-              <Skeleton key={i} className="h-28 rounded-xl" />
-            ))
-          ) : payments.length === 0 ? (
-            <p className="text-muted-foreground">No payments found.</p>
-          ) : (
-            payments.map((p: any) => (
-              <Card key={p.id} className="rounded-xl">
-                <CardHeader className="flex flex-row justify-between items-start">
-                  <div>
-                    <CardTitle className="text-sm">
-                      Invoice #{p.invoiceNumber || "—"}
-                    </CardTitle>
-                    <p className="text-xs text-muted-foreground">
-                      Account: {p.accountNumber || "N/A"}
-                    </p>
-                  </div>
-                  {/* <StatusBadge status={p.status} /> */}
-                </CardHeader>
+                    <div className="flex items-center gap-2">
+                      {b.outstandingBalance > 0 && (
+                        <Button disabled={processing} size="sm" onClick={()=>handleProceedPayment(b.id, b.outstandingBalance)}>
+                          {processing ? 'Processing...' : 'Pay'}
+                        </Button>
+                      )}
+                      <Button variant="ghost" size="sm" onClick={()=>openBillingDetails(b)}>View</Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </TabsContent>
 
-                <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                  <div>
-                    <p className="text-muted-foreground">Amount</p>
-                    <p>₱{Number(p.amount).toLocaleString("en-PH")}</p>
-                  </div>
+          {/* PAYMENTS */}
+          <TabsContent value="payments" className="space-y-3 mt-3">
+            {loading ? (
+              [...Array(3)].map((_, i) => (
+                <Skeleton key={i} className="h-20 rounded-xl" />
+              ))
+            ) : payments.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">No payments found.</p>
+            ) : (
+              payments.map((p: any) => (
+                <Card key={p.id} className="rounded-xl">
+                  <CardHeader className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-sm">Invoice #{p.invoiceNumber || '—'}</CardTitle>
+                      <p className="text-xs text-muted-foreground">{p.accountNumber || 'N/A'}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-semibold">₱{Number(p.amount).toLocaleString('en-PH')}</p>
+                      <p className="text-xs text-muted-foreground">{p.paidAt ? new Date(p.paidAt).toLocaleDateString() : 'Pending'}</p>
+                    </div>
+                  </CardHeader>
+                </Card>
+              ))
+            )}
+          </TabsContent>
+        </Tabs>
+      </div>
 
-                  <div>
-                    <p className="text-muted-foreground">Paid At</p>
-                    <p>
-                      {p.paidAt
-                        ? new Date(p.paidAt).toLocaleDateString()
-                        : "Pending"}
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="text-muted-foreground">Method</p>
-                    <p>{p.paymentMethod || "—"}</p>
-                  </div>
-
-                  <div>
-                    <p className="text-muted-foreground">Channel</p>
-                    <p>{p.paymentChannel || "—"}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Reference Id</p>
-                    <p>{p.referenceId || "—"}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </TabsContent>
-      </Tabs>
+      <BillingDetailsDrawer billing={selectedBilling} open={openDetails} onOpenChange={setOpenDetails} />
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import { BillingDataSchema, PaginatedResponse, PaymentDataSchema } from "@/types/billing"
 import { apiSlice } from "../apiSlice"
 import { Accounts, ChartData, ClientDataSchema, ClientsCountSchema, SoaData } from "@/types/clients"
+import { TicketDataSchema } from "@/types/ticket"
 
 interface GetClientsParams {
   page?: number
@@ -129,6 +130,10 @@ export const clientApiSlice = apiSlice.injectEndpoints({
     }),
     getClientBillings: builder.query<ClientBillingWithPayment, void>({
       query: () => "/clients/billings"
+    }),
+    getUserTickets: builder.query<TicketDataSchema[],  void>({
+      query: () => "/clients/tickets",
+      providesTags: ["Tickets"]
     })
   }),
 })
@@ -147,5 +152,6 @@ export const {
   useDeleteClientAccountMutation,
   useGenerateSoaQuery,
   useGetDashboardQuery,
-  useGetClientBillingsQuery
+  useGetClientBillingsQuery,
+  useGetUserTicketsQuery
 } = clientApiSlice

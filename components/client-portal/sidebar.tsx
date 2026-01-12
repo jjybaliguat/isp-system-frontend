@@ -23,7 +23,7 @@ const data = {
     { title: "Dashboard", url: "/client-portal", icon: LayoutDashboard },
     { title: "Billing", url: "/client-portal/billing", icon: CreditCard },
     { title: "Tickets", url: "/client-portal/tickets", icon: Headphones },
-    { title: "Messages", url: "/client-portal/messages", icon: FileText },
+    // { title: "Messages", url: "/client-portal/messages", icon: FileText },
     { title: "Profile", url: "/client-portal/profile", icon: User },
   ]
 }

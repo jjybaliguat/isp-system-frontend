@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -29,6 +29,8 @@ type CreateTicketFormValues = z.infer<typeof createTicketSchema>
 interface CreateTicketDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  // optional initial values to prefill the form (e.g., clientId, subject)
+  initialValues?: Partial<CreateTicketFormValues>
 }
 
 function generateRandomNumber(length = 6) {
@@ -40,7 +42,7 @@ function generateRandomNumber(length = 6) {
   return result;
 }
 
-export function CreateTicketDialog({ open, onOpenChange }: CreateTicketDialogProps) {
+export function CreateTicketDialog({ open, onOpenChange, initialValues }: CreateTicketDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [createTicket] = useCreateTicketMutation()
   const { refetch } = useGetTicketsQuery({ page: 1, limit: 100 })
@@ -57,6 +59,22 @@ export function CreateTicketDialog({ open, onOpenChange }: CreateTicketDialogPro
     },
   })
 
+  // Reset form whenever initialValues or open changes so dialog opens with prefilled data
+  useEffect(() => {
+    if (initialValues) {
+      form.reset({ ...form.getValues(), ...initialValues })
+    } else if (open) {
+      // ensure defaults when opening without initial values
+      form.reset({
+        subject: "",
+        description: "",
+        category: TicketCategory.GENERAL,
+        priority: TicketPriority.MEDIUM,
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialValues, open])
+
   const onSubmit = async (values: CreateTicketFormValues) => {
     setIsSubmitting(true)
     try {
@@ -67,9 +85,9 @@ export function CreateTicketDialog({ open, onOpenChange }: CreateTicketDialogPro
       form.reset()
       onOpenChange(false)
       refetch()
-    } catch (error) {
+    } catch (error: any) {
       toast("Error", {
-        description: "Failed to create ticket",
+        description: `Failed: ${error.data.message}`,
       })
     } finally {
       setIsSubmitting(false)
