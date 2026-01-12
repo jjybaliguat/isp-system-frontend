@@ -30,8 +30,6 @@ export default function ClientBilling() {
   const billings = data?.billings || []
   const payments = data?.payments || []
 
-  const convenienceFee = 15;
-
   const handleProceedPayment = async(invoiceId: string, amount: number) => {
     setProcessing(true)
     try {
@@ -39,10 +37,7 @@ export default function ClientBilling() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          amount: amount + convenienceFee
-        })
+        }
       })
       const responseData =  await response.json()
       if(!response.ok){

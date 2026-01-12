@@ -176,7 +176,7 @@ useEffect(() => {
   if (isEdit && !isDefaultCharge) return
 
   if (formData.billingType === BillingType.PRORATED && formData.proratedDays) {
-    console.log("Setting prorated charge")
+    // console.log("Setting prorated charge")
     setFormData(prev => ({
       ...prev,
       charges: [
@@ -234,7 +234,7 @@ useEffect(() => {
   const calculatedTotal = Math.max(chargesTotal - totalDiscount, 0)
 
   useEffect(()=> {
-    console.log("Form Data Changed:", formData)
+    // console.log("Form Data Changed:", formData)
     setFormData({
       accountId: billing?.account?.id || "",
       month: billing?.period?.split(" ")[0] || MONTHS[currentMonthIndex],
@@ -258,7 +258,7 @@ useEffect(() => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("Submitting form data:", formData)
+    // console.log("Submitting form data:", formData)
 
     if (!formData.accountId) {
       toast.error("Please select a client")
