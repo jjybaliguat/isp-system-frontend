@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { BillingDetailsDrawer } from "@/components/drawers/billing-details-drawer"
-import { ChevronRight, Info, DollarSign, Plus, MessageSquare } from "lucide-react"
+import { ChevronRight, Info, DollarSign, Plus, MessageSquare, PhilippinePeso } from "lucide-react"
 import { CreateTicketDialogClient } from "@/components/dialogs/create-ticket-dialog-client"
 import { useAppSelector } from "@/redux/store/store"
 
@@ -119,7 +119,7 @@ export default function ClientBilling() {
                   <CardContent className="flex items-center justify-between gap-3 px-4 pb-4 pt-0">
                     <div className="flex items-center gap-3">
                       <div className="rounded-lg bg-primary/10 p-2">
-                        <DollarSign className="h-5 w-5 text-primary" />
+                        <PhilippinePeso className="h-5 w-5 text-primary" />
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground">Status</p>
