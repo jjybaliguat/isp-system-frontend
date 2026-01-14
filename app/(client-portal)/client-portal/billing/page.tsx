@@ -157,7 +157,7 @@ export default function ClientBilling() {
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-semibold">₱{Number(p.amount).toLocaleString('en-PH')}</p>
-                      <p className="text-xs text-muted-foreground">{p.paidAt ? new Date(p.paidAt).toLocaleDateString() : 'Pending'}</p>
+                      <p className="text-xs text-muted-foreground">{p.paidAt ? new Date(p.paidAt).toLocaleDateString() : p.status}</p>
                     </div>
                   </CardHeader>
                 </Card>
