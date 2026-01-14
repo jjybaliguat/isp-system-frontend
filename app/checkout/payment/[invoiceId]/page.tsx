@@ -15,7 +15,7 @@ export default function PaymentDetailsPage() {
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/billing/${invoiceId}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/billing/unpaid/${invoiceId}`);
         const json = await res.json();
         console.log(json)
         setData(json);
