@@ -61,7 +61,7 @@ export default function HeroSection() {
                     className="px-6 text-base"
                   >
                     <Link href="/login">
-                      Client Portal
+                      Login
                     </Link>
                   </Button>
                 </div>

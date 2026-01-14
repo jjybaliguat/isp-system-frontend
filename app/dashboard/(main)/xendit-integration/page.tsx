@@ -8,8 +8,8 @@ import { Skeleton } from '@/components/ui/skeleton'
 import PageWrapper from '@/components/wrapper/page-wrapper'
 import { cn } from '@/lib/utils'
 import { withRoleGuard } from '@/lib/withRoleGuard'
-import { setXenditKey } from '@/redux/authSlice'
-import { useGetStoredKeyQuery, useStoreXenditApiKeyMutation, useTestXenditKeyMutation } from '@/redux/fetures/provider-api-slice'
+import { setXendit } from '@/redux/authSlice'
+import { useGetStoredKeyQuery, useSaveXenditIntegrationMutation, useTestXenditKeyMutation } from '@/redux/fetures/provider-api-slice'
 import { useAppSelector } from '@/redux/store/store'
 import { UserRole } from '@/types/users'
 import Image from 'next/image'
@@ -20,11 +20,16 @@ import { toast } from 'sonner'
 const XENDIT_DEV_SETTINGS_URL = "https://dashboard.xendit.co/settings/developers#webhooks"
 const XENDIT_IP_ALLOWLIST_URL = "https://dashboard.xendit.co/settings/developers#ip-allowlist"
 
+interface XenditProps {
+  apiKey: string | null,
+  convenienceFee: number | null,
+  expiration: number | null
+}
 
 const XenditIntegrationPage = () => {
   const { data, isLoading } = useGetStoredKeyQuery();
-  const [storeKey, {isLoading: submittting}] = useStoreXenditApiKeyMutation();
-  const xenditKeyFromStore = useAppSelector((state) => state.auth.xenditKey);
+  const [saveXenditIntegration, {isLoading: submittting}] = useSaveXenditIntegrationMutation();
+  const xenditFromStore = useAppSelector((state) => state.auth.xendit);
   const [connectionStatus, setConnectionStatus] = useState<string | null>(null)
   const token = useAppSelector((store)=>store.auth.accessToken)
   const [testing, setTesting] = useState(false)
@@ -32,28 +37,33 @@ const XenditIntegrationPage = () => {
   const dispatch = useDispatch()
   const [xenditTest] = useTestXenditKeyMutation()
 
-  const [apiKey, setApiKey] = useState('');
+  const [formData, setFormData] = useState<XenditProps>({
+    apiKey: '',
+    convenienceFee: 15,
+    expiration: 1
+  })
 
   useEffect(() => {
-    if (!isLoading && data?.xenditApiKey) {
-      setApiKey(data.xenditApiKey);
-      dispatch(setXenditKey({xenditKey: data.xenditApiKey}));
-    } else if (xenditKeyFromStore) {
-      setApiKey(xenditKeyFromStore);
-      dispatch(setXenditKey({xenditKey: xenditKeyFromStore}));
+    if (!isLoading && data) {
+      setFormData({...data.xendit});
+      dispatch(setXendit(data.xendit));
+    } else if (xenditFromStore) {
+      setFormData(xenditFromStore);
+      dispatch(setXendit(xenditFromStore));
     }
-  }, [isLoading, data, xenditKeyFromStore]);
+  }, [isLoading, data, xenditFromStore]);
   
-  const handleSubmit = async() => {
+  const handleSubmit = async(e: React.FormEvent) => {
+    e.preventDefault()
     try {
-      const data = await storeKey({key: apiKey}).unwrap()
+      const data = await saveXenditIntegration(formData).unwrap()
 
       toast("Success", {
         description: "Api Key stored securely"
       })
-      setApiKey(data)
-      dispatch(setXenditKey(data))
-      window.location.reload()
+      setFormData(data)
+      dispatch(setXendit(data))
+      setIsEditingKey(false)
     } catch (error) {
       console.log(error)
       toast("Success", {
@@ -66,7 +76,6 @@ const XenditIntegrationPage = () => {
     setTesting(true)
     try {
       const response = await xenditTest().unwrap()
-
       setConnectionStatus(response.message)
       setTesting(false)
     } catch (error: any) {
@@ -78,7 +87,7 @@ const XenditIntegrationPage = () => {
 
   const handleCancel = () => {
     setIsEditingKey(false)
-    setApiKey(xenditKeyFromStore!)
+    setFormData({...xenditFromStore})
   }
 
 
@@ -124,32 +133,56 @@ const XenditIntegrationPage = () => {
                     <Input
                       placeholder='enter your xendit api key'
                       id='apiKey'
-                      value={apiKey}
+                      value={formData.apiKey || ''}
                       type='password'
-                      onChange={(e)=>setApiKey(e.target.value)}
+                      onChange={(e)=>setFormData({...formData, apiKey: e.target.value})}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor='convenienceFee'>Convenience Fee</Label>
+                    <Input
+                      id='convenienceFee'
+                      type='number'
+                      step='any'
+                      placeholder='enter e-payment convenience fee'
+                      value={formData.convenienceFee ?? 0}
+                      onChange={(e)=>setFormData({...formData, convenienceFee: Number(e.target.value)})}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor='expiration'>Expiration (Days)</Label>
+                    <Input
+                      id='expiration'
+                      type='number'
+                      step='any'
+                      placeholder='invoice expiration days'
+                      value={formData.expiration || 0}
+                      onChange={(e)=>setFormData({...formData, expiration: Number(e.target.value)})}
                       required
                     />
                   </div>
                   <div className="flex justify-end mt-4 gap-2">
-                  {xenditKeyFromStore && !isEditingKey ? (
+                  {xenditFromStore && !isEditingKey ? (
                     <div className="flex items-center gap-3">
-                      <Button type='button' variant="outline" onClick={(e) => {e.preventDefault(); setIsEditingKey(true); setApiKey('')}}>Change</Button>
+                      <Button type='button' variant="outline" onClick={(e) => {e.preventDefault(); setIsEditingKey(true); setFormData({...formData, apiKey: ''})}}>Change</Button>
                     </div>
                   ) : (
                     <div className="flex items-center gap-3">
                       <Button type='submit' disabled={submittting}>{submittting? "Saving..." : "Save"}</Button>
-                      {xenditKeyFromStore &&<Button type='button' variant="outline" onClick={handleCancel}>Cancel</Button>}
+                      {xenditFromStore &&<Button type='button' variant="outline" onClick={handleCancel}>Cancel</Button>}
                     </div>
                   )}
                 </div>
               </form>
-              {data?.xenditApiKey && data?.xenditApiKey !== "" &&
+              {data?.xendit && data?.xendit.apiKey !== "" &&
                 <div className='mt-2 space-y-2'>
                   <Button variant="outline" onClick={handleTestConnection} disabled={testing}>{testing? "Testing..." : "Test Connection"}</Button>
                   {connectionStatus && <p
                     className={cn({
                       "font-medium text-green-500": true,
-                      "text-destructive": connectionStatus.includes("Failed") || connectionStatus.includes("Too many login attempts") || connectionStatus.includes("invalid"),
+                      "text-destructive": connectionStatus.includes("Failed") || connectionStatus.includes("Too many login attempts") || connectionStatus.includes("invalid") || connectionStatus.includes("rejected"),
                     })}
                   >{connectionStatus}</p>}
                 </div>

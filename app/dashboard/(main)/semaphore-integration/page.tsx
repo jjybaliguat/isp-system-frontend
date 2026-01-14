@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAppSelector } from '@/redux/store/store'
-import { SmsIntegrationSettingsInput, useGetSmsSettingsQuery, useGetStoredKeyQuery, useSaveSmsintegrationSettingsMutation, useStoreSemaphoreApiKeyMutation, useStoreXenditApiKeyMutation, useTestSmsKeyMutation } from '@/redux/fetures/provider-api-slice'
+import { SmsIntegrationSettingsInput, useGetSmsSettingsQuery, useGetStoredKeyQuery, useSaveSmsintegrationSettingsMutation, useStoreSemaphoreApiKeyMutation, useTestSmsKeyMutation } from '@/redux/fetures/provider-api-slice'
 import { useDispatch } from 'react-redux'
 import { toast } from 'sonner'
 import { setSemaphoreKey } from '@/redux/authSlice'
@@ -301,7 +301,7 @@ const SemaphoreIntegrationPage = () => {
                     )}
                   </div>
                 </form>
-                {data?.xenditApiKey && data?.xenditApiKey !== "" &&
+                {data?.semaphoreApiKey && data?.semaphoreApiKey !== "" &&
                   <div className='mt-2 space-y-2'>
                     <Button variant="outline" onClick={handleTestConnection} disabled={testing}>{testing? "Testing..." : "Test Connection"}</Button>
                     {connectionStatus && <p

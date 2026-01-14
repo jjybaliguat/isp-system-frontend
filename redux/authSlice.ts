@@ -9,7 +9,11 @@ interface UserState {
   role: string | null;
   providerType: ProviderType | null
   accessToken: string | null,
-  xenditKey: string | null,
+  xendit: {
+    apiKey: string | null;
+    convenienceFee: number | null;
+    expiration: number | null
+  };
   semaphoreKey: string | null,
 }
 
@@ -20,7 +24,11 @@ const initialState: UserState = {
   role: null,
   providerType: null,
   accessToken: null,
-  xenditKey: null,
+  xendit: {
+    apiKey: null,
+    convenienceFee: null,
+    expiration: null
+  },
   semaphoreKey: null
 };
 
@@ -35,7 +43,11 @@ const userSlice = createSlice({
       state.role = action.payload.role;
       state.providerType = action.payload.providerType;
       state.accessToken = action.payload.accessToken;
-      state.xenditKey = null;
+      state.xendit = {
+        apiKey: null,
+        convenienceFee: null,
+        expiration: null
+      };
       state.semaphoreKey = null;
     },
     updateUserField: (state, action: PayloadAction<Partial<UserState>>) => {
@@ -48,16 +60,19 @@ const userSlice = createSlice({
       state.role = null;
       state.providerType = null;
       state.accessToken = null;
-      state.xenditKey = null;
+      state.xendit = {
+        apiKey: null,
+        convenienceFee: null,
+        expiration: null
+      };;
       state.semaphoreKey = null;
     },
     updateToken: (state, action) => {
         const {accessToken} = action.payload
         state.accessToken = accessToken
     },
-    setXenditKey: (state, action: PayloadAction<{xenditKey: string}>) => {
-      console.log(action.payload.xenditKey)
-      state.xenditKey = action.payload.xenditKey
+    setXendit: (state, action: PayloadAction<{apiKey: string | null, convenienceFee: number | null, expiration: number | null}>) => {
+      state.xendit = action.payload
     },
     setSemaphoreKey: (state, action: PayloadAction<{semaphoreKey: string}>) => {
       console.log(action.payload.semaphoreKey)
@@ -66,7 +81,7 @@ const userSlice = createSlice({
   },
 });
 
-export const { setUser, updateUserField, logout, updateToken, setXenditKey, setSemaphoreKey} = userSlice.actions;
+export const { setUser, updateUserField, logout, updateToken, setXendit, setSemaphoreKey} = userSlice.actions;
 export const getCurrentToken = (state: RootState) => state.auth.accessToken
 export default userSlice.reducer;
 

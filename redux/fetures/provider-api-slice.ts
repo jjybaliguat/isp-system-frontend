@@ -5,7 +5,9 @@ import { get } from "lodash";
 import { PaginatedResponse } from "@/types/billing";
 
 interface StoreKeyInput {
-    key: string
+    apiKey: string | null,
+    convenienceFee: number | null,
+    expiration: number | null
 }
 
 export interface ProfileDataSchema {
@@ -52,27 +54,28 @@ interface GetProviderParams {
 
 export const providerApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    storeXenditApiKey: builder.mutation<any, StoreKeyInput>({
+    saveXenditIntegration: builder.mutation<any, StoreKeyInput>({
         query: (body) => ({
             url: "/providers/xendit-key",
             method: "POST",
             body
         }),
-        invalidatesTags: ["Xendit"],
+        invalidatesTags: ["Integration"],
         }),
-    storeSemaphoreApiKey: builder.mutation<any, StoreKeyInput>({
+    storeSemaphoreApiKey: builder.mutation<any, {key: string}>({
         query: (body) => ({
             url: "/providers/semaphore-key",
             method: "POST",
             body
         }),
-        invalidatesTags: ["Xendit"],
+        invalidatesTags: ["Integration"],
         }),
-    getStoredKey: builder.query<{xenditApiKey: string, semaphoreApiKey: string}, void>({
+    getStoredKey: builder.query<{xendit: {apiKey: string, convenienceFee: number, expiration: number}, semaphoreApiKey: string}, void>({
         query: () => ({
             url: "/providers/stored-keys",
             method: "GET"
-        })
+        }),
+        providesTags: ["Integration"]
     }),
     testXenditKey: builder.mutation<any, void>({
         query: () => ({
@@ -142,7 +145,7 @@ export const providerApiSlice = apiSlice.injectEndpoints({
 })
 
 export const { 
-    useStoreXenditApiKeyMutation,
+    useSaveXenditIntegrationMutation,
     useStoreSemaphoreApiKeyMutation,
     useGetStoredKeyQuery,
     useTestXenditKeyMutation,

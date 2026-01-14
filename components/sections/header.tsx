@@ -59,7 +59,7 @@ export const HeroHeader = () => {
             {/* ACTIONS */}
             <div className="hidden lg:flex items-center gap-3">
               <Button asChild variant="outline" size="sm">
-                <Link href="/login">Client Portal</Link>
+                <Link href="/login">Login</Link>
               </Button>
 
               <Button asChild size="sm">
@@ -109,7 +109,7 @@ export const HeroHeader = () => {
             {/* MOBILE ACTIONS */}
             <div className="flex flex-col gap-3">
               <Button asChild variant="outline">
-                <Link href="/login">Client Portal</Link>
+                <Link href="/login">Login</Link>
               </Button>
 
               <Button asChild>

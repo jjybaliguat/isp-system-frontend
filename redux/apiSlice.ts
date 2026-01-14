@@ -62,7 +62,7 @@ export const apiSlice = createApi({
     "Users",
     "Employees",
     "Teams",
-    "Xendit",
+    "Integration",
     "SMS",
     "Coverage",
     "ServicePlan",
