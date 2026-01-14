@@ -136,6 +136,7 @@ const SmsTemplateDrawer = ({ open, onOpenChange }: SmsTemplateDrawerProps) => {
                 <code>{"{websiteLink}"}</code>,{" "}
                 <code>{"{billingDay}"}</code>,{" "}
                 <code>{"{email}"}</code>,{" "}
+                <code>{"{password}"}</code>,{" "}
                 <code>{"{phone}"}</code>,{" "}
                 <code>{"{companyName}"}</code>,{" "}
                 <code>{"{period}"}</code>
