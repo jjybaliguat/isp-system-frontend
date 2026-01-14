@@ -45,7 +45,7 @@ export default function ClientBilling() {
       })
       const responseData =  await response.json()
       if(!response.ok){
-        toast.error(responseData.message)
+        responseData.error? toast.error(responseData.error) : toast.error(responseData.error)
         setProcessing(false)
       }else{
         const { xenditInvoiceUrl } = responseData
