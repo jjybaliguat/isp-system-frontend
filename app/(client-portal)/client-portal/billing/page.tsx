@@ -148,12 +148,12 @@ export default function ClientBilling() {
             ) : payments.length === 0 ? (
               <p className="text-center text-muted-foreground py-8">No payments found.</p>
             ) : (
-              payments.map((p: any) => (
+              payments.map((p) => (
                 <Card key={p.id} className="rounded-xl">
                   <CardHeader className="flex items-center justify-between">
                     <div>
                       <CardTitle className="text-sm">Invoice #{p.invoiceNumber || '—'}</CardTitle>
-                      <p className="text-xs text-muted-foreground">{p.accountNumber || 'N/A'}</p>
+                      <p className="text-xs text-muted-foreground">{p.paymentChannel} - {p.referenceId || 'N/A'}</p>
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-semibold">₱{Number(p.amount).toLocaleString('en-PH')}</p>

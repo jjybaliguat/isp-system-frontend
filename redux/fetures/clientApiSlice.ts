@@ -23,9 +23,23 @@ export interface ClientDashboardData {
   }[]
 }
 
+interface PaymentDataProps {
+  id: string,
+  amount: number,
+  status: string,
+  paymentMethod: string,
+  paymentChannel: string,
+  referenceId: string,
+  paidAt: string,
+  paymentDate: string,
+  createdAt: string,
+  invoiceNumber: string,
+  accountNumber: string
+}
+
 interface ClientBillingWithPayment {
   billings: BillingDataSchema[];
-  payments: PaymentDataSchema[]
+  payments: PaymentDataProps[]
 }
 
 export const clientApiSlice = apiSlice.injectEndpoints({
