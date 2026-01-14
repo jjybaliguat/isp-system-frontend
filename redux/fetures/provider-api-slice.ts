@@ -5,9 +5,9 @@ import { get } from "lodash";
 import { PaginatedResponse } from "@/types/billing";
 
 interface StoreKeyInput {
-    apiKey: string | null,
-    convenienceFee: number | null,
-    expiration: number | null
+    apiKey?: string | null,
+    convenienceFee?: number | null,
+    expiration?: number | null
 }
 
 export interface ProfileDataSchema {

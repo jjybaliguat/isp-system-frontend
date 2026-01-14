@@ -52,25 +52,6 @@ const XenditIntegrationPage = () => {
       dispatch(setXendit(xenditFromStore));
     }
   }, [isLoading, data, xenditFromStore]);
-  
-  const handleSubmit = async(e: React.FormEvent) => {
-    e.preventDefault()
-    try {
-      const data = await saveXenditIntegration(formData).unwrap()
-
-      toast("Success", {
-        description: "Api Key stored securely"
-      })
-      setFormData(data)
-      dispatch(setXendit(data))
-      setIsEditingKey(false)
-    } catch (error) {
-      console.log(error)
-      toast("Success", {
-        description: "Something went wrong, please try again"
-      })
-    }
-  }
 
   const handleTestConnection = async() => {
     setTesting(true)
@@ -127,7 +108,8 @@ const XenditIntegrationPage = () => {
               <CardDescription>Note: Your Api Key is encrypted first before storing in the database</CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className='space-y-4'>
+                {/* API Key section - separate submit */}
+                <div className='space-y-4'>
                   <div className='space-y-2'>
                     <Label htmlFor='apiKey'>Api Key</Label>
                     <Input
@@ -136,9 +118,40 @@ const XenditIntegrationPage = () => {
                       value={formData.apiKey || ''}
                       type='password'
                       onChange={(e)=>setFormData({...formData, apiKey: e.target.value})}
-                      required
+                      required={isEditingKey}
+                      readOnly={!isEditingKey}
                     />
                   </div>
+
+                  <div className="flex justify-end mt-2 gap-2">
+                    {xenditFromStore && !isEditingKey ? (
+                      <div className="flex items-center gap-3">
+                        <Button type='button' variant="outline" onClick={(e) => {e.preventDefault(); setIsEditingKey(true); setFormData({...formData, apiKey: ''})}}>Change</Button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-3">
+                        <Button type='button' disabled={submittting} onClick={async()=>{
+                          // Save only API key (include existing settings to avoid overwriting)
+                          try {
+                            const payload = {
+                              apiKey: formData.apiKey
+                            }
+                            const data = await saveXenditIntegration(payload).unwrap()
+                            toast("Success", { description: "Api Key stored securely" })
+                            setFormData(data)
+                            dispatch(setXendit(data))
+                            setIsEditingKey(false)
+                          } catch (error) {
+                            console.log(error)
+                            toast.error("Failed to save API key")
+                          }
+                        }}>{submittting? "Saving..." : "Save"}</Button>
+                        {xenditFromStore &&<Button type='button' variant="outline" onClick={handleCancel}>Cancel</Button>}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Convenience fee & expiration - saved with explicit Save button */}
                   <div className="space-y-2">
                     <Label htmlFor='convenienceFee'>Convenience Fee</Label>
                     <Input
@@ -148,9 +161,9 @@ const XenditIntegrationPage = () => {
                       placeholder='enter e-payment convenience fee'
                       value={formData.convenienceFee ?? 0}
                       onChange={(e)=>setFormData({...formData, convenienceFee: Number(e.target.value)})}
-                      required
                     />
                   </div>
+
                   <div className="space-y-2">
                     <Label htmlFor='expiration'>Expiration (Days)</Label>
                     <Input
@@ -160,22 +173,27 @@ const XenditIntegrationPage = () => {
                       placeholder='invoice expiration days'
                       value={formData.expiration || 0}
                       onChange={(e)=>setFormData({...formData, expiration: Number(e.target.value)})}
-                      required
                     />
                   </div>
-                  <div className="flex justify-end mt-4 gap-2">
-                  {xenditFromStore && !isEditingKey ? (
-                    <div className="flex items-center gap-3">
-                      <Button type='button' variant="outline" onClick={(e) => {e.preventDefault(); setIsEditingKey(true); setFormData({...formData, apiKey: ''})}}>Change</Button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-3">
-                      <Button type='submit' disabled={submittting}>{submittting? "Saving..." : "Save"}</Button>
-                      {xenditFromStore &&<Button type='button' variant="outline" onClick={handleCancel}>Cancel</Button>}
-                    </div>
-                  )}
+
+                  <div className="flex justify-end mt-2 gap-2">
+                    <Button type='button' disabled={submittting} onClick={async()=>{
+                      try {
+                        const payload = {
+                          convenienceFee: formData.convenienceFee ?? 0,
+                          expiration: formData.expiration ?? 0,
+                        }
+                        const data = await saveXenditIntegration(payload).unwrap()
+                        toast("Success", { description: "Settings saved" })
+                        setFormData(data)
+                        dispatch(setXendit(data))
+                      } catch (error) {
+                        console.log(error)
+                        toast.error("Failed to save settings")
+                      }
+                    }}>{submittting? 'Saving...' : 'Save Settings'}</Button>
+                  </div>
                 </div>
-              </form>
               {data?.xendit && data?.xendit.apiKey !== "" &&
                 <div className='mt-2 space-y-2'>
                   <Button variant="outline" onClick={handleTestConnection} disabled={testing}>{testing? "Testing..." : "Test Connection"}</Button>
