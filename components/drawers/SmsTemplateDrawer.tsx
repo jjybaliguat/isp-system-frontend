@@ -127,20 +127,24 @@ const SmsTemplateDrawer = ({ open, onOpenChange }: SmsTemplateDrawerProps) => {
                 }
               />
               <p className="text-xs text-muted-foreground">
-                Tip: You can use variables like{" "}
-                <code>{"{name}"}</code>,{" "}
-                <code>{"{amount}"}</code>,{" "}
-                <code>{"{accNum}"}</code>,{" "}
-                <code>{"{dueDate}"}</code>,{" "}
-                <code>{"{link}"}</code>,{" "}
-                <code>{"{websiteLink}"}</code>,{" "}
-                <code>{"{billingDay}"}</code>,{" "}
-                <code>{"{email}"}</code>,{" "}
-                <code>{"{password}"}</code>,{" "}
-                <code>{"{phone}"}</code>,{" "}
-                <code>{"{companyName}"}</code>,{" "}
-                <code>{"{period}"}</code>
+                <span className="font-medium">Tip:</span> You can use the following variables
+                in your message template: Case sensitive.
               </p>
+
+              <ul className="mt-1 text-xs text-muted-foreground grid grid-cols-2 gap-x-3">
+                <li><code>{"{name}"}</code> – Client name</li>
+                <li><code>{"{email}"}</code> – Client email | Portal email</li>
+                <li><code>{"{accNum}"}</code> – Account number</li>
+                <li><code>{"{billingDay}"}</code> – Client billing day</li>
+                <li><code>{"{phone}"}</code> – Phone number</li>
+                <li><code>{"{password}"}</code> – Portal password</li>
+                <li><code>{"{amount}"}</code> – Bill amount due</li>
+                <li><code>{"{dueDate}"}</code> – Bill due date</li>
+                <li><code>{"{period}"}</code> – Billing period</li>
+                <li><code>{"{companyName}"}</code> – Company name</li>
+                <li><code>{"{link}"}</code> – Payment link</li>
+                <li><code>{"{websiteLink}"}</code> – Website URL</li>
+              </ul>
             </div>
           )}
 
