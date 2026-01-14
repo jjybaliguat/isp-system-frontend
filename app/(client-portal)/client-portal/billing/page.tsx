@@ -10,9 +10,7 @@ import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { BillingDetailsDrawer } from "@/components/drawers/billing-details-drawer"
-import { ChevronRight, Info, DollarSign, Plus, MessageSquare, PhilippinePeso } from "lucide-react"
-import { CreateTicketDialogClient } from "@/components/dialogs/create-ticket-dialog-client"
-import { useAppSelector } from "@/redux/store/store"
+import { ChevronRight, PhilippinePeso } from "lucide-react"
 
 function StatusBadge({ status }: { status: string }) {
   const variant =
@@ -129,8 +127,8 @@ export default function ClientBilling() {
 
                     <div className="flex items-center gap-2">
                       {b.outstandingBalance > 0 && (
-                        <Button disabled={processing} size="sm" onClick={()=>handleProceedPayment(b.id, b.outstandingBalance)}>
-                          {processing ? 'Processing...' : 'Pay'}
+                        <Button type="button" disabled={processing} size="sm" onClick={()=>handleProceedPayment(b.id, b.outstandingBalance)}>
+                          Pay
                         </Button>
                       )}
                       <Button variant="ghost" size="sm" onClick={()=>openBillingDetails(b)}>View</Button>
