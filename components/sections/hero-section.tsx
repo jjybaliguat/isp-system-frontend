@@ -49,8 +49,8 @@ export default function HeroSection() {
                 {/* CTA */}
                 <div className="mt-10 flex flex-col sm:flex-row items-center gap-3 lg:justify-start">
                   <Button asChild size="lg" className="px-6 text-base">
-                    <Link href="#">
-                      Check Availability
+                    <Link href="/apply">
+                      Apply Now
                     </Link>
                   </Button>
 

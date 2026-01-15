@@ -63,7 +63,7 @@ export const HeroHeader = () => {
               </Button>
 
               <Button asChild size="sm">
-                <Link href="/apply">Check Availability</Link>
+                <Link href="/apply">Apply Now</Link>
               </Button>
 
               <ThemeToggler />

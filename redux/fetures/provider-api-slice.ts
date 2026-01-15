@@ -103,6 +103,12 @@ export const providerApiSlice = apiSlice.injectEndpoints({
           }),
           providesTags: ["Providers"],
         }),
+    getFilteredProviders: builder.query<ProviderDataSchema[], void>({
+          query: () => ({
+            url: `/providers/get-providers`,
+            method: "GET",
+          })
+        }),
     updateAccount: builder.mutation<ProfileDataSchema, ProfileDataSchema>({
         query: (body) => ({
             url: "/providers/update-account",
@@ -152,6 +158,7 @@ export const {
     useTestSmsKeyMutation,
     useGetProviderQuery,
     useGetProvidersQuery,
+    useGetFilteredProvidersQuery,
     useUpdateAccountMutation,
     useSaveSmsintegrationSettingsMutation,
     useGetSmsSettingsQuery,

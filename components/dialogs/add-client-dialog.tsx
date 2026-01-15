@@ -27,9 +27,22 @@ import { generateAccountNumber } from "@/utils/generateAccountNumber"
 interface AddClientDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  // optional initial values to prefill the form (useful for converting applicants)
+  initialValues?: Partial<{
+    fullName: string
+    email: string
+    phoneNumber: string
+    address: string
+    servicePlanId: string
+    coverageId: string
+    notes: string
+    installationDate: string
+  }>
+  // optional callback called with created client response
+  onSuccess?: (createdClient: any) => void
 }
 
-export function AddClientDialog({ open, onOpenChange }: AddClientDialogProps) {
+export function AddClientDialog({ open, onOpenChange, initialValues, onSuccess }: AddClientDialogProps) {
   const {data: servicePlans} = useGetServicePlanQuery()
   const {data: clientTypes} = useGetClientTypesQuery()
   const {data: coverage} = useGetCoverageQuery()
@@ -64,28 +77,28 @@ export function AddClientDialog({ open, onOpenChange }: AddClientDialogProps) {
     e.preventDefault()
     setErrorMess("")
     try {
-      await createClient({...formData, createBill}).unwrap()
-        setFormData({
-          code: `CLT-${Date.now().toString().slice(-6)}`,
-          fullName: "",
-          email: "",
-          phoneNumber: "",
-          address: "",
-          installationDate: "",
-          accountNumber: "",
-          mikrotikAccount: "",
-          billingDay: 0,
-          servicePlanId: "",
-          clientTypeId: "",
-          coverageId: "",
-          odpPortId: "",
-          notes: "",
-          proRatedDays: ""
-        })
-        onOpenChange(false)
-        toast("Success", {
-            description: "Client added successfully",
-          })
+      const created = await createClient({...formData, createBill}).unwrap()
+      // reset form
+      setFormData({
+        code: `CLT-${Date.now().toString().slice(-6)}`,
+        fullName: "",
+        email: "",
+        phoneNumber: "",
+        address: "",
+        installationDate: "",
+        accountNumber: "",
+        mikrotikAccount: "",
+        billingDay: 0,
+        servicePlanId: "",
+        clientTypeId: "",
+        coverageId: "",
+        odpPortId: "",
+        notes: "",
+        proRatedDays: ""
+      })
+      onSuccess?.(created)
+      onOpenChange(false)
+      toast("Success", { description: "Client added successfully" })
     } catch (error: any) {
       console.log(error)
       setErrorMess(error.data.error || error.data.message)
@@ -110,6 +123,23 @@ export function AddClientDialog({ open, onOpenChange }: AddClientDialogProps) {
       getPorts(selectedOdp.id)
     }
   }, [selectedOdp])
+
+  // Prefill form if initialValues prop provided
+  useEffect(() => {
+    if (initialValues) {
+      setFormData((prev) => ({
+        ...prev,
+        fullName: initialValues.fullName ?? prev.fullName,
+        email: initialValues.email ?? prev.email,
+        phoneNumber: initialValues.phoneNumber ?? prev.phoneNumber,
+        address: initialValues.address ?? prev.address,
+        servicePlanId: initialValues.servicePlanId ?? prev.servicePlanId,
+        coverageId: initialValues.coverageId ?? prev.coverageId,
+        notes: initialValues.notes ?? prev.notes,
+        installationDate: initialValues.installationDate ?? prev.installationDate,
+      }))
+    }
+  }, [initialValues])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -238,6 +268,7 @@ export function AddClientDialog({ open, onOpenChange }: AddClientDialogProps) {
                 placeholder="Enter Mikrotik account"
                 value={formData.mikrotikAccount}
                 onChange={(e) => setFormData({ ...formData, mikrotikAccount: e.target.value })}
+                required
                 />
             </div>
 

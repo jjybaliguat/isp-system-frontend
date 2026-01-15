@@ -60,6 +60,11 @@ const data = {
       icon: IconListDetails,
     },
     {
+      title: "Applicants",
+      url: "/dashboard/applicants",
+      icon: IconListDetails,
+    },
+    {
       title: "Billing",
       url: "/dashboard/billing",
       icon: IconReport,
@@ -171,7 +176,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       case "ADMIN":
         return {
           navMain: data.navMain.filter(item =>
-            ["/dashboard", "/dashboard/clients", "/dashboard/billing", "/dashboard/tickets", "/dashboard/billing-matrix"].includes(item.url)
+            ["/dashboard", "/dashboard/clients", "/dashboard/clients", "/dashboard/billing", "/dashboard/tickets", "/dashboard/billing-matrix"].includes(item.url)
           ),
           integrations: undefined,
         }

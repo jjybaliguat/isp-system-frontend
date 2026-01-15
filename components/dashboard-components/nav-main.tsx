@@ -3,6 +3,7 @@
 import { IconCardsFilled, IconCirclePlusFilled, IconCreditCard, IconMail, IconMap2, IconNotification, IconReport, IconStackMiddle, IconUserCircle, type Icon } from "@tabler/icons-react"
 
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -21,6 +22,7 @@ import CreateServicePlanDialog from "../dialogs/create-service-plan-dialog"
 import CreateClientTypeDialog from "../dialogs/create-client-type-dialog"
 import { useAppSelector } from "@/redux/store/store"
 import { UserRole } from "@/types/users"
+import { useGetApplicantsCountQuery } from '@/redux/fetures/applicants-api-slice'
 
 export function NavMain({
   items,
@@ -34,6 +36,7 @@ export function NavMain({
   const { isMobile } = useSidebar()
   const {toggleSidebar} = useSidebar()
   const user = useAppSelector((state) => state.auth)
+  const { data: applicantsCount } = useGetApplicantsCountQuery()
   const [openDialog, setOpenDialog] = useState({
     client: false,
     billing: false,
@@ -100,7 +103,12 @@ export function NavMain({
               <Link href={item.url}>
                 <SidebarMenuButton tooltip={item.title}>
                   {item.icon && <item.icon />}
-                  <span>{item.title}</span>
+                  <span className="flex items-center gap-2">
+                    <span>{item.title}</span>
+                    {item.url === "/dashboard/applicants" && (applicantsCount ?? 0) > 0 && (
+                      <Badge className="ml-2">{applicantsCount}</Badge>
+                    )}
+                  </span>
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>

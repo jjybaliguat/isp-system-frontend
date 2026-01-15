@@ -1,4 +1,6 @@
 import { ClientDataSchema } from "./clients"
+import { CoverageDataSchema } from "./coverage"
+import { ServicePlanDataSchema } from "./service-plan"
 
 export interface ProviderDataSchema {
     id:               string
@@ -40,6 +42,8 @@ export interface ProviderDataSchema {
         }
     }
     clients?: ClientDataSchema[]
+    servicePlans?: ServicePlanDataSchema[],
+    coverage?: CoverageDataSchema[]
 }
 
 export enum ProviderType {

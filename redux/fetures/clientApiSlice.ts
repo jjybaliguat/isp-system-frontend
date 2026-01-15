@@ -107,7 +107,7 @@ export const clientApiSlice = apiSlice.injectEndpoints({
         url: `/clients/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Clients", "ClientsCount", "ClientsAnalytics", "Logs"],
+      invalidatesTags: ["Clients", "ClientsCount", "ClientsAnalytics", "Logs", "Users"],
     }),
     createAccount: builder.mutation<Accounts, Partial<Accounts>>({
       query: (body) => ({

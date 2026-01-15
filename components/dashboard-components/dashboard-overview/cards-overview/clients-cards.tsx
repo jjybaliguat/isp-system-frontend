@@ -13,9 +13,11 @@ import {
 } from "@/components/ui/card"
 import { useGetClientsCountQuery, useGetClientsQuery } from '@/redux/fetures/clientApiSlice'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useGetApplicantsCountQuery, useGetApplicantsQuery } from '@/redux/fetures/applicants-api-slice'
 
 const ClientsCards = () => {
     const {data: clientsCount, isLoading} = useGetClientsCountQuery()
+    const {data: applicantsCount, isLoading: loadingApplicants} = useGetApplicantsCountQuery()
 
     if(isLoading) {
       return <ClientsCardsLoadingSkeleton />
@@ -60,7 +62,7 @@ const ClientsCards = () => {
           <CardTitle className="text-sm font-medium">Pending Applicants</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">0</div>
+          <div className="text-2xl font-bold">{applicantsCount}</div>
         </CardContent>
       </Card>
       {/* <Card className="@container/card">
