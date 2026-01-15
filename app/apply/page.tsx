@@ -247,7 +247,7 @@ export default function ApplyPage() {
 
               <div className="space-y-2">
                 <Label>Identification Documents</Label>
-                <p className="text-sm text-muted-foreground">Provide one ID entry (type + number). We no longer accept file uploads here.</p>
+                <p className="text-sm text-muted-foreground">Provide one ID entry (type + number).</p>
 
                 <div className="mt-2">
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 items-end">
