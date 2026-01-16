@@ -1,11 +1,14 @@
-  export const generateAccountNumber = () => {
-    const yearPrefix = new Date().getFullYear().toString().slice(2);
-    const chars = "0123456789";
-    let randomPart  = "";
-    
-    for (let i = 0; i < 10; i++) { // remaining 10 digits to make 12 total
-      randomPart += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    const result = yearPrefix + randomPart
-    return result
-  };
+"use server"
+
+import { randomInt } from "crypto";
+
+export const generateAccountNumber = async() => {
+  const yearPrefix = new Date().getFullYear().toString().slice(2);
+  let randomPart = "";
+
+  for (let i = 0; i < 10; i++) {
+    randomPart += randomInt(0, 10);
+  }
+
+  return yearPrefix + randomPart;
+};
