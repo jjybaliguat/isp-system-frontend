@@ -146,6 +146,12 @@ export const providerApiSlice = apiSlice.injectEndpoints({
             method: "DELETE"
         }),
         invalidatesTags: ["Providers"]
+    }),
+    backupDatabase: builder.mutation<any, void>({
+        query: () => ({
+            url: "/admin/backup",
+            method: "GET"
+        })
     })
   }),
 })
@@ -163,5 +169,6 @@ export const {
     useSaveSmsintegrationSettingsMutation,
     useGetSmsSettingsQuery,
     useCreateProviderMutation,
-    useDeleteProviderMutation
+    useDeleteProviderMutation,
+    useBackupDatabaseMutation
 } = providerApiSlice

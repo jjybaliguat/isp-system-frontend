@@ -17,21 +17,28 @@ import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "../ui/button"
 import dynamic from "next/dynamic"
-import { useGetProviderQuery } from "@/redux/fetures/provider-api-slice"
+import { useGetProviderQuery, useBackupDatabaseMutation } from "@/redux/fetures/provider-api-slice"
 import { BillingSettingsSchema, DocumentSettingsProps, NotificationsDataSchema, useUpdateBillingSettingsMutation, useUpdateDocumentSettingsMutation, useUpdateNotificationSettingsMutation, useUpdatePaymentSettingsMutation } from "@/redux/fetures/settings-api-slice"
 import { toast } from "sonner"
 import "@uiw/react-md-editor/markdown-editor.css"
 import "@uiw/react-markdown-preview/markdown.css"
+import { useAppSelector } from "@/redux/store/store"
 
-const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false })
+// Load the markdown editor only on the client and ensure we use the module default export
+const MDEditor = dynamic(
+  () => import("@uiw/react-md-editor").then((mod) => (mod.default ? mod.default : mod)),
+  { ssr: false }
+)
 
 const SettingsCards = () => {
 const { data: providerData } = useGetProviderQuery();
 const [settings, setSettings] = useState<any>({});
+ const user = useAppSelector((state) => state.auth);
 const [updateNotificationSettings, {isLoading: loadingNotification}] = useUpdateNotificationSettingsMutation();
 const [updatePaymentSettings, {isLoading: loadingPaymentSettings}] = useUpdatePaymentSettingsMutation();
 const [updateBillingSettings, {isLoading: loadingBillingSettings}] = useUpdateBillingSettingsMutation();
 const [updateDocumentSettings, {isLoading: loadingDocumentSettings}] = useUpdateDocumentSettingsMutation();
+const [backupLoading, setBackupLoading] = useState(false)
 
 useEffect(() => {
   if (providerData?.settings) {
@@ -64,6 +71,69 @@ const [documentSettings, setDocumentSettings] = useState<DocumentSettingsProps>(
   footerMessage:  ''
 });
 const [latePaymentGracePeriod, setLatePaymentGracePeriod] = useState<number>(0);
+
+const handleBackupDatabase = async () => {
+  if (!user?.role || !["SUPERADMIN", "ADMIN"].includes(user?.role ?? "")) {
+    toast.error("You are not authorized to perform this action.")
+    return
+  }
+  setBackupLoading(true)
+  try {
+    // Call your RTK Query mutation
+    // We use unwrap() to get the raw response
+
+    // RTK Query wraps the fetch call, but your backend sends a gzip
+    // We need to get the Response object from the mutation
+    // This depends on how your mutation is implemented:
+    // If your mutation just returns `any`, the `res` is probably already a Response object
+    // Otherwise, we can just call fetch manually
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/backup`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${user.accessToken}`, // optional if your backend requires auth
+      },
+    })
+
+    if (!response.ok) {
+      setBackupLoading(false)
+      // Try to parse JSON error
+      let msg = `Server returned ${response.status}`
+      try {
+        const errJson = await response.json()
+        msg = errJson?.message || msg
+      } catch {}
+      toast.error(msg)
+      return
+    }
+
+    // Extract filename from Content-Disposition header
+    const disposition = response.headers.get("Content-Disposition") || ""
+    const match = disposition.match(/filename="(.+)"/)
+    console.log(disposition)
+    console.log(match)
+    const filename = match ? match[1] : `sierra-backup-${new Date().toISOString().slice(0,10)}-db.zip`
+
+    // Convert response to blob
+    const blob = await response.blob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
+
+    toast.success("Backup downloaded successfully.")
+    setBackupLoading(false)
+  } catch (err: any) {
+    setBackupLoading(false)
+    console.error(err)
+    const msg = err?.message || String(err)
+    toast.error(msg || "Failed to backup database. Check server logs or permissions.")
+  }
+}
+
 
 useEffect(() => {
   if (settings) {
@@ -389,6 +459,22 @@ const handleSaveDocumentsSettings = async() => {
         </CardContent>
         <CardFooter className="flex justify-end">
           <Button onClick={handleSaveDocumentsSettings} disabled={loadingDocumentSettings}>{loadingDocumentSettings? "" : "Save Document Settings"}</Button>
+        </CardFooter>
+      </Card>
+
+      {/* ------------------ Admin Actions ------------------ */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Admin Actions</CardTitle>
+          <CardDescription>Dangerous or system-level operations. Only available to administrators.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">Create a backup of the current database. The backup will be downloaded if the server returns a file, otherwise a request confirmation will be shown.</p>
+        </CardContent>
+        <CardFooter className="flex justify-end">
+          <Button variant="destructive" onClick={handleBackupDatabase} disabled={backupLoading || !user || !["SUPERADMIN","ADMIN"].includes(user?.role ?? "") }>
+            {backupLoading ? "Backing up..." : "Backup Database"}
+          </Button>
         </CardFooter>
       </Card>
     </div>
