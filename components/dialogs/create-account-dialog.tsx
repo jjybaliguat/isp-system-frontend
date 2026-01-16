@@ -213,7 +213,7 @@ const getNewSelectedPort = async () => {
                 type="button"
                 variant="secondary"
                 className="flex items-center gap-1 px-3 py-1.5 text-xs rounded-md"
-                onClick={()=>setFormData({...formData, accountNumber: generateAccountNumber()})}
+                onClick={async()=>setFormData({...formData, accountNumber: await generateAccountNumber()})}
               >
                 <RefreshCw className="w-3.5 h-3.5" />
                 Generate
