@@ -18,7 +18,7 @@ import { Separator } from "@/components/ui/separator"
 import { Button } from "../ui/button"
 import dynamic from "next/dynamic"
 import { useGetProviderQuery, useBackupDatabaseMutation } from "@/redux/fetures/provider-api-slice"
-import { BillingSettingsSchema, DocumentSettingsProps, NotificationsDataSchema, useUpdateBillingSettingsMutation, useUpdateDocumentSettingsMutation, useUpdateNotificationSettingsMutation, useUpdatePaymentSettingsMutation } from "@/redux/fetures/settings-api-slice"
+import { BillingSettingsSchema, DocumentSettingsProps, NotificationsDataSchema, useUpdateBillingSettingsMutation, useUpdateDocumentSettingsMutation, useUpdateNotificationSettingsMutation, useUpdatePaymentSettingsMutation, useUpdateBackupSettingsMutation } from "@/redux/fetures/settings-api-slice"
 import { toast } from "sonner"
 import "@uiw/react-md-editor/markdown-editor.css"
 import "@uiw/react-markdown-preview/markdown.css"
@@ -39,6 +39,10 @@ const [updatePaymentSettings, {isLoading: loadingPaymentSettings}] = useUpdatePa
 const [updateBillingSettings, {isLoading: loadingBillingSettings}] = useUpdateBillingSettingsMutation();
 const [updateDocumentSettings, {isLoading: loadingDocumentSettings}] = useUpdateDocumentSettingsMutation();
 const [backupLoading, setBackupLoading] = useState(false)
+const [updateBackupSettings, { isLoading: loadingBackupSettings }] = useUpdateBackupSettingsMutation();
+
+const [backupEnabled, setBackupEnabled] = useState<boolean>(false)
+const [backUpEmail, setBackUpEmail] = useState<string>(providerData?.email || "")
 
 useEffect(() => {
   if (providerData?.settings) {
@@ -157,6 +161,8 @@ useEffect(() => {
       footerMessage:  settings?.invoiceDocument?.footerMessage || ''
     });
     setLatePaymentGracePeriod(settings?.payment?.latePaymentGracePeriod || 0);
+    setBackupEnabled(settings?.backup?.enabled ?? false)
+    setBackUpEmail(settings?.backup?.email || providerData?.email || "")
   }
 }, [settings]);
 
@@ -205,6 +211,16 @@ const handleSaveDocumentsSettings = async() => {
   } catch (error) {
     console.log("Failed to update document settings:", error);
     toast.error("Failed to update document settings.");
+  }
+}
+
+const handleSaveBackupSettings = async () => {
+  try {
+    await updateBackupSettings({ enabled: backupEnabled, backUpEmail }).unwrap();
+    toast.success("Backup settings updated successfully.")
+  } catch (error) {
+    console.error("Failed to update backup settings:", error)
+    toast.error("Failed to update backup settings.")
   }
 }
 
@@ -461,6 +477,28 @@ const handleSaveDocumentsSettings = async() => {
           <Button onClick={handleSaveDocumentsSettings} disabled={loadingDocumentSettings}>{loadingDocumentSettings? "" : "Save Document Settings"}</Button>
         </CardFooter>
       </Card>
+
+        {/* ------------------ Database Backup Settings ------------------ */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Database Backup Settings</CardTitle>
+            <CardDescription>Configure automatic daily backups. When enabled, the server will email the daily backup to the configured recipient.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center space-x-2">
+              <Switch checked={backupEnabled} onCheckedChange={(checked)=>setBackupEnabled(!!checked)} id="enable-backup" />
+              <Label htmlFor="enable-backup">Enable Daily Backup</Label>
+            </div>
+            <div className="mt-4 space-y-2">
+              <Label htmlFor="backup-email">Recipient Email</Label>
+              <Input id="backup-email" type="email" value={backUpEmail} onChange={(e)=>setBackUpEmail(e.target.value)} placeholder="provider@example.com" />
+              <p className="text-sm text-muted-foreground">The daily backup will be emailed to this address when the feature is enabled.</p>
+            </div>
+          </CardContent>
+          <CardFooter className="flex justify-end">
+            <Button onClick={handleSaveBackupSettings} disabled={loadingBackupSettings}>{loadingBackupSettings? "Saving..." : "Save Backup Settings"}</Button>
+          </CardFooter>
+        </Card>
 
       {/* ------------------ Admin Actions ------------------ */}
       <Card>

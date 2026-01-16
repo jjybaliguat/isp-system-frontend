@@ -30,6 +30,11 @@ export interface DocumentSettingsProps {
   footerMessage:  string
 }
 
+export interface BackupSettingsSchema {
+  enabled: boolean
+  backUpEmail: string
+}
+
 const SettingsApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     updateNotificationSettings: builder.mutation<ProviderDataSchema, NotificationsDataSchema>({
@@ -64,6 +69,14 @@ const SettingsApiSlice = apiSlice.injectEndpoints({
         }),
         invalidatesTags: ["Provider"],
     }),
+  updateBackupSettings: builder.mutation<ProviderDataSchema, BackupSettingsSchema>({
+    query: (body) => ({
+      url: "/settings/backup",
+      method: "PATCH",
+      body,
+    }),
+    invalidatesTags: ["Provider"],
+  }),
   }),
 })
 
@@ -71,5 +84,6 @@ export const {
     useUpdateNotificationSettingsMutation,
     useUpdatePaymentSettingsMutation,
     useUpdateBillingSettingsMutation,
-    useUpdateDocumentSettingsMutation
+    useUpdateDocumentSettingsMutation,
+    useUpdateBackupSettingsMutation
 } = SettingsApiSlice;
