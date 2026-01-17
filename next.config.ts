@@ -23,7 +23,7 @@ if (process.env.NEXT_PUBLIC_API_URL) {
       protocol: apiUrl.protocol.replace(':', ''),
       hostname: apiUrl.hostname,
       port: apiUrl.port || '',
-      pathname: '/**',
+      pathname: '/uploads/**',
     })
   } catch (e) {
     // ignore invalid URL
