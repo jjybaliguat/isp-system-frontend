@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
@@ -39,43 +39,117 @@ export default function ApplyPage() {
     notes: "",
   })
 
-  const [document, setDocument] = useState<{ idType: string; idCardNumber: string }>({ idType: "DRIVER", idCardNumber: "" })
+  const [idDocument, setIdDocument] = useState<{ idType: string; idCardNumber: string }>({ idType: "DRIVER", idCardNumber: "" })
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<any | null>(null)
+  const [honeypot] = useState("")
+  
+  const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+  const recaptchaLoaded = useRef(false)
+
+  // Load reCAPTCHA v3 script dynamically
+  useEffect(() => {
+    if (!RECAPTCHA_SITE_KEY || recaptchaLoaded.current) return
+
+    const scriptId = "recaptcha-script"
+    if (document.getElementById(scriptId)) {
+      recaptchaLoaded.current = true
+      return
+    }
+
+    const script = document.createElement("script")
+    script.src = `https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`
+    script.async = true
+    script.defer = true
+    script.id = scriptId
+    script.onload = () => (recaptchaLoaded.current = true)
+    document.head.appendChild(script)
+  }, [RECAPTCHA_SITE_KEY])
+
+  // Helper to obtain a reCAPTCHA v3 token. This handles script loading and grecaptcha.ready callback.
+  const getRecaptchaToken = async (): Promise<string | undefined> => {
+    if (!RECAPTCHA_SITE_KEY) return undefined
+
+    // Ensure script is loaded
+    if (typeof window === "undefined") return undefined
+
+    if (!(window as any).grecaptcha) {
+      // try to load script synchronously if not already present
+      const id = "recaptcha-script"
+      let script = window.document.getElementById(id) as HTMLScriptElement | null
+      if (!script) {
+        script = window.document.createElement("script")
+        script.src = `https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`
+        script.async = true
+        script.defer = true
+        script.id = id
+        window.document.head.appendChild(script)
+        await new Promise((resolve, reject) => {
+          script!.onload = () => resolve(null)
+          script!.onerror = () => resolve(null)
+          // timeout after 5s
+          setTimeout(() => resolve(null), 5000)
+        })
+      }
+    }
+
+    if (!(window as any).grecaptcha) return undefined
+
+    return await new Promise((resolve) => {
+      try {
+        (window as any).grecaptcha.ready(() => {
+          try {
+            const exec = (window as any).grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: "apply" })
+            if (exec && typeof exec.then === "function") {
+              exec.then((token: string) => resolve(token)).catch(() => resolve(undefined))
+            } else {
+              // older API: execute may accept callback
+              resolve(undefined)
+            }
+          } catch (e) {
+            resolve(undefined)
+          }
+        })
+      } catch (e) {
+        resolve(undefined)
+      }
+    })
+  }
 
   const handleDocumentChange = (field: 'idType' | 'idCardNumber', value: string) => {
-    setDocument((prev) => ({ ...prev, [field]: value }))
+    setIdDocument((prev) => ({ ...prev, [field]: value }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Basic validation (align with applicant.ts required fields)
     if (!form.name || !form.email || !form.phone || !form.providerId || !form.servicePlanId || !form.coverageId) {
       toast.error("Please complete required fields: name, email, phone, provider, service plan and coverage")
       return
     }
 
-    // Require one ID entry
-    if (!document || !document.idCardNumber || !document.idType) {
+    if ((e.target as HTMLFormElement).hp_name?.value) return
+
+    if (!idDocument || !idDocument.idCardNumber || !idDocument.idType) {
       toast.error("Please provide one ID entry (type & number)")
       return
     }
 
     setLoading(true)
+
     try {
-      // Build JSON payload (no files)
-      const payload: any = {
-        name: form.name,
-        email: form.email,
-        phone: form.phone,
-        address: form.address,
-        providerId: form.providerId,
-        servicePlanId: form.servicePlanId,
-        coverageId: form.coverageId,
-        notes: form.notes,
-        idType: document?.idType,
-        idCardNumber: document?.idCardNumber,
+      // Generate reCAPTCHA v3 token (if configured)
+      let recaptchaToken: string | undefined
+      if (RECAPTCHA_SITE_KEY) {
+        recaptchaToken = await getRecaptchaToken()
+      }
+      console.log(recaptchaToken)
+
+      const payload = {
+        ...form,
+        idType: idDocument.idType,
+        idCardNumber: idDocument.idCardNumber,
+        recaptchaToken,
       }
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/applicants`, {
@@ -115,7 +189,7 @@ export default function ApplyPage() {
               <p className="mb-2">Save this number to check your application status.</p>
               <div className="flex gap-2">
                 <Button onClick={() => { navigator.clipboard.writeText(String(result.applicationNumber ?? result.application_number ?? "")); toast.success("Copied") }}>Copy Number</Button>
-                <Button variant="ghost" onClick={() => { setResult(null); setForm({name: '', email: '', phone: '', address: '', providerId: '', servicePlanId: '', coverageId: '', notes: ''}); setDocument({ idType: 'GOV_ID', idCardNumber: '' }) }}>New Application</Button>
+                <Button variant="ghost" onClick={() => { setResult(null); setForm({name: '', email: '', phone: '', address: '', providerId: '', servicePlanId: '', coverageId: '', notes: ''}); setIdDocument({ idType: 'GOV_ID', idCardNumber: '' }) }}>New Application</Button>
                 <Button variant="outline" onClick={() => router.push('/')}>Return Home</Button>
               </div>
             </CardContent>
@@ -147,6 +221,8 @@ export default function ApplyPage() {
 
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Honeypot field to trap bots (hidden) */}
+          <input name="hp_name" type="text" tabIndex={-1} autoComplete="off" className="hidden" />
               <div className="space-y-2">
                 <Label htmlFor="name">Full name</Label>
                 <Input id="name" value={form.name} onChange={(e)=>setForm({...form, name: e.target.value})} required />
@@ -253,7 +329,7 @@ export default function ApplyPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 items-end">
                     <div>
                       <Label className="text-xs">ID Type</Label>
-                      <Select value={document.idType} onValueChange={(v)=> handleDocumentChange('idType', v)}>
+                      <Select value={idDocument.idType} onValueChange={(v)=> handleDocumentChange('idType', v)}>
                         <SelectTrigger className="w-full">
                           <SelectValue />
                         </SelectTrigger>
@@ -274,7 +350,7 @@ export default function ApplyPage() {
                     </div>
                     <div>
                       <Label className="text-xs">ID Number</Label>
-                      <Input value={document.idCardNumber} onChange={(e)=> handleDocumentChange('idCardNumber', e.target.value)} required />
+                      <Input value={idDocument.idCardNumber} onChange={(e)=> handleDocumentChange('idCardNumber', e.target.value)} required />
                     </div>
                     <div className="flex items-center text-sm text-muted-foreground">
                       <p>One ID entry is required.</p>
@@ -285,7 +361,7 @@ export default function ApplyPage() {
 
               <div className="flex gap-2">
                 <Button type="submit" disabled={loading}>{loading? 'Submitting...' : 'Submit Application'}</Button>
-                <Button variant="ghost" type="button" onClick={()=>{ setForm({name: '', email: '', phone: '', address: '', providerId: '', servicePlanId: '', coverageId: '', notes: ''}); setDocument({ idType: 'DRIVER', idCardNumber: '' }) }}>Reset</Button>
+                <Button variant="ghost" type="button" onClick={()=>{ setForm({name: '', email: '', phone: '', address: '', providerId: '', servicePlanId: '', coverageId: '', notes: ''}); setIdDocument({ idType: 'DRIVER', idCardNumber: '' }) }}>Reset</Button>
               </div>
             </form>
           </CardContent>

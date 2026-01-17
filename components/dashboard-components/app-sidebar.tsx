@@ -46,6 +46,7 @@ import { Logo } from "../ui/logo"
 import { useAppSelector } from "@/redux/store/store"
 import { FileSpreadsheet, Ticket } from "lucide-react"
 import { useGetProviderQuery } from "@/redux/fetures/provider-api-slice"
+import Image from "next/image"
 
 const data = {
   navMain: [
@@ -204,21 +205,48 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
-      <SidebarHeader>
+      <SidebarHeader className="border-b">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
+              className="data-[slot=sidebar-menu-button]:!p-0"
             >
-              <a href="#">
-                {!isLoading && provider && <Logo logoUrl={provider.companyLogoUrl!} height={70} width={70} />}
-                <span className="text-base font-semibold">{provider?.companyName.split(" ")[0]}</span>
+              <a
+                href="/dashboard"
+                className="flex items-center gap-3 px-3 py-3 hover:bg-muted/50 transition-colors w-full"
+              >
+                {/* Logo */}
+                <div className="relative w-10 h-10 rounded-md bg-muted flex items-center justify-center overflow-hidden shadow-sm flex-shrink-0">
+                  {!isLoading && provider?.companyLogoUrl ? (
+                    <Image
+                      src={provider.companyLogoUrl}
+                      alt="Company Logo"
+                      fill
+                      className="object-contain"
+                      sizes="40px"
+                      priority
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-border animate-pulse" />
+                  )}
+                </div>
+
+                {/* Provider name */}
+                <div className="flex-1 min-w-0">
+                  <span className="text-sm font-semibold block truncate">
+                    {provider?.companyName || "Loading"}
+                  </span>
+                  <span className="text-xs text-muted-foreground block truncate">
+                    ISP Dashboard
+                  </span>
+                </div>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
+
       <SidebarContent>
         <NavMain items={accessibleNav.navMain} />
         {accessibleNav.integrations && <Integrations items={accessibleNav.integrations} />}
