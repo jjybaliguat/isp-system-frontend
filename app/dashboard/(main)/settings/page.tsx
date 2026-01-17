@@ -1,5 +1,9 @@
+"use client"
+
 import SettingsCards from '@/components/cards/SettingsCards'
 import PageWrapper from '@/components/wrapper/page-wrapper'
+import { withRoleGuard } from '@/lib/withRoleGuard'
+import { UserRole } from '@/types/users'
 import React from 'react'
 
 const SettingsPage = () => {
@@ -13,4 +17,4 @@ const SettingsPage = () => {
   )
 }
 
-export default SettingsPage
+export default withRoleGuard(SettingsPage, {roles: [UserRole.SUPERADMIN]})

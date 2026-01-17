@@ -225,7 +225,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={{fullName: user.fullName, email: user.email}} />
+        <NavUser user={{fullName: user.fullName, email: user.email, role: user.role}} />
       </SidebarFooter>
     </Sidebar>
   )

@@ -38,7 +38,8 @@ export function NavUser({
   user: {
     fullName: string | null
     email: string | null
-    avatar?: string | null
+    avatar?: string | null,
+    role: string | null
   }
 }) {
   const { isMobile } = useSidebar()
@@ -93,18 +94,18 @@ export function NavUser({
                 <IconUserCircle />
                 Profile
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              {/* <DropdownMenuItem>
                 <IconCreditCard />
                 Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
+              </DropdownMenuItem> */}
+              {/* <DropdownMenuItem>
                 <IconNotification />
                 Notifications
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={()=>router.push("/dashboard/settings")}>
+              </DropdownMenuItem> */}
+              {user.role === "SUPERADMIN" && <DropdownMenuItem onClick={()=>router.push("/dashboard/settings")}>
                 <IconSettings />
                 Settings
-              </DropdownMenuItem>
+              </DropdownMenuItem>}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={async() => {await sendLogout('').unwrap(); router.refresh()}}>
