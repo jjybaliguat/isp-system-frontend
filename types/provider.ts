@@ -13,6 +13,8 @@ export interface ProviderDataSchema {
     parentProviderId?: string
     branchStatus?: string
     providerType?: ProviderType
+    dailyBackup?: boolean,
+    backUpEmail?: string
     settings?: {
         billing: {
             autoInvoicing:      boolean

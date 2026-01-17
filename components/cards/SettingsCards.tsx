@@ -41,9 +41,8 @@ const [updateDocumentSettings, {isLoading: loadingDocumentSettings}] = useUpdate
 const [backupLoading, setBackupLoading] = useState(false)
 const [updateBackupSettings, { isLoading: loadingBackupSettings }] = useUpdateBackupSettingsMutation();
 
-const [backupEnabled, setBackupEnabled] = useState<boolean>(false)
+const [backupEnabled, setBackupEnabled] = useState<boolean>(providerData?.dailyBackup!)
 const [backUpEmail, setBackUpEmail] = useState<string>(providerData?.email || "")
-
 useEffect(() => {
   if (providerData?.settings) {
     setSettings(providerData.settings);
@@ -161,8 +160,6 @@ useEffect(() => {
       footerMessage:  settings?.invoiceDocument?.footerMessage || ''
     });
     setLatePaymentGracePeriod(settings?.payment?.latePaymentGracePeriod || 0);
-    setBackupEnabled(settings?.backup?.enabled ?? false)
-    setBackUpEmail(settings?.backup?.email || providerData?.email || "")
   }
 }, [settings]);
 
