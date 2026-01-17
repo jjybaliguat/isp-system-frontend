@@ -19,7 +19,6 @@ export interface ProfileDataSchema {
     companyName: string;
     companyAddress: string;
     phoneNumber: string;
-    companyLogoUrl: string;
 }
 
 export interface SmsIntegrationSettingsInput {
@@ -117,6 +116,15 @@ export const providerApiSlice = apiSlice.injectEndpoints({
         }),
         invalidatesTags: ["Provider"]
     }),
+    uploadProviderLogo: builder.mutation<{ url: string }, FormData>({
+        query: (formData) => ({
+            url: "/providers/upload-logo",
+            method: "POST",
+            body: formData,
+            // do not set content-type header so browser can set multipart boundary
+        }),
+        invalidatesTags: ["Provider"],
+    }),
     saveSmsintegrationSettings: builder.mutation<any, SmsIntegrationSettingsInput>({
         query: (body) => ({
             url: "/providers/sms-integration-settings",
@@ -166,6 +174,7 @@ export const {
     useGetProvidersQuery,
     useGetFilteredProvidersQuery,
     useUpdateAccountMutation,
+    useUploadProviderLogoMutation,
     useSaveSmsintegrationSettingsMutation,
     useGetSmsSettingsQuery,
     useCreateProviderMutation,

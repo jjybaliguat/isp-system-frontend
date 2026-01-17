@@ -30,8 +30,7 @@ const EditProfileDialog = ({
         companyEmail: profileData.companyEmail,
         companyName: profileData.companyName,
         companyAddress: profileData.companyAddress,
-        phoneNumber: profileData.phoneNumber,
-        companyLogoUrl: profileData.companyLogoUrl
+        phoneNumber: profileData.phoneNumber
     })
 
     const handleSubmit = async(e: React.FormEvent) => {
@@ -55,8 +54,7 @@ const EditProfileDialog = ({
             companyEmail: profileData.companyEmail,
             companyName: profileData.companyName,
             companyAddress: profileData.companyAddress,
-            phoneNumber: profileData.phoneNumber,
-            companyLogoUrl: profileData.companyLogoUrl
+            phoneNumber: profileData.phoneNumber
         })
     }, [profileData])
 
@@ -128,36 +126,6 @@ const EditProfileDialog = ({
                                 id='phoneNumber'
                                 value={formData.phoneNumber}
                                 onChange={(e)=>setFormData({...formData, phoneNumber: e.target.value})}
-                                required
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="companyLogoUrl" className="flex items-start flex-col gap-1">
-                                <span className="font-medium">Company Logo URL</span>
-                                <span className="text-sm text-muted-foreground">
-                                    Host your logo for free on{" "}
-                                    <a
-                                    href="https://cloudinary.com/users/register_free"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="underline font-medium text-primary hover:text-primary/80"
-                                    >
-                                    Cloudinary
-                                    </a>{" "}
-                                    — see our{" "}
-                                    <Link
-                                    href="/dashboard/cloudinary-guide"
-                                    className="underline font-medium text-primary hover:text-primary/80"
-                                    >
-                                    setup guide
-                                    </Link>
-                                    .
-                                </span>
-                            </Label>
-                            <Input
-                                id='companyLogoUrl'
-                                value={formData.companyLogoUrl}
-                                onChange={(e)=>setFormData({...formData, companyLogoUrl: e.target.value})}
                                 required
                             />
                         </div>

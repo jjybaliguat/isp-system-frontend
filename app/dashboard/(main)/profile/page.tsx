@@ -7,12 +7,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import PageWrapper from '@/components/wrapper/page-wrapper'
-import { useGetProviderQuery } from '@/redux/fetures/provider-api-slice'
+import { useGetProviderQuery, useUploadProviderLogoMutation } from '@/redux/fetures/provider-api-slice'
 import { useAppSelector } from '@/redux/store/store'
 import { UserRole } from '@/types/users'
 import { IconImageInPicture, IconLink, IconMap, IconPencil, IconPhone } from '@tabler/icons-react'
 import { Component, Loader2, Mail, User } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
@@ -38,6 +38,9 @@ const ProfilePage = () => {
   const user = useAppSelector((store) => store.auth)
   const [changePassword, {isLoading: loadingChangePass}] = useChangePasswordMutation()
   const { data: companyInfo, isLoading: loadingCompanyInfo } = useGetProviderQuery()
+  const [uploadProviderLogo, { isLoading: uploadingLogo }] = useUploadProviderLogoMutation()
+  const [logoUrl, setLogoUrl] = useState<string | undefined>(undefined)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
   const [openEditProfile, setOpenEditProfile] = useState(false)
 
   const form = useForm<ChangePasswordForm>({
@@ -73,6 +76,42 @@ const ProfilePage = () => {
     }
   }
 
+  // synchronize logoUrl with provider data
+  React.useEffect(() => {
+    if (companyInfo?.companyLogoUrl) setLogoUrl(companyInfo.companyLogoUrl)
+  }, [companyInfo?.companyLogoUrl])
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    // Client-side validation
+    const maxSize = 10 * 1024 * 1024 // 10 MB
+    if (!file.type || !file.type.startsWith('image/')) {
+      toast.error('Only image files are allowed.')
+      return
+    }
+    if (file.size > maxSize) {
+      toast.error('Image must be 10 MB or smaller.')
+      return
+    }
+
+    const fd = new FormData()
+    fd.append('image', file)
+
+    try {
+      const res = await uploadProviderLogo(fd).unwrap()
+      if (res?.url) {
+        setLogoUrl(res.url)
+        toast.success('Logo uploaded successfully')
+      } else {
+        toast.success('Logo uploaded')
+      }
+    } catch (err: any) {
+      console.error('Upload failed', err)
+      toast.error(err?.data?.message || 'Failed to upload logo')
+    }
+  }
+
   return (
     <PageWrapper pageName='Profile Page'>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -87,16 +126,35 @@ const ProfilePage = () => {
 
             <CardContent className="space-y-6">
               {/* Avatar & Basic Info */}
-              <div className="flex flex-col sm:flex-row items-center sm:items-start sm:gap-4 gap-2 text-center sm:text-left">
-                <Avatar className="h-16 w-16">
-                  <AvatarFallback className="text-lg font-bold">
-                    {user.fullName?.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <h3 className="font-semibold text-lg">{user?.fullName || "N/A"}</h3>
-                  <Badge className={`mt-2 ${getRoleColor(user?.role!)}`}>{user?.role || "N/A"}</Badge>
+              <div className="flex gap-4 items-center">
+                {user.role === UserRole.SUPERADMIN && (
+                  <div className="flex flex-col items-center justify-center space-y-3">
+                    <div className="w-32 h-32 rounded overflow-hidden bg-muted flex items-center justify-center">
+                      {logoUrl ? (
+                        <Image src={logoUrl} alt="Company Logo" width={128} height={128} className="w-full h-full object-contain" />
+                      ) : (
+                        <div className="text-sm text-muted-foreground">No logo</div>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input ref={fileInputRef} id="logo-file" type="file" accept="image/*" onChange={handleFileChange} className="hidden" disabled={uploadingLogo} />
+                      <Button size="sm" disabled={uploadingLogo} onClick={() => fileInputRef.current?.click()}>{uploadingLogo ? 'Uploading...' : 'Change Logo'}</Button>
+                      {uploadingLogo && <Loader2 className="h-4 w-4 animate-spin" />}
+                    </div>
+                  </div>
+                )}
+                <div className="flex flex-col sm:flex-row items-center sm:items-start sm:gap-4 gap-2 text-center sm:text-left">
+                  <Avatar className="h-16 w-16">
+                    <AvatarFallback className="text-lg font-bold">
+                      {user.fullName?.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h3 className="font-semibold text-lg">{user?.fullName || "N/A"}</h3>
+                    <Badge className={`mt-2 ${getRoleColor(user?.role!)}`}>{user?.role || "N/A"}</Badge>
+                  </div>
                 </div>
+
               </div>
 
               {/* Info Fields */}
@@ -147,18 +205,6 @@ const ProfilePage = () => {
                         </div>
                       </div>
                     ))}
-                    <div className="flex items-center gap-3 rounded-lg bg-muted p-3">
-                      <IconImageInPicture className="h-5 w-5 text-muted-foreground" />
-                      <div className="overflow-hidden">
-                        <p className="text-xs text-muted-foreground sm:text-sm">Company Logo</p>
-                        <Image
-                          src={companyInfo.companyLogoUrl!}
-                          alt='Company Logo'
-                          height={100}
-                          width={100}
-                        />
-                      </div>
-                    </div>
                   </>
                 )}
 
@@ -237,8 +283,7 @@ const ProfilePage = () => {
           companyEmail: companyInfo?.email!,
           companyName: companyInfo?.companyName!,
           companyAddress: companyInfo?.companyAddress!,
-          phoneNumber: companyInfo?.phoneNumber!,
-          companyLogoUrl: companyInfo?.companyLogoUrl!
+          phoneNumber: companyInfo?.phoneNumber!
         }}
       />
     </PageWrapper>
