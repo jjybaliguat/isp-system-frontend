@@ -1,31 +1,32 @@
 import type { NextConfig } from "next";
 
-const remotePatterns: any[] = [
+const remotePatterns: {
+  protocol: "http" | "https";
+  hostname: string;
+  pathname: string;
+}[] = [
   {
-    protocol: 'https',
-    hostname: 'ik.imagekit.io',
-    port: '',
-    pathname: '/**',
+    protocol: "https",
+    hostname: "ik.imagekit.io",
+    pathname: "/**",
   },
   {
-    protocol: 'https',
-    hostname: 'res.cloudinary.com',
-    port: '',
-    pathname: '/**',
+    protocol: "https",
+    hostname: "res.cloudinary.com",
+    pathname: "/**",
   },
-]
+];
 
-// If an API host is configured for uploads, allow its host too (useful for self-hosted uploads)
 if (process.env.NEXT_PUBLIC_API_URL) {
   try {
-    const apiUrl = new URL(process.env.NEXT_PUBLIC_API_URL)
+    const apiUrl = new URL(process.env.NEXT_PUBLIC_API_URL);
+
     remotePatterns.push({
-      protocol: apiUrl.protocol.replace(':', ''),
+      protocol: apiUrl.protocol === "https:" ? "https" : "http",
       hostname: apiUrl.hostname,
-      port: apiUrl.port || '',
-      pathname: '/uploads/**',
-    })
-  } catch (e) {
+      pathname: "/uploads/**",
+    });
+  } catch {
     // ignore invalid URL
   }
 }
