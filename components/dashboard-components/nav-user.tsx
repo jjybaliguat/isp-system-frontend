@@ -90,7 +90,7 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={()=>router.push("/dashboard/profile")}>
+              <DropdownMenuItem onClick={()=>router.push(user.role === "CLIENT" ? "/client-portal/profile" : "/dashboard/profile")}>
                 <IconUserCircle />
                 Profile
               </DropdownMenuItem>
