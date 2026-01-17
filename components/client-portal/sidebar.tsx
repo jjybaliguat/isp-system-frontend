@@ -53,7 +53,7 @@ export function ClientSidebar({ ...props }: React.ComponentProps<typeof Sidebar>
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={{fullName: user.fullName, email: user.email}} />
+        <NavUser user={{fullName: user.fullName, email: user.email, role: user.role}} />
       </SidebarFooter>
     </Sidebar>
   )
