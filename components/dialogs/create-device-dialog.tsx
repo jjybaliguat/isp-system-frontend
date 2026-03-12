@@ -7,6 +7,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { useCreateMikrotikDeviceMutation } from "@/redux/fetures/mikrotik-device-slice"
+import { toast } from "sonner"
 
 interface CreateDeviceDialogProps {
   open: boolean
@@ -15,46 +17,34 @@ interface CreateDeviceDialogProps {
 
 export default function CreateDeviceDialog({ open, onOpenChange }: CreateDeviceDialogProps) {
   const [formData, setFormData] = useState({
-    deviceName: "",
+    name: "",
     ipAddress: "",
     username: "",
     password: "",
-    area: "",
+    associatedArea: "",
   })
-  const [isLoading, setIsLoading] = useState(false)
 
-//   const [createDevice] = useCreateMikroTikDeviceMutation()
-//   const { toast } = useToast()
+  const [createDevice, {isLoading}] = useCreateMikrotikDeviceMutation()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
 
-    // try {
-    //   await createDevice({
-    //     deviceName: formData.deviceName,
-    //     ipAddress: formData.ipAddress,
-    //     username: formData.username,
-    //     password: formData.password,
-    //     clientId: formData.clientName,
-    //   }).unwrap()
+    try {
+      await createDevice({
+        name: formData.name,
+        ipAddress: formData.ipAddress,
+        username: formData.username,
+        password: formData.password,
+        associatedArea: formData.associatedArea
+      }).unwrap()
 
-    //   toast({
-    //     title: "Success",
-    //     description: "Device added successfully",
-    //   })
+      toast.success("Device added successfully")
 
-    //   setFormData({ deviceName: "", ipAddress: "", username: "", password: "", clientName: "" })
-    //   onOpenChange(false)
-    // } catch (error) {
-    //   toast({
-    //     title: "Error",
-    //     description: "Failed to add device",
-    //     variant: "destructive",
-    //   })
-    // } finally {
-    //   setIsLoading(false)
-    // }
+      setFormData({ name: "", ipAddress: "", username: "", password: "", associatedArea: "" })
+      onOpenChange(false)
+    } catch (error) {
+      toast.error("Failed to add device")
+    }
   }
 
   return (
@@ -70,8 +60,8 @@ export default function CreateDeviceDialog({ open, onOpenChange }: CreateDeviceD
             <Input
               id="deviceName"
               placeholder="e.g., Router-Main-01"
-              value={formData.deviceName}
-              onChange={(e) => setFormData({ ...formData, deviceName: e.target.value })}
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required
             />
           </div>
@@ -115,8 +105,8 @@ export default function CreateDeviceDialog({ open, onOpenChange }: CreateDeviceD
             <Input
               id="area"
               placeholder="Associated Area"
-              value={formData.area}
-              onChange={(e) => setFormData({ ...formData, area: e.target.value })}
+              value={formData.associatedArea}
+              onChange={(e) => setFormData({ ...formData, associatedArea: e.target.value })}
             />
           </div>
 

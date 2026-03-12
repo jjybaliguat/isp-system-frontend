@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,8 +10,11 @@ import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { MoreHorizontal, Wifi, WifiOff, AlertCircle } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { MikroTikDevice, MikroTikDeviceStatus } from "@/types/mikrotik"
+import { MikroTikDevice, MikroTikDeviceStatus, MikroTikRemoteStatusResponse } from "@/types/mikrotik"
 import MikroTikDeviceDetailsDrawer from "../drawers/mikrotik-device-details-drawer"
+import { useCheckDeviceStatusMutation, useDeleteDeviceMutation } from "@/redux/fetures/mikrotik-device-slice"
+import DeleteConfirmAction from "../dialogs/confirmation-dialog"
+import { toast } from "sonner"
 
 interface MikroTikDeviceTableProps {
   devices: MikroTikDevice[]
@@ -21,8 +24,73 @@ interface MikroTikDeviceTableProps {
   onPageChange: (page: number) => void
   onLimitChange: (limit: number) => void
   onSearch: (search: string) => void
-  onStatusFilter: (status: string) => void
+  onStatusFilter?: (status: string) => void
 }
+
+function GetMikroTikDeviceStatus({ id }: { id: string }) {
+  const [data, setData] = useState<MikroTikRemoteStatusResponse | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [checkDeviceStatus] = useCheckDeviceStatusMutation()
+  const [error, setError] = useState<Error | null>(null)
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
+  const intervalMs = 60_000
+
+  const fetchStatus = async () => {
+    try {
+      setError(null)
+
+      const res = await checkDeviceStatus({id})
+      
+      console.log(res)
+    } catch (err) {
+      setError(err as Error)
+      setData({
+        routerId: id,
+        status: "offline",
+        remoteAccess: false,
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchStatus()
+
+    intervalRef.current = setInterval(fetchStatus, intervalMs)
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+      }
+    }
+  }, [id, intervalMs])
+
+  if (isLoading) {
+    return <Badge variant="outline">Checking...</Badge>
+  }
+
+  if (!data || data.status === "offline") {
+    return (
+      <div className="flex items-center gap-2">
+        <WifiOff className="w-4 h-4 text-red-600" />
+        <Badge className="bg-red-500/10 text-red-600 border-red-500/20">
+          Offline
+        </Badge>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <Wifi className="w-4 h-4 text-green-600" />
+      <Badge className="bg-green-500/10 text-green-600 border-green-500/20">
+        Online
+      </Badge>
+    </div>
+  )
+}
+
 
 export default function MikroTikDeviceTable({
   devices,
@@ -37,6 +105,7 @@ export default function MikroTikDeviceTable({
   const [selectedDevices, setSelectedDevices] = useState<string[]>([])
   const [selectedDevice, setSelectedDevice] = useState<MikroTikDevice | null>(null)
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
+  const [deleteDevice, {isLoading: deleting}] = useDeleteDeviceMutation()
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -54,14 +123,22 @@ export default function MikroTikDeviceTable({
     }
   }
 
+  const handleDeleteDevice = async(id: string) => {
+    try {
+      await deleteDevice({id}).unwrap()
+      toast.success("Device deleted successfully")
+    } catch (error) {
+      console.log(error)
+      toast.error("Error deleting device")
+    }
+  }
+
   const getStatusIcon = (status: MikroTikDeviceStatus) => {
     switch (status) {
       case MikroTikDeviceStatus.ONLINE:
         return <Wifi className="w-4 h-4 text-green-600" />
       case MikroTikDeviceStatus.OFFLINE:
         return <WifiOff className="w-4 h-4 text-red-600" />
-      case MikroTikDeviceStatus.MAINTENANCE:
-        return <AlertCircle className="w-4 h-4 text-yellow-600" />
     }
   }
 
@@ -71,8 +148,6 @@ export default function MikroTikDeviceTable({
         return <Badge className="bg-green-500/10 text-green-600 border-green-500/20">Online</Badge>
       case MikroTikDeviceStatus.OFFLINE:
         return <Badge className="bg-red-500/10 text-red-600 border-red-500/20">Offline</Badge>
-      case MikroTikDeviceStatus.MAINTENANCE:
-        return <Badge className="bg-yellow-500/10 text-yellow-600 border-yellow-500/20">Maintenance</Badge>
     }
   }
 
@@ -92,8 +167,8 @@ export default function MikroTikDeviceTable({
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Devices</CardTitle>
-            {selectedDevices.length > 0 && (
-              <div className="text-sm text-muted-foreground">{selectedDevices.length} selected</div>
+            {selectedDevices?.length > 0 && (
+              <div className="text-sm text-muted-foreground">{selectedDevices?.length} selected</div>
             )}
           </div>
         </CardHeader>
@@ -105,7 +180,7 @@ export default function MikroTikDeviceTable({
               onChange={(e) => onSearch(e.target.value)}
               className="flex-1 min-w-64"
             />
-            <Select onValueChange={onStatusFilter}>
+            {/* <Select onValueChange={onStatusFilter}>
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
@@ -115,7 +190,7 @@ export default function MikroTikDeviceTable({
                 <SelectItem value="OFFLINE">Offline</SelectItem>
                 <SelectItem value="MAINTENANCE">Maintenance</SelectItem>
               </SelectContent>
-            </Select>
+            </Select> */}
             <Select onValueChange={(value) => onLimitChange(Number.parseInt(value))}>
               <SelectTrigger className="w-32">
                 <SelectValue placeholder="Items per page" />
@@ -135,17 +210,13 @@ export default function MikroTikDeviceTable({
                 <TableRow className="bg-muted/50">
                   <TableHead className="w-12">
                     <Checkbox
-                      checked={selectedDevices.length === devices.length && devices.length > 0}
+                      checked={selectedDevices?.length === devices?.length && devices?.length > 0}
                       onCheckedChange={handleSelectAll}
                     />
                   </TableHead>
                   <TableHead>Device Name</TableHead>
                   <TableHead>IP Address</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>RouterOS Version</TableHead>
-                  <TableHead>Active Sessions</TableHead>
-                  <TableHead>Bandwidth</TableHead>
-                  <TableHead>Last Checked</TableHead>
                   <TableHead className="w-12">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -171,20 +242,12 @@ export default function MikroTikDeviceTable({
                           onCheckedChange={(checked) => handleSelectDevice(device.id, checked as boolean)}
                         />
                       </TableCell>
-                      <TableCell className="font-medium">{device.deviceName}</TableCell>
+                      <TableCell className="font-medium">{device.name}</TableCell>
                       <TableCell className="font-mono text-sm">{device.ipAddress}</TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-2">
-                          {getStatusIcon(device.status)}
-                          {getStatusBadge(device.status)}
-                        </div>
+                        <GetMikroTikDeviceStatus id={device.id} />
                       </TableCell>
-                      <TableCell>{device.routerOSVersion}</TableCell>
-                      <TableCell>{device.activeSessions}</TableCell>
-                      <TableCell>{device.bandwidth} Mbps</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {new Date(device.lastChecked).toLocaleString()}
-                      </TableCell>
+
                       <TableCell>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -202,7 +265,16 @@ export default function MikroTikDeviceTable({
                               View Details
                             </DropdownMenuItem>
                             <DropdownMenuItem>Edit Device</DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-600">Delete Device</DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={(e) => e.preventDefault()}
+                            >
+                              <DeleteConfirmAction
+                                title="Delete Miktorik"
+                                message="Are you sure you want to delete this mikrotik router? This can&apos;t be undone."
+                                triggerButton={<Button variant="destructive" size="sm" className="w-full">Delete</Button>}
+                                onConfirm={()=>handleDeleteDevice(device.id)}
+                              />
+                            </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>

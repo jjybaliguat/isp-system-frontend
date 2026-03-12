@@ -1,23 +1,26 @@
 export enum MikroTikDeviceStatus {
   ONLINE = "ONLINE",
-  OFFLINE = "OFFLINE",
-  MAINTENANCE = "MAINTENANCE",
+  OFFLINE = "OFFLINE"
+}
+
+export interface MikroTikRemoteStatusResponse {
+  routerId: string
+  status: "online" | "offline"
+  remoteAccess: boolean
 }
 
 export interface MikroTikDevice {
   id: string
-  deviceName: string
+  name: string
   ipAddress: string
-  status: MikroTikDeviceStatus
-  routerOSVersion: string
-  lastChecked: string
-  activeSessions: number
-  bandwidth: number
-  uptime: string
-  clientId?: string
-  clientName?: string
-  createdAt: string
-  updatedAt: string
+  status?: MikroTikDeviceStatus
+  routerOSVersion?: string
+  lastChecked?: string
+  activeSessions?: number
+  bandwidth?: number
+  uptime?: string
+  createdAt?: string
+  updatedAt?: string
 }
 
 export interface MikroTikSession {

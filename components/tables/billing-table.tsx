@@ -22,7 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { BillingDetailsDrawer } from "../drawers/billing-details-drawer"
 import { toast } from "sonner"
 import { ConfirmPaymentDrawer } from "../drawers/confirm-payment-drawer"
-import { useBulkDeleteBillingsMutation, useDeleteBillingMutation, useSendBillingReminderEmailMutation, useSendBillingReminderSmsMutation } from "@/redux/fetures/billing-api-slice"
+import { useBulkDeleteBillingsMutation, useDeleteBillingMutation, useSendBillingReminderEmailMutation, useSendBillingReminderSmsMutation, useSendPaymentConfirmationEmailMutation } from "@/redux/fetures/billing-api-slice"
 import { cn } from "@/lib/utils"
 import { formatCurrency } from "@/utils/formatCurrency"
 import DeleteConfirmAction from "../dialogs/confirmation-dialog"
@@ -63,6 +63,7 @@ export function BillingTable({
   const [bulkDeleteBillings] = useBulkDeleteBillingsMutation()
   const [sendBillingReminderEmail] = useSendBillingReminderEmailMutation()
   const [sendBillingReminderSms] = useSendBillingReminderSmsMutation()
+  const [sendPaymentConfirmationEmail, {isLoading: isSendingPaymentConfirmation}] = useSendPaymentConfirmationEmailMutation()
 
   const totalPages = pagination?.totalPages || 1
   const total = pagination?.total || 0
@@ -91,6 +92,16 @@ export function BillingTable({
       setSelectedIds([...selectedIds, id])
     } else {
       setSelectedIds(selectedIds.filter((selectedId) => selectedId !== id))
+    }
+  }
+
+  const handleSendEmailConfirmation = async(billingId: string) => {
+    try {
+      await sendPaymentConfirmationEmail(billingId).unwrap()
+      toast.success("Payment confirmation email sent successfully")
+    } catch (error: any) {
+      toast.error(error.data.message || "Failed to send payment confirmation email")
+      console.log(error)
     }
   }
 
@@ -297,6 +308,14 @@ export function BillingTable({
                           <IconMessage />
                           Send SMS Reminder
                         </DropdownMenuItem>}
+                        {billing.status === BillingStatus.PAID && (
+                          <DropdownMenuItem 
+                            onClick={()=>handleSendEmailConfirmation(billing.id)}
+                          >
+                            <IconMail className="mr-2 h-4 w-4" />
+                            Send Email Confirmation
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuItem
                           onClick={() => setSelectedBillingToPrint(billing)}
                         >

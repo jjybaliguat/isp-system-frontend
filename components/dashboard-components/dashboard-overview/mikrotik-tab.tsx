@@ -7,30 +7,24 @@ import { Plus, Wifi, WifiOff, AlertCircle } from "lucide-react"
 import CreateDeviceDialog from "@/components/dialogs/create-device-dialog"
 import MikroTikDeviceTable from "@/components/tables/mikrotik-device-table"
 import { MikroTikDeviceStatus } from "@/types/mikrotik"
+import { useGetMikrotikDevicesQuery } from "@/redux/fetures/mikrotik-device-slice"
 
 export default function MikroTikPage() {
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
   const [search, setSearch] = useState("")
-  const [status, setStatus] = useState("all")
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
-  const isLoading = false
-  const error = false
 
-  const data: any = []
-//   const { data, isLoading, error } = useGetMikroTikDevicesQuery({
-//     page,
-//     limit,
-//     search,
-//     status,
-//   })
-
-  const devices = data?.data || []
+  const { data, isLoading, error } = useGetMikrotikDevicesQuery({
+    page,
+    limit,
+    search
+  })
+  const devices = data?.data
   const pagination = data?.pagination
 
-  const onlineCount = devices.filter((d: any) => d.status === MikroTikDeviceStatus.ONLINE).length
-  const offlineCount = devices.filter((d: any) => d.status === MikroTikDeviceStatus.OFFLINE).length
-  const maintenanceCount = devices.filter((d: any) => d.status === MikroTikDeviceStatus.MAINTENANCE).length
+  const onlineCount = devices?.filter((d: any) => d.status === MikroTikDeviceStatus.ONLINE).length
+  const offlineCount = devices?.filter((d: any) => d.status === MikroTikDeviceStatus.OFFLINE).length
 
   return (
     <div className="space-y-6">
@@ -53,7 +47,7 @@ export default function MikroTikPage() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Devices</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{pagination?.total || 0}</div>
+            <div className="text-2xl font-bold">{devices?.length || 0}</div>
             <p className="text-xs text-muted-foreground mt-1">All registered devices</p>
           </CardContent>
         </Card>
@@ -83,31 +77,17 @@ export default function MikroTikPage() {
             <p className="text-xs text-muted-foreground mt-1">Requires attention</p>
           </CardContent>
         </Card>
-
-        <Card className="border-yellow-500/20 bg-yellow-500/5">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-yellow-600 flex items-center gap-2">
-              <AlertCircle className="w-4 h-4" />
-              Maintenance
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{maintenanceCount}</div>
-            <p className="text-xs text-muted-foreground mt-1">Under maintenance</p>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Device Table */}
       <MikroTikDeviceTable
-        devices={devices}
+        devices={devices!}
         isLoading={isLoading}
         error={error}
         pagination={pagination}
         onPageChange={setPage}
         onLimitChange={setLimit}
         onSearch={setSearch}
-        onStatusFilter={setStatus}
       />
 
       {/* Create Device Dialog */}

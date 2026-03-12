@@ -35,13 +35,11 @@ export async function middleware(req: NextRequest) {
   
   if (pathname === "/login") {
     if (userRole) {
-      // ✅ JWT exists & valid → redirect away from login
       const redirectPath =
       userRole === "CLIENT" ? "/client-portal" : "/dashboard";
       return NextResponse.redirect(new URL(redirectPath, req.url));
     }
     
-    // ❌ No JWT → allow login page
     return NextResponse.next();
   }
   

@@ -72,7 +72,8 @@ export const apiSlice = createApi({
     "NetworkHierarchy",
     "Accounts",
     "SmsSettings",
-    "Providers"
+    "Providers",
+    "Mikrotik"
   ],
   endpoints: (builder) => ({}),
 })

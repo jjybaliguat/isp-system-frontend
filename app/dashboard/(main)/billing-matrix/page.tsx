@@ -31,6 +31,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { BillingDetailsDrawer } from "@/components/drawers/billing-details-drawer"
 import { withRoleGuard } from "@/lib/withRoleGuard"
 import { UserRole } from "@/types/users"
+import { useCreateCommentMutation } from "@/redux/fetures/billing-api-slice"
+import { toast } from "sonner"
 
 const MONTH_NAMES = [
   "January","February","March","April","May","June",
@@ -66,6 +68,7 @@ const DEFAULT_COLUMNS = {
   }
 
 function ClientYearBillingTable() {
+  const [createComment] = useCreateCommentMutation()
   const [year, setYear] = useState<number>(new Date().getFullYear())
   const [search, setSearch] = useState<string>("")
   const [debounced, setDebounced] = useState<string>("")
@@ -73,7 +76,7 @@ function ClientYearBillingTable() {
   const [limit, setLimit] = useState<number>(25)
 
   const [selectedBilling, setSelectedBilling] = useState<BillingDataSchema | null>(null);
-  const [comments, setComments] = useState<{ [key: string]: string }>({});
+  const [comment, setComment] = useState("")
   const [commentDialogOpen, setCommentDialogOpen] = useState(false);
   const [openConfirmPayment, setOpenConfirmPayment] = useState(false);
   const [openViewBilling, setOpenViewBilling] = useState(false);
@@ -129,6 +132,7 @@ const rows = useMemo(() => {
     const months: MonthData[] = Array.from({ length: 12 }).map(() => ({ amount: 0, paidAmount: 0, bills: [], status: "NO_BILL" }))
 
     const accounts = c.accounts?.map((acc) => {
+      console.log(acc.billings)
       const billings = (acc.billings?.map((b) => ({
         id: String(b.id),
         invoiceNumber: String(b.invoiceNumber),
@@ -143,6 +147,7 @@ const rows = useMemo(() => {
         discounts: b.discounts || [],
         billingCharges: b.billingCharges || [],
         remarks: b.remarks,
+        comments: b.comments,
         createdAt: b.createdAt,
         updatedAt: b.updatedAt
       })) || []) as BillingDataSchema[]
@@ -169,6 +174,21 @@ const rows = useMemo(() => {
       }
     })
   }, [clients])
+
+  const handleSaveComment = async(e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if(!selectedBilling) return
+    try {
+      await createComment({comment, billingId: selectedBilling?.id})
+      setComment("")
+      setCommentDialogOpen(false)
+      toast.success("Comment added!")
+    } catch (error: any) {
+      console.log(error)
+      toast.error(`Error: ${error.data?.message || error.message}`)
+    }
+  }
 
   return (
     <PageWrapper
@@ -314,6 +334,11 @@ const rows = useMemo(() => {
                                         Discounts: {b.discounts.map(d => formatCurrency(d.amount)).join(", ")}
                                       </div>
                                     )}
+                                      <div className="max-h-[100px] overflow-y-auto">
+                                        {b.comments && b.comments?.length > 0 && b.comments?.map((c)=>(
+                                            <p key={c.id} className="text-xs text-muted-foreground">{c.comment} - ({c.user?.fullName})</p>
+                                        ))}
+                                    </div>
                                   </div>
                                 </ContextMenuTrigger>
     
@@ -394,20 +419,18 @@ const rows = useMemo(() => {
               <DialogTitle>Add Comment</DialogTitle>
             </DialogHeader>
   
-            <Textarea
-              placeholder="Enter comment..."
-              value={selectedBilling?.id ? comments[selectedBilling.id] || "" : ""}
-              onChange={(e) =>
-                setComments((prev) => ({
-                  ...prev,
-                  [selectedBilling?.id!]: e.target.value,
-                }))
-              }
-            />
-  
-            <div className="flex justify-end mt-3">
-              <Button onClick={()=>{}}>Save</Button>
-            </div>
+            <form onSubmit={handleSaveComment}>
+              <Textarea
+                placeholder="Enter comment..."
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                required
+              />
+    
+              <div className="flex justify-end mt-3">
+                <Button type="submit">Save</Button>
+              </div>
+            </form>
           </DialogContent>
         </Dialog>
     </PageWrapper>
