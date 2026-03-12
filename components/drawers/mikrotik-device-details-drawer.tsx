@@ -40,8 +40,8 @@ export default function MikroTikDeviceDetailsDrawer({ device, open, onOpenChange
       <SheetContent className="w-full sm:w-96 overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
-            {getStatusIcon(device.status)}
-            {device.deviceName}
+            {getStatusIcon(device.status!)}
+            {device.name}
           </SheetTitle>
         </SheetHeader>
 
@@ -54,7 +54,7 @@ export default function MikroTikDeviceDetailsDrawer({ device, open, onOpenChange
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Status</span>
-                {getStatusBadge(device.status)}
+                {getStatusBadge(device.status!)}
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">IP Address</span>
@@ -63,10 +63,6 @@ export default function MikroTikDeviceDetailsDrawer({ device, open, onOpenChange
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">RouterOS Version</span>
                 <span className="text-sm">{device.routerOSVersion}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Client</span>
-                <span className="text-sm">{device.clientName || "N/A"}</span>
               </div>
             </CardContent>
           </Card>
@@ -106,7 +102,7 @@ export default function MikroTikDeviceDetailsDrawer({ device, open, onOpenChange
             <CardHeader className="pb-3">
               <CardTitle className="text-sm">Information</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 text-sm">
+            {/* <CardContent className="space-y-3 text-sm">
               <div>
                 <p className="text-muted-foreground">Last Checked</p>
                 <p>{new Date(device.lastChecked).toLocaleString()}</p>
@@ -119,7 +115,7 @@ export default function MikroTikDeviceDetailsDrawer({ device, open, onOpenChange
                 <p className="text-muted-foreground">Updated</p>
                 <p>{new Date(device.updatedAt).toLocaleString()}</p>
               </div>
-            </CardContent>
+            </CardContent> */}
           </Card>
         </div>
       </SheetContent>
