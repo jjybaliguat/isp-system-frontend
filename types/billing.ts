@@ -1,4 +1,5 @@
 import { Accounts, ClientDataSchema } from "./clients";
+import { UsersDataSchema } from "./users";
 
 export interface BillingData {
   id: string;
@@ -50,8 +51,19 @@ export interface BillingDataSchema {
   status: BillingStatus
   description?: string,
   discounts: Discounts[]
+  comments?: CommentsData[]
   createdAt: string
   updatedAt: string
+}
+
+export interface CommentsData {
+  id?: string
+  comment: string
+  userId?: string
+  user?: UsersDataSchema
+
+  createdAt?: Date
+  updatedAt?: Date
 }
 
 export interface PaginatedResponse<T> {

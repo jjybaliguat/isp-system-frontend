@@ -1,5 +1,10 @@
-import { BillingDataSchema, ConfirmPaymentInput, CreateBillingForAccountInput, CreateBillingInput, PaginatedResponse } from "@/types/billing"
+import { BillingDataSchema, CommentsData, ConfirmPaymentInput, CreateBillingForAccountInput, CreateBillingInput, PaginatedResponse } from "@/types/billing"
 import { apiSlice } from "../apiSlice"
+
+interface BillingCommentInput {
+  comment: string
+  billingId: string
+}
 
 export const billingApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -106,6 +111,13 @@ export const billingApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Logs"]
     }),
+    sendPaymentConfirmationEmail: builder.mutation<void, string>({
+      query: (billingId) => ({
+        url: `/billing/send-payment-confirmation-email/${billingId}`,
+        method: "POST"
+      }),
+      invalidatesTags: ["Logs"]
+    }),
     generateBill: builder.mutation<void, {month: string, year: string, startDay: string, endDay: string}>({
       query: (data) => ({
         url: `/billing/generate-bill`,
@@ -114,6 +126,14 @@ export const billingApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Billings", "Finance", "Logs", "Clients"],
     }),
+    createComment: builder.mutation<CommentsData, BillingCommentInput>({
+      query: (body) => ({
+        url: "/billing/comment",
+        method: "POST",
+        body
+      }),
+      invalidatesTags: ["Billings"]
+    })
   }),
 })
 
@@ -127,6 +147,8 @@ export const {
   useGetFullYearBillingByIdQuery,
   useSendBillingReminderEmailMutation,
   useSendBillingReminderSmsMutation,
+  useSendPaymentConfirmationEmailMutation,
   useUpdateBillingMutation,
-  useGenerateBillMutation
+  useGenerateBillMutation,
+  useCreateCommentMutation
 } = billingApiSlice
