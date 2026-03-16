@@ -21,6 +21,7 @@ import {
   IconMessageCheck,
   IconNetwork,
   IconReport,
+  IconRouter,
   IconSearch,
   IconSettings,
   IconTicket,
@@ -128,20 +129,10 @@ const data = {
   ],
   navSecondary: [
     {
-      title: "Settings",
-      url: "#",
-      icon: IconSettings,
-    },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: IconHelp,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: IconSearch,
-    },
+      title: "PPP Active",
+      url: "/dashboard/ppp/active",
+      icon: IconRouter,
+    }
   ],
   integrations: [
     {
@@ -250,7 +241,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <NavMain items={accessibleNav.navMain} />
         {accessibleNav.integrations && <Integrations items={accessibleNav.integrations} />}
-        {/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
+        {user.providerType === "MAIN" && <NavSecondary items={data.navSecondary} />}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={{fullName: user.fullName, email: user.email, role: user.role}} />
