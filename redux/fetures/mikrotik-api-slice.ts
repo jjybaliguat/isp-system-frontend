@@ -18,6 +18,7 @@ interface PPPHistoryParams {
   username: string
   from: string
   to: string
+  interval: number
 }
 
 const mikrotikApiSlice = apiSlice.injectEndpoints({
@@ -40,8 +41,8 @@ const mikrotikApiSlice = apiSlice.injectEndpoints({
       Session[],
       PPPHistoryParams
     >({
-      query: ({ username, from, to }) => ({
-        url: `/mikrotik/ppp/history?username=${username}&from=${from}&to=${to}`,
+      query: ({ username, from, to, interval }) => ({
+        url: `/mikrotik/ppp/history?username=${username}&from=${from}&to=${to}&interval=${interval}`,
         method: "GET",
       }),
 

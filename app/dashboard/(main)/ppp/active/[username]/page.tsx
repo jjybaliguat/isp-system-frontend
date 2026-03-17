@@ -26,16 +26,27 @@ interface Data {
 }
 
 const ranges = {
-  "5m": 5 * 60 * 1000,
-  "15m": 15 * 60 * 1000,
-  "30m": 30 * 60 * 1000,
-  "1h": 60 * 60 * 1000,
-  "6h": 6 * 60 * 60 * 1000,
-  "24h": 24 * 60 * 60 * 1000,
-  "2days": 2 * 24 * 60 * 60 * 1000,
-  "3days": 3 * 24 * 60 * 60 * 1000,
-  "7days": 7 * 24 * 60 * 60 * 1000
-}
+  "5m": { type: "relative", ms: 5 * 60 * 1000 },
+  "15m": { type: "relative", ms: 15 * 60 * 1000 },
+  "1h": { type: "relative", ms: 60 * 60 * 1000 },
+
+  "today": { type: "day", offset: 0 },
+  "yesterday": { type: "day", offset: 1 },
+  "2daysAgo": { type: "day", offset: 2 },
+  "3daysAgo": { type: "day", offset: 3 },
+  "4daysAgo": { type: "day", offset: 4 },
+  "5daysAgo": { type: "day", offset: 5 },
+  "6daysAgo": { type: "day", offset: 6 },
+};
+
+const getInterval = (from: string, to: string) => {
+  const diff = new Date(to).getTime() - new Date(from).getTime();
+
+  if (diff <= 1 * 60 * 60 * 1000) return 2;        // ≤1h → 2s
+  if (diff <= 6 * 60 * 60 * 1000) return 5;        // ≤6h → 5s
+  if (diff <= 24 * 60 * 60 * 1000) return 10;      // ≤1d → 10s
+  return 60; // >1d → 1 minute 🔥
+};
 
 export default function PPPGraphPage(){
 
@@ -43,27 +54,48 @@ export default function PPPGraphPage(){
   const router = useRouter()
   const [range,setRange] = useState<keyof typeof ranges>("5m")
   const [timeRange, setTimeRange] = useState({ from: "", to: "" })
+  const interval = getInterval(timeRange.from, timeRange.to);
+useEffect(() => {
+  const updateTimeRange = () => {
+    const now = new Date();
+    const selected: any = ranges[range];
 
-  useEffect(()=>{
-    const updateTimeRange = () => {
-      const now = new Date()
-      const start = new Date(now.getTime() - ranges[range])
-      setTimeRange({ from: start.toISOString(), to: now.toISOString() })
+    let from: Date;
+    let to: Date;
+
+    if (selected.type === "relative") {
+      from = new Date(now.getTime() - selected.ms);
+      to = now;
+    } else {
+      // 🔥 Day-based (midnight to midnight)
+      const target = new Date();
+      target.setDate(now.getDate() - selected.offset);
+
+      from = new Date(target.setHours(0, 0, 0, 0));
+      to = new Date(target.setHours(23, 59, 59, 999));
     }
 
-    updateTimeRange()
-    const interval = setInterval(updateTimeRange, 10000)
-    return () => clearInterval(interval)
-  }, [range])
+    setTimeRange({
+      from: from.toISOString(),
+      to: to.toISOString(),
+    });
+  };
+
+  updateTimeRange();
+
+  const interval = setInterval(updateTimeRange, 10000);
+  return () => clearInterval(interval);
+}, [range]);
 
   const { data, isLoading } = useGetPPPHistoryQuery(
     {
       username: username as string,
       from: timeRange.from,
-      to: timeRange.to
+      to: timeRange.to,
+      interval
     },
     {
-      pollingInterval: 10000,   // auto refetch every second
+      pollingInterval: range === "5m" ? 10000 : 60000,
       refetchOnFocus: true,
       refetchOnReconnect: true
     }
