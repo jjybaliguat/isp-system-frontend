@@ -48,51 +48,67 @@ const getInterval = (from: string, to: string) => {
   return 60; // >1d → 1 minute 🔥
 };
 
+const roundToInterval = (date: Date, seconds: number) => {
+  const ms = seconds * 1000;
+  return new Date(Math.floor(date.getTime() / ms) * ms);
+};
+
 export default function PPPGraphPage(){
 
   const { username } = useParams()
   const router = useRouter()
   const [range,setRange] = useState<keyof typeof ranges>("5m")
   const [timeRange, setTimeRange] = useState({ from: "", to: "" })
-  const interval = getInterval(timeRange.from, timeRange.to);
-useEffect(() => {
-  const updateTimeRange = () => {
-    const now = new Date();
-    const selected: any = ranges[range];
+  const [intervalSec, setIntervalSec] = useState(2)
+  
+  useEffect(() => {
+    const intervalSeconds = getInterval(timeRange.from, timeRange.to)
+    setIntervalSec(intervalSeconds)
+    const updateTimeRange = () => {
+      const now = new Date();
+      const selected: any = ranges[range];
 
-    let from: Date;
-    let to: Date;
+      console.log(selected)
 
-    if (selected.type === "relative") {
-      from = new Date(now.getTime() - selected.ms);
-      to = now;
-    } else {
-      // 🔥 Day-based (midnight to midnight)
-      const target = new Date();
-      target.setDate(now.getDate() - selected.offset);
+      let from: Date;
+      let to: Date;
 
-      from = new Date(target.setHours(0, 0, 0, 0));
-      to = new Date(target.setHours(23, 59, 59, 999));
-    }
+      if (selected.type === "relative") {
+        // 🔥 REAL-TIME MODE (5m → 1h)
+        to = roundToInterval(now, intervalSeconds);; // always current time
+        from = new Date(now.getTime() - selected.ms);
+      } else {
+        // 🔒 FIXED DAY MODE (yesterday, etc.)
+        const target = new Date();
+        target.setDate(now.getDate() - selected.offset);
 
-    setTimeRange({
-      from: from.toISOString(),
-      to: to.toISOString(),
-    });
-  };
+        from = new Date(target.setHours(0, 0, 0, 0));
+        to = new Date(target.setHours(23, 59, 59, 999));
+      }
 
-  updateTimeRange();
+      setTimeRange({
+        from: from.toISOString(),
+        to: to.toISOString(),
+      });
+    };
 
-  const interval = setInterval(updateTimeRange, 10000);
-  return () => clearInterval(interval);
-}, [range]);
+    updateTimeRange();
+
+    // 🔥 Only auto-update for real-time ranges
+    const isRealtime = ranges[range].type === "relative";
+
+    if (!isRealtime) return; // 🚀 stop interval for historical days
+
+    const interval = setInterval(updateTimeRange, 5000);
+    return () => clearInterval(interval);
+  }, [range]);
 
   const { data, isLoading } = useGetPPPHistoryQuery(
     {
       username: username as string,
       from: timeRange.from,
       to: timeRange.to,
-      interval
+      interval: intervalSec
     },
     {
       pollingInterval: range === "5m" ? 10000 : 60000,
