@@ -9,7 +9,9 @@ XAxis,
 YAxis,
 Tooltip,
 ResponsiveContainer,
-CartesianGrid
+CartesianGrid,
+AreaChart,
+Area
 } from "recharts"
 
 import { Button } from "@/components/ui/button"
@@ -115,43 +117,81 @@ export default function PPPGraphPage(){
         ) : (
 
           <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={chartData}>
+              <defs>
+                <linearGradient id="fillUpload" x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="5%"
+                    stopColor="var(--color-upload)"
+                    stopOpacity={0.8}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor="var(--color-upload)"
+                    stopOpacity={0.1}
+                  />
+                </linearGradient>
 
-            <LineChart data={chartData}>
+                <linearGradient id="fillDownload" x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="5%"
+                    stopColor="var(--color-download)"
+                    stopOpacity={0.8}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor="var(--color-download)"
+                    stopOpacity={0.1}
+                  />
+                </linearGradient>
+              </defs>
 
-              <CartesianGrid strokeDasharray="3 3" />
+              <CartesianGrid vertical={false} />
 
               <XAxis
                 dataKey="recordedAt"
-                tickFormatter={(time)=>new Date(time).toLocaleTimeString()}
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                minTickGap={32}
+                tickFormatter={(value) =>
+                  new Date(value).toLocaleTimeString()
+                }
               />
 
               <YAxis
                 unit=" Mbps"
+                tickLine={false}
+                axisLine={false}
               />
 
               <Tooltip
-                labelFormatter={(time)=>new Date(time).toLocaleString()}
+                cursor={false}
+                labelFormatter={(value) =>
+                  new Date(value).toLocaleString()
+                }
               />
 
-              <Line
-                type="monotone"
+              <Area
                 dataKey="rx_mbps"
-                stroke="#ff3300"
+                type="natural"
+                fill="url(#fillUpload)"
+                stroke="var(--color-upload)"
                 strokeWidth={2}
                 dot={false}
                 name="Upload"
               />
 
-              <Line
-                type="monotone"
+              <Area
                 dataKey="tx_mbps"
-                stroke="#0000ff"
+                type="natural"
+                fill="url(#fillDownload)"
+                stroke="var(--color-download)"
                 strokeWidth={2}
                 dot={false}
                 name="Download"
               />
-
-            </LineChart>
+            </AreaChart>
 
           </ResponsiveContainer>
 
