@@ -58,7 +58,7 @@ export default function PPPGraphPage(){
   const { username } = useParams();
   const [range, setRange] = useState<keyof typeof ranges>("5m");
   const [intervalSec, setIntervalSec] = useState(2);
-  const [timeRange, setTimeRange] = useState({
+  const [timeRange, setTimeRange] = useState<{ from: string; to: string }>({
     from: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
     to: roundToInterval(new Date(), 2).toISOString(),
   });
@@ -114,7 +114,10 @@ export default function PPPGraphPage(){
     }
   )
 
-  const chartData: Data[] = data ?? []
+    const chartData = data?.map(d => ({
+      ...d,
+      recordedAt: new Date(d.recordedAt),
+    })) ?? [];
 
   return(
 
