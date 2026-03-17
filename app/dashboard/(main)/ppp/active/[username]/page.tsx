@@ -54,12 +54,12 @@ const roundToInterval = (date: Date, seconds: number) => {
 };
 
 export default function PPPGraphPage(){
-
+  const now = new Date();
   const { username } = useParams()
   const router = useRouter()
   const [range,setRange] = useState<keyof typeof ranges>("5m")
-  const [timeRange, setTimeRange] = useState({ from: "", to: "" })
   const [intervalSec, setIntervalSec] = useState(2)
+  const [timeRange, setTimeRange] = useState({ from: (new Date(now.getTime() - (5 * 60 * 1000))).toISOString(), to: roundToInterval(now, intervalSec).toISOString() })
   
   useEffect(() => {
     const intervalSeconds = getInterval(timeRange.from, timeRange.to)
@@ -75,7 +75,7 @@ export default function PPPGraphPage(){
 
       if (selected.type === "relative") {
         // 🔥 REAL-TIME MODE (5m → 1h)
-        to = roundToInterval(now, intervalSeconds);; // always current time
+        to = roundToInterval(now, intervalSeconds); // always current time
         from = new Date(now.getTime() - selected.ms);
       } else {
         // 🔒 FIXED DAY MODE (yesterday, etc.)
