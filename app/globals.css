@@ -47,6 +47,8 @@
 
 :root {
   --radius: 0.625rem;
+  --color-upload: #ff501b;
+  --color-download: #0084ff;
 
   --background: oklch(1.000 0.000 89.876);
   --foreground: oklch(0.159 0.000 89.876);
