@@ -39,7 +39,7 @@ const ranges = {
   "6daysAgo": { type: "day", offset: 6 },
 };
 
-const getInterval = (from: string, to: string) => {
+const getInterval = (from: Date, to: Date) => {
   const diff = new Date(to).getTime() - new Date(from).getTime();
 
   if (diff <= 1 * 60 * 60 * 1000) return 2;        // ≤1h → 2s
@@ -54,36 +54,36 @@ const roundToInterval = (date: Date, seconds: number) => {
 };
 
 export default function PPPGraphPage(){
-  const now = new Date();
-  const { username } = useParams()
   const router = useRouter()
-  const [range,setRange] = useState<keyof typeof ranges>("5m")
-  const [intervalSec, setIntervalSec] = useState(2)
-  const [timeRange, setTimeRange] = useState({ from: (new Date(now.getTime() - (5 * 60 * 1000))).toISOString(), to: roundToInterval(now, intervalSec).toISOString() })
-  
+  const { username } = useParams();
+  const [range, setRange] = useState<keyof typeof ranges>("5m");
+  const [intervalSec, setIntervalSec] = useState(2);
+  const [timeRange, setTimeRange] = useState({
+    from: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+    to: roundToInterval(new Date(), 2).toISOString(),
+  });
+
   useEffect(() => {
-    const intervalSeconds = getInterval(timeRange.from, timeRange.to)
-    setIntervalSec(intervalSeconds)
     const updateTimeRange = () => {
       const now = new Date();
-      const selected: any = ranges[range];
-
-      console.log(selected)
+      const selected = ranges[range] as { type: "relative" | "day"; ms?: number; offset?: number };
 
       let from: Date;
       let to: Date;
 
       if (selected.type === "relative") {
-        // 🔥 REAL-TIME MODE (5m → 1h)
-        to = roundToInterval(now, intervalSeconds); // always current time
-        from = new Date(now.getTime() - selected.ms);
-      } else {
-        // 🔒 FIXED DAY MODE (yesterday, etc.)
-        const target = new Date();
-        target.setDate(now.getDate() - selected.offset);
+        // Calculate dynamic interval
+        const interval = getInterval(new Date(now.getTime() - (selected.ms ?? 300000)), now);
+        setIntervalSec(interval);
 
+        to = roundToInterval(now, interval);
+        from = new Date(now.getTime() - (selected.ms ?? 5 * 60 * 1000));
+      } else {
+        const target = new Date();
+        target.setDate(now.getDate() - (selected.offset ?? 0));
         from = new Date(target.setHours(0, 0, 0, 0));
         to = new Date(target.setHours(23, 59, 59, 999));
+        setIntervalSec(60); // default 1 min interval for historical
       }
 
       setTimeRange({
@@ -94,13 +94,10 @@ export default function PPPGraphPage(){
 
     updateTimeRange();
 
-    // 🔥 Only auto-update for real-time ranges
-    const isRealtime = ranges[range].type === "relative";
-
-    if (!isRealtime) return; // 🚀 stop interval for historical days
-
-    const interval = setInterval(updateTimeRange, 5000);
-    return () => clearInterval(interval);
+    if (ranges[range].type === "relative") {
+      const interval = setInterval(updateTimeRange, 5000);
+      return () => clearInterval(interval);
+    }
   }, [range]);
 
   const { data, isLoading } = useGetPPPHistoryQuery(
@@ -111,7 +108,7 @@ export default function PPPGraphPage(){
       interval: intervalSec
     },
     {
-      pollingInterval: range === "5m" ? 10000 : 60000,
+      pollingInterval: intervalSec * 1000,
       refetchOnFocus: true,
       refetchOnReconnect: true
     }
