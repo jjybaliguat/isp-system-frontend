@@ -129,8 +129,8 @@ const data = {
   ],
   navSecondary: [
     {
-      title: "PPP Active",
-      url: "/dashboard/ppp/active",
+      title: "PPP",
+      url: "/dashboard/ppp",
       icon: IconRouter,
     }
   ],
