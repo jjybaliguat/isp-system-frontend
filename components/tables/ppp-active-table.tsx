@@ -1,5 +1,5 @@
 "use client"
-import { useGetActivePPPQuery } from '@/redux/fetures/mikrotik-api-slice'
+import { useGetActivePPPQuery, useGetPPPSecretsQuery } from '@/redux/fetures/mikrotik-api-slice'
 import { useState, useMemo, useEffect } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
@@ -13,7 +13,6 @@ function PPPActiveTable({searchQuery}: {searchQuery: string}) {
     const [currentPage, setCurrentPage] = useState(1)
     const [itemsPerPage, setItemsPerPage] = useState(10)
     const router = useRouter()
-    const [isAuthorized, setIsAuthorized] = useState(true)
     const {data, isLoading, isError, error} = useGetActivePPPQuery({
         search: searchQuery,
         page: currentPage,
@@ -101,9 +100,10 @@ function PPPActiveTable({searchQuery}: {searchQuery: string}) {
 
             <TableHeader>
                 <TableRow>
-                <TableHead>Username</TableHead>
-                <TableHead>Download</TableHead>
-                <TableHead>Upload</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Service</TableHead>
+                <TableHead>Address</TableHead>
+                <TableHead>Uptime</TableHead>
                 </TableRow>
             </TableHeader>
 
@@ -135,21 +135,24 @@ function PPPActiveTable({searchQuery}: {searchQuery: string}) {
 
                 {sessions.map((row)=>(
                 <TableRow
-                    key={row.username}
+                    key={row.name}
                     className="cursor-pointer hover:bg-muted"
-                    onClick={()=>router.push(`/dashboard/ppp/active/${row.username}`)}
+                    onClick={()=>router.push(`/dashboard/ppp/${row.name}`)}
                 >
 
                     <TableCell className="font-medium">
-                    {row.username}
+                    {row.name}
+                    </TableCell>
+                    <TableCell className="font-medium">
+                    {row.service}
                     </TableCell>
 
                     <TableCell>
-                    {row.rx_mbps.toFixed(2)} Mbps
+                    {row.address}
                     </TableCell>
 
                     <TableCell>
-                    {row.tx_mbps.toFixed(2)} Mbps
+                    {row.uptime}
                     </TableCell>
 
                 </TableRow>

@@ -8,7 +8,6 @@ import { useAppSelector } from '@/redux/store/store'
 const PppActiveTableWrapper = () => {
     const [searchQuery, setSearchQuery] = useState("")
     const [debounceQuery, setDebouncedQuery] = useState("")
-    const [isDialogOpen, setIsDialogOpen] = useState(false)
     const user = useAppSelector(store=>store.auth)
 
     if(user.providerType !== "MAIN") return null

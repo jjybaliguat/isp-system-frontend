@@ -8,7 +8,32 @@ interface Session {
   recordedAt: string
 }
 
-interface GetActivePPpParams {
+interface PPPActive {
+  name: string
+  service: string
+  address: string
+  uptime: string
+}
+
+interface PPPSecrets {
+  ".id": string
+  name: string
+  service: string
+  "caller-id": string
+  password: string
+  profile: string
+  routes: string
+  "ipv6-routes": string
+  "limit-bytes-in": string
+  "limit-bytes-out": string
+  "last-logged-out": string
+  "last-caller-id": string
+  "last-disconnect-reason": string
+  disabled: string
+  comment: string
+}
+
+interface RequestParams {
   page?: number
   limit?: number
   search?: string
@@ -26,8 +51,8 @@ const mikrotikApiSlice = apiSlice.injectEndpoints({
 
     // Active PPP Sessions
     getActivePPP: builder.query<
-      PaginatedResponse<Session>,
-      GetActivePPpParams
+      PaginatedResponse<PPPActive>,
+      RequestParams
     >({
       query: ({ page = 1, limit = 10, search = "" }) => ({
         url: `/mikrotik/ppp/active?page=${page}&limit=${limit}&search=${search}`,
@@ -49,11 +74,18 @@ const mikrotikApiSlice = apiSlice.injectEndpoints({
       // history should refetch when range changes
       keepUnusedDataFor: 0,
     }),
-
+    getPPPSecrets: builder.query<PaginatedResponse<PPPSecrets>, RequestParams>({
+      query: ({ page = 1, limit = 10, search = "" }) => ({
+        url: `/mikrotik/ppp/secret?page=${page}&limit=${limit}&search=${search}`,
+        method: "GET"
+      }),
+      providesTags: ["Mikrotik"]
+    })
   }),
 })
 
 export const {
   useGetActivePPPQuery,
-  useGetPPPHistoryQuery
+  useGetPPPHistoryQuery,
+  useGetPPPSecretsQuery
 } = mikrotikApiSlice
