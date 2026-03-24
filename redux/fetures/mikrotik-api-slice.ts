@@ -15,7 +15,7 @@ interface PPPActive {
   uptime: string
 }
 
-interface PPPSecrets {
+export interface PPPSecrets {
   ".id": string
   name: string
   service: string
@@ -37,6 +37,7 @@ interface RequestParams {
   page?: number
   limit?: number
   search?: string
+  status?: string
 }
 
 interface PPPHistoryParams {
@@ -71,15 +72,22 @@ const mikrotikApiSlice = apiSlice.injectEndpoints({
         method: "GET",
       }),
 
-      // history should refetch when range changes
       keepUnusedDataFor: 0,
     }),
     getPPPSecrets: builder.query<PaginatedResponse<PPPSecrets>, RequestParams>({
-      query: ({ page = 1, limit = 10, search = "" }) => ({
-        url: `/mikrotik/ppp/secret?page=${page}&limit=${limit}&search=${search}`,
+      query: ({ page = 1, limit = 10, search = "", status="All" }) => ({
+        url: `/mikrotik/ppp/secret?page=${page}&limit=${limit}&search=${search}&status=${status}`,
         method: "GET"
       }),
       providesTags: ["Mikrotik"]
+    }),
+    updatedSecrets: builder.mutation<void, {names: string[], action: "create" | "delete" | "enable" | "disable"}>({
+      query: (body) => ({
+        url: `/mikrotik/ppp/secret`,
+        method: "PATCH",
+        body
+      }),
+      invalidatesTags: ["Mikrotik", "Logs"]
     })
   }),
 })
@@ -87,5 +95,6 @@ const mikrotikApiSlice = apiSlice.injectEndpoints({
 export const {
   useGetActivePPPQuery,
   useGetPPPHistoryQuery,
-  useGetPPPSecretsQuery
+  useGetPPPSecretsQuery,
+  useUpdatedSecretsMutation
 } = mikrotikApiSlice

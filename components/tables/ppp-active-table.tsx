@@ -137,7 +137,7 @@ function PPPActiveTable({searchQuery}: {searchQuery: string}) {
                 <TableRow
                     key={row.name}
                     className="cursor-pointer hover:bg-muted"
-                    onClick={()=>router.push(`/dashboard/ppp/${row.name}`)}
+                    onDoubleClick={()=>router.push(`/dashboard/ppp/${row.name}`)}
                 >
 
                     <TableCell className="font-medium">
