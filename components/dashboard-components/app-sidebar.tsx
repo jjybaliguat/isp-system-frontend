@@ -162,6 +162,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               item.url !== "/dashboard/assigned-tickets" &&
               !(user.providerType === "BRANCH" && item.url === "/dashboard/branches")
             ),
+            navSecondary: data.navSecondary,
             integrations: data.integrations,
           }
       }
@@ -179,6 +180,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             ["/dashboard", "/dashboard/tickets"].includes(item.url)
           ),
           integrations: undefined,
+          navSecondary: undefined,
         }
 
       case "INSTALLER_TECHNICIAN":
@@ -186,10 +188,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           navMain: data.navMain.filter(item =>
             ["/dashboard/assigned-tickets"].includes(item.url)
           ),
-          integrations: undefined,
+          navSecondary: undefined,
+          integrations: undefined
         }
       default:
-        return { navMain: [], integrations: [] }
+        return { navMain: [], integrations: [], navSecondary: [] }
     }
   }, [user?.role])
   
@@ -241,7 +244,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <NavMain items={accessibleNav.navMain} />
         {accessibleNav.integrations && <Integrations items={accessibleNav.integrations} />}
-        {user.providerType === "MAIN" && <NavSecondary items={data.navSecondary} />}
+        {accessibleNav.navSecondary && <NavSecondary items={data.navSecondary} />}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={{fullName: user.fullName, email: user.email, role: user.role}} />

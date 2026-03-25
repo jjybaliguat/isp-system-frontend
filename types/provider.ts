@@ -2,6 +2,13 @@ import { ClientDataSchema } from "./clients"
 import { CoverageDataSchema } from "./coverage"
 import { ServicePlanDataSchema } from "./service-plan"
 
+export interface OtherPaymentOptions {
+    paymentProvider: string,
+    accNum: string,
+    accName: string,
+    qrCodeUrl?: string
+}
+
 export interface ProviderDataSchema {
     id:               string
     name:             string
@@ -15,6 +22,7 @@ export interface ProviderDataSchema {
     providerType?: ProviderType
     dailyBackup?: boolean,
     backUpEmail?: string
+    otherPaymentOptions?: OtherPaymentOptions[]
     settings?: {
         billing: {
             autoInvoicing:      boolean

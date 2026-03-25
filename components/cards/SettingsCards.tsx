@@ -18,11 +18,13 @@ import { Separator } from "@/components/ui/separator"
 import { Button } from "../ui/button"
 import dynamic from "next/dynamic"
 import { useGetProviderQuery, useBackupDatabaseMutation } from "@/redux/fetures/provider-api-slice"
-import { BillingSettingsSchema, DocumentSettingsProps, NotificationsDataSchema, useUpdateBillingSettingsMutation, useUpdateDocumentSettingsMutation, useUpdateNotificationSettingsMutation, useUpdatePaymentSettingsMutation, useUpdateBackupSettingsMutation } from "@/redux/fetures/settings-api-slice"
+import { BillingSettingsSchema, DocumentSettingsProps, NotificationsDataSchema, useUpdateBillingSettingsMutation, useUpdateDocumentSettingsMutation, useUpdateNotificationSettingsMutation, useUpdatePaymentSettingsMutation, useUpdateBackupSettingsMutation, useSavePaymentOptionsMutation } from "@/redux/fetures/settings-api-slice"
 import { toast } from "sonner"
 import "@uiw/react-md-editor/markdown-editor.css"
 import "@uiw/react-markdown-preview/markdown.css"
 import { useAppSelector } from "@/redux/store/store"
+import { useUploadImageMutation } from "@/redux/fetures/upload-image-slice"
+import { OtherPaymentOptions } from "@/types/provider"
 
 // Load the markdown editor only on the client and ensure we use the module default export
 const MDEditor = dynamic(
@@ -31,6 +33,7 @@ const MDEditor = dynamic(
 )
 
 const SettingsCards = () => {
+  const [uploadImage, {isLoading: uploading}] = useUploadImageMutation()
 const { data: providerData } = useGetProviderQuery();
 const [settings, setSettings] = useState<any>({});
  const user = useAppSelector((state) => state.auth);
@@ -43,9 +46,20 @@ const [updateBackupSettings, { isLoading: loadingBackupSettings }] = useUpdateBa
 
 const [backupEnabled, setBackupEnabled] = useState<boolean>(providerData?.dailyBackup!)
 const [backUpEmail, setBackUpEmail] = useState<string>(providerData?.email || "")
+const [savePaymentOptions, {isLoading: loadingPaymentOptions}] = useSavePaymentOptionsMutation()
+const [paymentOptions, setPaymentOptions] = useState<OtherPaymentOptions[]>([
+  {paymentProvider: "", accName: "", accNum: "", qrCodeUrl: ""}
+]);
+
 useEffect(() => {
   if (providerData?.settings) {
     setSettings(providerData.settings);
+  }
+
+  console.log(providerData)
+  if(providerData?.otherPaymentOptions){
+    console.log(providerData.otherPaymentOptions)
+    setPaymentOptions(providerData.otherPaymentOptions)
   }
 }, [providerData]);
 
@@ -221,6 +235,62 @@ const handleSaveBackupSettings = async () => {
   }
 }
 
+const handleAddOption = () => {
+  setPaymentOptions(prev => [
+    ...prev,
+    { paymentProvider: "", accName: "", accNum: "", qrCodeUrl: "" }
+  ]);
+};
+
+const handleRemoveOption = (index: number) => {
+  setPaymentOptions(prev => prev.filter((_, i) => i !== index));
+};
+
+const handleChangeOption = (
+  index: number,
+  field: "accName" | "accNum" | "qrCodeUrl" | "paymentProvider",
+  value: string
+) => {
+  setPaymentOptions(prev => {
+    const updated = [...prev];
+    updated[index][field] = value;
+    return updated;
+  });
+};
+
+const handleUploadQr = async (index: number, file: File) => {
+  try {
+    const { url } = await uploadImage(file).unwrap()
+
+    if(!url) {
+      toast.error("Error uploading image")
+      return
+    }
+
+    setPaymentOptions((prev) => {
+      const updated = [...prev];
+      updated[index].qrCodeUrl = url; // ✅ update field
+      return updated;
+    });
+  } catch (error: any) {
+    console.log(error);
+    toast.error(error.data?.message || error.message || "Internal Server Error");
+  }
+};
+
+const handleSavePaymentOptions = async() => {
+  try {
+    const response = await savePaymentOptions({paymentOptions})
+    if(response.error){
+      toast.error(response.error.data.message)
+      return
+    }
+    toast.success("Other payment options saved")
+  } catch (error: any) {
+    console.log(error)
+    toast.error(error.data.message || error.message)
+  }
+}
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
@@ -235,7 +305,7 @@ const handleSaveBackupSettings = async () => {
             <Switch checked={billingSettings.autoInvoicing} onCheckedChange={(checked)=>setBillingSettings({...billingSettings, autoInvoicing: checked})} id="auto-invoice" />
             <Label htmlFor="auto-invoice">Enable Automatic Invoicing</Label>
           </div>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted-foreground">
             Automatically generate and send invoices to clients on a recurring basis.
           </p>
 
@@ -274,21 +344,110 @@ const handleSaveBackupSettings = async () => {
           <CardTitle>Payment Settings</CardTitle>
           <CardDescription>Configure payment rules and overdue policies. The system will automatically mark invoices as overdue once the grace period expires.</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
+          {/* Grace Period */}
           <div className="space-y-2">
             <Label htmlFor="grace-period">Late Payment Grace Period (days)</Label>
-            <Input id="grace-period" type="number" placeholder="e.g., 5" value={latePaymentGracePeriod} 
-            onChange={(e)=>setLatePaymentGracePeriod(Number(e.target.value))} />
+            <Input
+              id="grace-period"
+              type="number"
+              placeholder="e.g., 5"
+              value={latePaymentGracePeriod}
+              onChange={(e) => setLatePaymentGracePeriod(Number(e.target.value))}
+            />
+            <div className="flex justify-end">
+              <Button disabled={loadingPaymentSettings} onClick={handleSavePaymentSettings}>
+                {loadingPaymentSettings? "Saving..." : "Save"}
+              </Button>
+            </div>
+          </div>
+
+          {/* Other Payment Options */}
+          <div className="space-y-4">
+            <div className="flex gap-2 items-center">
+              <Label>Other Payment Options</Label>
+              <Button type="button" variant="outline" onClick={handleAddOption}>
+                Add Option
+              </Button>
+            </div>
+
+            {paymentOptions.map((option, index) => (
+              <div
+                key={index}
+                className="grid grid-cols-1 md:grid-cols-3 gap-3 border p-4 rounded-lg"
+              >
+                <Input
+                  placeholder="Provider Name"
+                  value={option.paymentProvider}
+                  onChange={(e) =>
+                    handleChangeOption(index, "paymentProvider", e.target.value)
+                  }
+                />
+                <Input
+                  placeholder="Account Name"
+                  value={option.accName}
+                  onChange={(e) =>
+                    handleChangeOption(index, "accName", e.target.value)
+                  }
+                />
+
+                <Input
+                  placeholder="Account Number"
+                  value={option.accNum}
+                  onChange={(e) =>
+                    handleChangeOption(index, "accNum", e.target.value)
+                  }
+                />
+
+              <div className="space-y-2">
+                <div className="space-y-2">
+                  <Label htmlFor="upload-qr">
+                    Upload Qr Code
+                  </Label>
+
+                  <Input
+                    id="upload-qr"
+                    type="file"
+                    accept="image/*"
+                    disabled={uploading}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleUploadQr(index, file);
+                    }}
+                  />
+                </div>
+
+                {/* Preview */}
+                {option.qrCodeUrl && (
+                  <a href={option.qrCodeUrl} target="_blank">
+                    <img
+                      src={option.qrCodeUrl}
+                      alt="QR Code"
+                      className="w-24 h-24 object-cover rounded border"
+                    />
+                  </a>
+                )}
+              </div>
+
+                <div className="col-span-full flex justify-end">
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={() => handleRemoveOption(index)}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              </div>
+            ))}
+            <div className="flex justify-end">
+              <Button disabled={loadingPaymentOptions} onClick={handleSavePaymentOptions}>
+                {loadingPaymentOptions? "Saving..." : "Save Payment Options"}
+              </Button>
+            </div>
           </div>
         </CardContent>
-        <CardFooter className="flex justify-end">
-          <Button disabled={loadingPaymentSettings} onClick={handleSavePaymentSettings}>
-            {loadingPaymentSettings? "Saving..." : "Save Payment Settings"}
-          </Button>
-        </CardFooter>
       </Card>
-
-       {/* ------------------ Notification Settings ------------------ */}
       <Card>
         <CardHeader>
           <CardTitle>Notification Settings</CardTitle>

@@ -49,7 +49,7 @@ export function NavMain({
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
         <SidebarMenu>
-          <SidebarMenuItem className="flex items-center gap-2">
+          {user.role === UserRole.ADMIN || user.role === UserRole.SUPERADMIN && <SidebarMenuItem className="flex items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
@@ -95,7 +95,7 @@ export function NavMain({
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
-          </SidebarMenuItem>
+          </SidebarMenuItem>}
         </SidebarMenu>
         <SidebarMenu>
           {items?.map((item) => (

@@ -140,6 +140,7 @@ const CreateEmployeeDialog = ({open, onOpenChange} : CreateDialogModalProps) => 
                             type='date'
                             value={formData.hireDate}
                             onChange={(e) => setFormData({...formData, hireDate: e.target.value})}
+                            required
                         />
                     </div>
                 </div>

@@ -4,7 +4,7 @@ export default function SoaLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen bg-neutral-100 print:bg-white">
+    <div className="min-h-screen print:bg-white">
       {children}
     </div>
   )

@@ -1,4 +1,4 @@
-import { ProviderDataSchema } from "@/types/provider"
+import { OtherPaymentOptions, ProviderDataSchema } from "@/types/provider"
 import { apiSlice } from "../apiSlice"
 import { use } from "react";
 import { get } from "lodash";
@@ -160,6 +160,12 @@ export const providerApiSlice = apiSlice.injectEndpoints({
             url: "/admin/backup",
             method: "GET"
         })
+    }),
+    getProviderPaymentOptions: builder.query<OtherPaymentOptions[], void>({
+      query: () => ({
+        url: "/providers/other-payment-options",
+        method: "GET"
+      })
     })
   }),
 })
@@ -179,5 +185,6 @@ export const {
     useGetSmsSettingsQuery,
     useCreateProviderMutation,
     useDeleteProviderMutation,
-    useBackupDatabaseMutation
+    useBackupDatabaseMutation,
+    useGetProviderPaymentOptionsQuery
 } = providerApiSlice

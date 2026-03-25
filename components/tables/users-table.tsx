@@ -220,7 +220,7 @@ const getPageNumbers = () => {
                                 <DeleteConfirmAction
                                     title="Delete Confirmation" 
                                     message="Are you sure you want to delete this user? This can't be undone."
-                                    triggerButton={<Button disabled={(user.role === "SUPERADMIN" && !user.employeeId && deleting)} variant="destructive" size="sm" className="w-full">Delete</Button>}
+                                    triggerButton={<Button disabled={(user.role === "SUPERADMIN" || deleting)} variant="destructive" size="sm" className="w-full">Delete</Button>}
                                     onConfirm={() => handleDelete(user.id)}
                                 />
                             </DropdownMenuContent>
