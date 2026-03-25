@@ -1,4 +1,4 @@
-import { ProviderDataSchema } from "@/types/provider";
+import { OtherPaymentOptions, ProviderDataSchema } from "@/types/provider";
 import { apiSlice } from "../apiSlice";
 
 export interface NotificationsDataSchema {
@@ -77,6 +77,14 @@ const SettingsApiSlice = apiSlice.injectEndpoints({
     }),
     invalidatesTags: ["Provider"],
   }),
+  savePaymentOptions: builder.mutation<void, {paymentOptions: OtherPaymentOptions[]}>({
+    query: (body) => ({
+      url: "/settings/payment-options",
+      method: "POST",
+      body
+    }),
+    invalidatesTags: ["Provider"]
+  })
   }),
 })
 
@@ -85,5 +93,6 @@ export const {
     useUpdatePaymentSettingsMutation,
     useUpdateBillingSettingsMutation,
     useUpdateDocumentSettingsMutation,
-    useUpdateBackupSettingsMutation
+    useUpdateBackupSettingsMutation,
+    useSavePaymentOptionsMutation
 } = SettingsApiSlice;

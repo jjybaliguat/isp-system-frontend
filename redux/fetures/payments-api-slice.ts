@@ -28,7 +28,7 @@ export const paymentApiSlice = apiSlice.injectEndpoints({
         result
           ? [...result.data.map(({ id }: { id: string }) => ({ type: "Payments" as const, id })), { type: "Payments", id: "LIST" }]
           : [{ type: "Payments", id: "LIST" }],
-    }),
+    })
   }),
 })
 

@@ -130,6 +130,7 @@ export interface SoaClient {
   phoneNumber: string
   address: string
   accountNumbers: string[]
+  installationDate: string
 }
 
 export interface SoaPeriod {

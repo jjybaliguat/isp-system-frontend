@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react"
 import { useParams, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { useGenerateSoaQuery } from "@/redux/fetures/clientApiSlice"
+import { formatDate } from "@/utils/formatDate"
 
 const SoaPage = () => {
   const { clientId } = useParams<{ clientId: string }>()
@@ -31,7 +32,7 @@ const SoaPage = () => {
   if (!soa) return <p>No SOA data found</p>
 
   return (
-    <div className="mx-auto w-full max-w-5xl bg-white p-4 sm:p-6 shadow print:container overflow-x-auto">
+    <div className="mx-auto w-full max-w-5xl p-4 sm:p-6 shadow print:container overflow-x-auto">
       {/* Header */}
       <header className="mb-6 w-full">
         {/* Top Row: Logo + Title */}
@@ -74,6 +75,7 @@ const SoaPage = () => {
       {/* Accounts */}
       {soa.statement.map((account) => (
         <section key={account.accountNumber} className="mb-6 break-inside-avoid">
+          <h1>Installation Date: <span className="font-semibold">{formatDate(soa.client.installationDate)}</span></h1>
           <h2 className="font-semibold mb-2 text-sm sm:text-base">
             Account: {account.accountNumber} | Plan: {account.servicePlan}
           </h2>
