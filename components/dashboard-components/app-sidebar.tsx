@@ -23,6 +23,7 @@ import {
   IconReport,
   IconRouter,
   IconSearch,
+  IconSend,
   IconSettings,
   IconTicket,
   IconUsers,
@@ -144,6 +145,11 @@ const data = {
       name: "Semaphore(SMS)",
       url: "/dashboard/semaphore-integration",
       icon: IconMessageCheck,
+    },
+    {
+      name: "Telegram",
+      url: "/dashboard/telegram-integration",
+      icon: IconSend,
     }
   ],
 }

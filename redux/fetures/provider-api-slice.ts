@@ -51,6 +51,17 @@ interface GetProviderParams {
   status?: string
 }
 
+interface TelegramSettingsResponse {
+    enabled: boolean, botToken: string, chatId: string, type: TelegramNotificationType
+}
+
+export enum TelegramNotificationType {
+  BILLING = "BILLING",
+  PAYMENT = "PAYMENT",
+  TICKET = "TICKET",
+  SYSTEM_ALERT = "SYSTEM_ALERT"
+}
+
 export const providerApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     saveXenditIntegration: builder.mutation<any, StoreKeyInput>({
@@ -166,6 +177,26 @@ export const providerApiSlice = apiSlice.injectEndpoints({
         url: "/providers/other-payment-options",
         method: "GET"
       })
+    }),
+    saveTelegramIntegration: builder.mutation<any, {botToken: string, chatId: string}>({
+        query: (body) => ({
+            url: "/providers/telegram-settings",
+            method: "POST",
+            body
+        })
+    }),
+    getTelegramIntegration: builder.query<TelegramSettingsResponse[], void>({
+        query: () => ({
+            url: "/providers/telegram-settings",
+            method: "GET"
+        })
+    }),
+    testTelegramNotif: builder.mutation<{success: boolean}, {type: TelegramNotificationType}>({
+        query: (body) => ({
+            url: "/providers/test-telegram-notif",
+            method: "POST",
+            body
+        })
     })
   }),
 })
@@ -186,5 +217,8 @@ export const {
     useCreateProviderMutation,
     useDeleteProviderMutation,
     useBackupDatabaseMutation,
-    useGetProviderPaymentOptionsQuery
+    useGetProviderPaymentOptionsQuery,
+    useSaveTelegramIntegrationMutation,
+    useGetTelegramIntegrationQuery,
+    useTestTelegramNotifMutation
 } = providerApiSlice

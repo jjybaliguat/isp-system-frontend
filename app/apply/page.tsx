@@ -13,10 +13,11 @@ import Link from "next/link"
 import Image from "next/image"
 import { useGetFilteredProvidersQuery, useGetProvidersQuery } from "@/redux/fetures/provider-api-slice"
 import { ProviderDataSchema } from "@/types/provider"
+import { Checkbox } from "@/components/ui/checkbox"
 
 export default function ApplyPage() {
   const router = useRouter()
-
+  const [privayTermsAccepted, setPrivayTermsAccepted] = useState(false)
   const { data: providers } = useGetFilteredProvidersQuery()
   const [selectedProvider, setSelectedProvider] = useState<ProviderDataSchema | null>(null)
 
@@ -358,9 +359,16 @@ export default function ApplyPage() {
                   </div>
                 </div>
               </div>
-
+              <div className="flex gap-2 items-center">
+                  <Checkbox id="privacy-terms-accept" checked={privayTermsAccepted} onCheckedChange={(checked: boolean) => setPrivayTermsAccepted(checked)} />
+                  <Label htmlFor="privacy-terms-accept">By clicking submit, you agree to the 
+                    <Link href="/privacy-policy" className="text-primary underline" target="_blank">Privacy Policy</Link> 
+                    and 
+                    <Link href="/terms" className="text-primary underline" target="_blank">Terms and Condition</Link>
+                  </Label>
+              </div>           
               <div className="flex gap-2">
-                <Button type="submit" disabled={loading}>{loading? 'Submitting...' : 'Submit Application'}</Button>
+                <Button type="submit" disabled={loading || !privayTermsAccepted}>{loading? 'Submitting...' : 'Submit Application'}</Button>
                 <Button variant="ghost" type="button" onClick={()=>{ setForm({name: '', email: '', phone: '', address: '', providerId: '', servicePlanId: '', coverageId: '', notes: ''}); setIdDocument({ idType: 'DRIVER', idCardNumber: '' }) }}>Reset</Button>
               </div>
             </form>

@@ -11,26 +11,15 @@ import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { BillingDetailsDrawer } from "@/components/drawers/billing-details-drawer"
 import { ChevronRight, PhilippinePeso } from "lucide-react"
-import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from "@/components/ui/accordion";
-import { useGetProviderPaymentOptionsQuery } from "@/redux/fetures/provider-api-slice"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 
 function StatusBadge({ status }: { status: string }) {
   const variant =
     status === "PAID"
       ? "default"
       : status === "PENDING"
-      ? "secondary"
+      ? "secondary" :
+      status === "PARTIALLY_PAID"
+      ? "outline"
       : "destructive"
 
   return <Badge variant={variant}>{status}</Badge>
@@ -40,40 +29,12 @@ function StatusBadge({ status }: { status: string }) {
 export default function ClientBilling() {
   const { data, isLoading, isFetching } = useGetClientBillingsQuery()
   const loading = isLoading || isFetching
-  const [processing, setProcessing] = useState(false)
   const router = useRouter()
   const billings = data?.billings || []
   const payments = data?.payments || []
 
   const [openDetails, setOpenDetails] = useState(false)
   const [selectedBilling, setSelectedBilling] = useState<any | null>(null)
-  const {data: paymentOptions} = useGetProviderPaymentOptionsQuery()
-  const [selectedQR, setSelectedQR] = useState<string | null>(null);
-
-  const handleProceedPayment = async(invoiceId: string, amount: number) => {
-    setProcessing(true)
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments/${invoiceId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        }
-      })
-      const responseData =  await response.json()
-      if(!response.ok){
-        toast.error(responseData.message)
-        setProcessing(false)
-      }else{
-        const { xenditInvoiceUrl } = responseData
-        setProcessing(false)
-        router.push(xenditInvoiceUrl);
-      }
-    } catch (error) {
-      toast.error("Error creating payment link")
-      setProcessing(false)
-      console.log(error)
-    }
-  };
 
   const openBillingDetails = (b: any) => {
     setSelectedBilling(b)
@@ -128,69 +89,6 @@ export default function ClientBilling() {
 
           {/* BILLINGS - mobile-friendly list */}
           <TabsContent value="billings" className="space-y-3 mt-3">
-            {paymentOptions && paymentOptions?.length > 0 && (
-            <div className="px-4 pb-4">
-              <p className="text-sm font-medium mb-2">Other Payment Options</p>
-
-              <div className="grid grid-cols-2 gap-3">
-                {paymentOptions.map((opt, index) => {
-
-                  return (
-                    <div
-                      key={index}
-                      className="border rounded-xl p-3 space-y-2 hover:shadow-md transition cursor-pointer"
-                      onClick={() => opt.qrCodeUrl && setSelectedQR(opt.qrCodeUrl)}
-                    >
-                      {/* Header */}
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm font-semibold">{opt.accName}</p>
-
-                        {index === 0 && (
-                          <Badge variant="secondary">Recommended</Badge>
-                        )}
-                      </div>
-
-                      {/* Type */}
-                      <p className="text-xs text-muted-foreground uppercase">{opt.paymentProvider}</p>
-
-                      {/* Account */}
-                      <div className="text-xs">
-                        <p className="font-medium">{opt.accNum}</p>
-                      </div>
-
-                      {/* Actions */}
-                      <div className="flex items-center justify-between pt-2">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigator.clipboard.writeText(opt.accNum);
-                            toast.success("Copied account number");
-                          }}
-                        >
-                          Copy
-                        </Button>
-
-                        {opt.qrCodeUrl && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedQR(opt.qrCodeUrl!);
-                            }}
-                          >
-                            View QR
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
             {loading ? (
               [...Array(4)].map((_, i) => (
                 <Skeleton key={i} className="h-20 rounded-xl" />
@@ -234,7 +132,11 @@ export default function ClientBilling() {
 
                       <div className="flex items-center gap-2">
                         {b.outstandingBalance > 0 && (
-                          <Button type="button" disabled={processing} size="sm" onClick={()=>handleProceedPayment(b.id, b.outstandingBalance)}>
+                          <Button
+                            type="button"
+                            size="sm"
+                            onClick={() => router.push(`/client-portal/billing/payment/${b.id}`)}
+                          >
                             Pay
                           </Button>
                         )}
@@ -301,25 +203,6 @@ export default function ClientBilling() {
       </div>
 
       <BillingDetailsDrawer billing={selectedBilling} open={openDetails} onOpenChange={setOpenDetails} />
-      <Dialog open={!!selectedQR} onOpenChange={() => setSelectedQR(null)}>
-        <DialogContent className="max-w-sm text-center">
-          <DialogHeader>
-            <DialogTitle>Scan to Pay</DialogTitle>
-          </DialogHeader>
-
-          {selectedQR && (
-            <img
-              src={selectedQR}
-              alt="QR Code"
-              className="w-full rounded-lg border"
-            />
-          )}
-
-          <p className="text-xs text-muted-foreground">
-            Use GCash / Maya to scan this QR
-          </p>
-        </DialogContent>
-    </Dialog>
     </div>
   )
 }
