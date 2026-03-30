@@ -22,6 +22,7 @@ import { CreateBillingDialog } from "@/components/dialogs/create-billing-dialog"
 import { PaymentsTableWrapper } from "@/components/wrapper/PaymentsTableWrapper";
 import PageWrapper from "@/components/wrapper/page-wrapper";
 import GenerateBillDialog from "@/components/dialogs/generate-bill-dialog";
+import { PaymentsProofTableWrapper } from "@/components/wrapper/payment-proof-table-wrapper";
 
 export default function BillingPage() {
   const [selectedTab, setSelectedTab] = useState('billing')
@@ -68,7 +69,7 @@ export default function BillingPage() {
                 <SelectContent>
                   <SelectItem value="billing">Billing</SelectItem>
                   <SelectItem value="payments">Payments</SelectItem>
-                  <SelectItem value="payment-confirmation">Payment Confirmation</SelectItem>
+                  <SelectItem value="payment-proofs">Payment Proofs</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -78,7 +79,7 @@ export default function BillingPage() {
                 <TabsTrigger value="payments">
                   Payments {/*<Badge variant="secondary">2</Badge>*/}
                 </TabsTrigger>
-                <TabsTrigger value="payment-confirmation">
+                <TabsTrigger value="payment-proofs">
                   Payment Confirmation
                 </TabsTrigger>
               </TabsList>
@@ -100,10 +101,10 @@ export default function BillingPage() {
               <PaymentsTableWrapper />
             </TabsContent>
             <TabsContent
-              value="payment-confirmation"
+              value="payment-proofs"
               className="flex flex-col flex-1"
             >
-              <div className="aspect-video w-full flex-1 rounded-lg border border-dashed" />
+              <PaymentsProofTableWrapper />
             </TabsContent>
           </div>
         </Tabs>

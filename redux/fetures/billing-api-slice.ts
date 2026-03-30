@@ -6,6 +6,14 @@ interface BillingCommentInput {
   billingId: string
 }
 
+export interface PaymentProof { 
+  id: string, 
+  billingId: string, 
+  imageUrl: string,
+  billing: BillingDataSchema
+  createdAt: string
+}
+
 export const billingApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getBillings: builder.query<
@@ -37,6 +45,10 @@ export const billingApiSlice = apiSlice.injectEndpoints({
 
     getBillingById: builder.query<BillingDataSchema, string>({
       query: (id) => `/billing/${id}`,
+      providesTags: (result, error, id) => [{ type: "Billings", id }],
+    }),
+    getUnpaidBillingById: builder.query<BillingDataSchema, string>({
+      query: (id) => `/billing/unpaid/${id}`,
       providesTags: (result, error, id) => [{ type: "Billings", id }],
     }),
 
@@ -133,13 +145,26 @@ export const billingApiSlice = apiSlice.injectEndpoints({
         body
       }),
       invalidatesTags: ["Billings"]
-    })
+    }),
+    getPaymentProofs: builder.query<PaginatedResponse<PaymentProof>, { page?: number, limit?: number, search?: string, month?: string, year?: string}>({
+        query: ({ page = 1, limit = 10, search = "", month = "", year = "" }) => {
+          const params = new URLSearchParams({
+            page: page.toString(),
+            limit: limit.toString(),
+            ...(search && { search }),
+            ...(month && { month }),
+            ...(year && { year })
+          })
+          return `/billing/payment/proofs?${params.toString()}`
+        }
+      })
   }),
 })
 
 export const {
   useGetBillingsQuery,
   useGetBillingByIdQuery,
+  useGetUnpaidBillingByIdQuery,
   useCreateBillingMutation,
   useConfirmPaymentMutation,
   useDeleteBillingMutation,
@@ -150,5 +175,6 @@ export const {
   useSendPaymentConfirmationEmailMutation,
   useUpdateBillingMutation,
   useGenerateBillMutation,
-  useCreateCommentMutation
+  useCreateCommentMutation,
+  useGetPaymentProofsQuery
 } = billingApiSlice

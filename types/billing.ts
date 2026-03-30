@@ -43,6 +43,7 @@ export interface BillingDataSchema {
   period: string
   dueDate: string
   amount: number
+  outstandingBalance?: number
   paidAmount: number
   billingType?: BillingType;
   billingCharges?: BillingCharges[];

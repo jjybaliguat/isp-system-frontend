@@ -148,8 +148,15 @@ export const clientApiSlice = apiSlice.injectEndpoints({
     getUserTickets: builder.query<TicketDataSchema[],  void>({
       query: () => "/clients/tickets",
       providesTags: ["Tickets"]
+    }),
+    submitPaymentProof: builder.mutation<void, { billingId: string; imageUrl: string }>({
+      query: ({ billingId, imageUrl }) => ({
+        url: `/clients/${billingId}/payment-proof`,
+        method: "POST",
+        body: { imageUrl }
+      })
     })
-  }),
+  })
 })
 
 export const {
@@ -167,5 +174,6 @@ export const {
   useGenerateSoaQuery,
   useGetDashboardQuery,
   useGetClientBillingsQuery,
-  useGetUserTicketsQuery
+  useGetUserTicketsQuery,
+  useSubmitPaymentProofMutation
 } = clientApiSlice

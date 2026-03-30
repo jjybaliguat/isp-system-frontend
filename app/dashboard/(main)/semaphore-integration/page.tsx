@@ -267,7 +267,7 @@ const SemaphoreIntegrationPage = () => {
         <div className='flex flex-col gap-4 lg:flex-row'>
             <Card className='max-w-[500px] flex-1'>
               <CardHeader>
-                <CardTitle>Semaphore Api Key</CardTitle>
+                <CardTitle className='text-xl'>Semaphore Api Key</CardTitle>
                 <CardDescription>Configure your semaphore api key</CardDescription>
                 <CardDescription>Note: Your Api Key is encrypted first before storing in the database</CardDescription>
                 <CardDescription>Do&apos;t have semaphore account? Sign-up 

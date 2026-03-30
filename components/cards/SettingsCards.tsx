@@ -269,7 +269,12 @@ const handleUploadQr = async (index: number, file: File) => {
 
     setPaymentOptions((prev) => {
       const updated = [...prev];
-      updated[index].qrCodeUrl = url; // ✅ update field
+
+      updated[index] = {
+        ...updated[index],
+        qrCodeUrl: url,
+      };
+
       return updated;
     });
   } catch (error: any) {

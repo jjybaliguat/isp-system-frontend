@@ -103,7 +103,7 @@ const XenditIntegrationPage = () => {
         <div className="xl:col-span-1">
           <Card className='max-w-[500px]'>
             <CardHeader>
-              <CardTitle>Xendit Api Key</CardTitle>
+              <CardTitle className='text-xl'>Xendit Api Key</CardTitle>
               <CardDescription>Configure your xendit api key</CardDescription>
               <CardDescription>Note: Your Api Key is encrypted first before storing in the database</CardDescription>
             </CardHeader>
