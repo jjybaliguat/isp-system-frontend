@@ -15,6 +15,9 @@ import MikroTikDeviceDetailsDrawer from "../drawers/mikrotik-device-details-draw
 import { useCheckDeviceStatusMutation, useDeleteDeviceMutation } from "@/redux/fetures/mikrotik-device-slice"
 import DeleteConfirmAction from "../dialogs/confirmation-dialog"
 import { toast } from "sonner"
+import WireguardSetupDialog from "../dialogs/wireguard-setup-dialog"
+import { set } from "lodash"
+import { useRouter } from "next/navigation"
 
 interface MikroTikDeviceTableProps {
   devices: MikroTikDevice[]
@@ -33,21 +36,21 @@ function GetMikroTikDeviceStatus({ id }: { id: string }) {
   const [checkDeviceStatus] = useCheckDeviceStatusMutation()
   const [error, setError] = useState<Error | null>(null)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
-  const intervalMs = 60_000
+  const intervalMs = 5000
 
   const fetchStatus = async () => {
     try {
       setError(null)
 
       const res = await checkDeviceStatus({id})
-      
-      console.log(res)
+
+      if(res.data){
+        setData(res.data)
+      }
     } catch (err) {
       setError(err as Error)
       setData({
-        routerId: id,
-        status: "offline",
-        remoteAccess: false,
+        status: "offline"
       })
     } finally {
       setIsLoading(false)
@@ -81,6 +84,8 @@ function GetMikroTikDeviceStatus({ id }: { id: string }) {
     )
   }
 
+  console.log("Device is online")
+
   return (
     <div className="flex items-center gap-2">
       <Wifi className="w-4 h-4 text-green-600" />
@@ -106,6 +111,13 @@ export default function MikroTikDeviceTable({
   const [selectedDevice, setSelectedDevice] = useState<MikroTikDevice | null>(null)
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
   const [deleteDevice, {isLoading: deleting}] = useDeleteDeviceMutation()
+  const [wireguardDialog, setWireguardDialog] = useState({
+    open: false,
+    script: "",
+    routerName: ""
+  })
+  const router = useRouter()
+
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -215,7 +227,8 @@ export default function MikroTikDeviceTable({
                     />
                   </TableHead>
                   <TableHead>Device Name</TableHead>
-                  <TableHead>IP Address</TableHead>
+                  <TableHead>Username</TableHead>
+                  <TableHead>Ip Address</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="w-12">Actions</TableHead>
                 </TableRow>
@@ -243,7 +256,8 @@ export default function MikroTikDeviceTable({
                         />
                       </TableCell>
                       <TableCell className="font-medium">{device.name}</TableCell>
-                      <TableCell className="font-mono text-sm">{device.ipAddress}</TableCell>
+                      <TableCell className="font-medium">{device.username}</TableCell>
+                      <TableCell className="font-medium">{device.wireguardKeys?.assignedIp}</TableCell>
                       <TableCell>
                         <GetMikroTikDeviceStatus id={device.id} />
                       </TableCell>
@@ -257,12 +271,18 @@ export default function MikroTikDeviceTable({
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem
-                              onClick={() => {
-                                setSelectedDevice(device)
-                                setIsDetailsOpen(true)
-                              }}
+                              onClick={() => router.push(`/dashboard/mikrotik/${device.id}`)}
                             >
-                              View Details
+                              Manage PPP
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => setWireguardDialog({
+                                open: true,
+                                script: device.connectScript || "No connection script available",
+                                routerName: device.name
+                              })}
+                            >
+                              Connection Script
                             </DropdownMenuItem>
                             <DropdownMenuItem>Edit Device</DropdownMenuItem>
                             <DropdownMenuItem
@@ -319,6 +339,12 @@ export default function MikroTikDeviceTable({
       {selectedDevice && (
         <MikroTikDeviceDetailsDrawer device={selectedDevice} open={isDetailsOpen} onOpenChange={setIsDetailsOpen} />
       )}
+      <WireguardSetupDialog
+        open={wireguardDialog.open}
+        onOpenChange={(open) => setWireguardDialog((prev) => ({ ...prev, open }))}
+        script={wireguardDialog.script}
+        routerName={wireguardDialog.routerName}
+      />
     </>
   )
 }

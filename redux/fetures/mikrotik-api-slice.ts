@@ -34,6 +34,7 @@ export interface PPPSecrets {
 }
 
 interface RequestParams {
+  mikrotikId?: string
   page?: number
   limit?: number
   search?: string
@@ -49,7 +50,6 @@ interface PPPHistoryParams {
 
 const mikrotikApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-
     // Active PPP Sessions
     getActivePPP: builder.query<
       PaginatedResponse<PPPActive>,
@@ -57,6 +57,17 @@ const mikrotikApiSlice = apiSlice.injectEndpoints({
     >({
       query: ({ page = 1, limit = 10, search = "" }) => ({
         url: `/mikrotik/ppp/active?page=${page}&limit=${limit}&search=${search}`,
+        method: "GET",
+      }),
+      providesTags: ["Mikrotik"],
+    }),
+
+    getActivePPPV2: builder.query<
+      PaginatedResponse<PPPActive>,
+      RequestParams
+    >({
+      query: ({ mikrotikId, page = 1, limit = 10, search = "" }) => ({
+        url: `/mikrotik/${mikrotikId}/ppp/active?page=${page}&limit=${limit}&search=${search}`,
         method: "GET",
       }),
       providesTags: ["Mikrotik"],
@@ -96,5 +107,6 @@ export const {
   useGetActivePPPQuery,
   useGetPPPHistoryQuery,
   useGetPPPSecretsQuery,
-  useUpdatedSecretsMutation
+  useUpdatedSecretsMutation,
+  useGetActivePPPV2Query
 } = mikrotikApiSlice

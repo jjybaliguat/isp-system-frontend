@@ -11,10 +11,8 @@ interface GetMikrotikParams {
 
 interface MikrotikDeviceInput {
     name: string
-    ipAddress: string
     username: string
     password: string
-    associatedArea?: string
 }
 
 

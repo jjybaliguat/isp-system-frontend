@@ -20,11 +20,9 @@ export default function MikroTikPage() {
     limit,
     search
   })
-  const devices = data?.data
-  const pagination = data?.pagination
 
-  const onlineCount = devices?.filter((d: any) => d.status === MikroTikDeviceStatus.ONLINE).length
-  const offlineCount = devices?.filter((d: any) => d.status === MikroTikDeviceStatus.OFFLINE).length
+  const devices = data?.data || []
+  const pagination = data?.pagination
 
   return (
     <div className="space-y-6">
@@ -52,7 +50,7 @@ export default function MikroTikPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-green-500/20 bg-green-500/5">
+        {/* <Card className="border-green-500/20 bg-green-500/5">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-green-600 flex items-center gap-2">
               <Wifi className="w-4 h-4" />
@@ -76,7 +74,7 @@ export default function MikroTikPage() {
             <div className="text-2xl font-bold text-red-600">{offlineCount}</div>
             <p className="text-xs text-muted-foreground mt-1">Requires attention</p>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
 
       {/* Device Table */}

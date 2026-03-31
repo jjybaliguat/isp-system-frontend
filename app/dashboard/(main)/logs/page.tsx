@@ -17,4 +17,4 @@ const LogsPage = () => {
   )
 }
 
-export default withRoleGuard(LogsPage, {roles: [UserRole.SUPERADMIN]})
+export default withRoleGuard(LogsPage, {roles: [UserRole.SUPERADMIN, UserRole.ADMIN]})
