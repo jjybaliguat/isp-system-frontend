@@ -123,7 +123,7 @@ export function PaymentsProofTable({
             {data.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={9} className="h-24 text-center">
-                  No billings found
+                  No payment confirmations found
                 </TableCell>
               </TableRow>
             ) : (
