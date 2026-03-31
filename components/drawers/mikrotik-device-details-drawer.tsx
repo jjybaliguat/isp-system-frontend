@@ -40,7 +40,7 @@ export default function MikroTikDeviceDetailsDrawer({ device, open, onOpenChange
       <SheetContent className="w-full sm:w-96 overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
-            {getStatusIcon(device.status!)}
+            {/* {getStatusIcon(device.status!)} */}
             {device.name}
           </SheetTitle>
         </SheetHeader>
@@ -54,15 +54,15 @@ export default function MikroTikDeviceDetailsDrawer({ device, open, onOpenChange
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Status</span>
-                {getStatusBadge(device.status!)}
+                {/* {getStatusBadge(device.status!)} */}
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">IP Address</span>
-                <span className="font-mono text-sm">{device.ipAddress}</span>
+                <span className="font-mono text-sm">{device.wireguardKeys?.assignedIp}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">RouterOS Version</span>
-                <span className="text-sm">{device.routerOSVersion}</span>
+                {/* <span className="text-sm">{device.routerOSVersion}</span> */}
               </div>
             </CardContent>
           </Card>
@@ -77,21 +77,21 @@ export default function MikroTikDeviceDetailsDrawer({ device, open, onOpenChange
                 <Users className="w-4 h-4 text-blue-600" />
                 <div className="flex-1">
                   <p className="text-xs text-muted-foreground">Active Sessions</p>
-                  <p className="text-lg font-semibold">{device.activeSessions}</p>
+                  {/* <p className="text-lg font-semibold">{device.activeSessions}</p> */}
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
                 <Zap className="w-4 h-4 text-yellow-600" />
                 <div className="flex-1">
                   <p className="text-xs text-muted-foreground">Bandwidth Usage</p>
-                  <p className="text-lg font-semibold">{device.bandwidth} Mbps</p>
+                  {/* <p className="text-lg font-semibold">{device.bandwidth} Mbps</p> */}
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
                 <Clock className="w-4 h-4 text-green-600" />
                 <div className="flex-1">
                   <p className="text-xs text-muted-foreground">Uptime</p>
-                  <p className="text-lg font-semibold">{device.uptime}</p>
+                  {/* <p className="text-lg font-semibold">{device.uptime}</p> */}
                 </div>
               </div>
             </CardContent>

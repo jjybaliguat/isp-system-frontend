@@ -18,10 +18,8 @@ interface CreateDeviceDialogProps {
 export default function CreateDeviceDialog({ open, onOpenChange }: CreateDeviceDialogProps) {
   const [formData, setFormData] = useState({
     name: "",
-    ipAddress: "",
     username: "",
-    password: "",
-    associatedArea: "",
+    password: ""
   })
 
   const [createDevice, {isLoading}] = useCreateMikrotikDeviceMutation()
@@ -32,18 +30,16 @@ export default function CreateDeviceDialog({ open, onOpenChange }: CreateDeviceD
     try {
       await createDevice({
         name: formData.name,
-        ipAddress: formData.ipAddress,
         username: formData.username,
         password: formData.password,
-        associatedArea: formData.associatedArea
       }).unwrap()
 
       toast.success("Device added successfully")
 
-      setFormData({ name: "", ipAddress: "", username: "", password: "", associatedArea: "" })
+      setFormData({ name: "", username: "", password: "" })
       onOpenChange(false)
     } catch (error) {
-      toast.error("Failed to add device")
+      toast.error("Failed: " + (error as any)?.data?.message || "An error occurred")
     }
   }
 
@@ -66,7 +62,7 @@ export default function CreateDeviceDialog({ open, onOpenChange }: CreateDeviceD
             />
           </div>
 
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <Label htmlFor="ipAddress">IP Address</Label>
             <Input
               id="ipAddress"
@@ -75,10 +71,10 @@ export default function CreateDeviceDialog({ open, onOpenChange }: CreateDeviceD
               onChange={(e) => setFormData({ ...formData, ipAddress: e.target.value })}
               required
             />
-          </div>
+          </div> */}
 
           <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
+            <Label htmlFor="username">Login Username</Label>
             <Input
               id="username"
               placeholder="MikroTik username"
@@ -89,17 +85,17 @@ export default function CreateDeviceDialog({ open, onOpenChange }: CreateDeviceD
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">Login Password</Label>
             <Input
               id="password"
-              type="password"
+              type="text"
               placeholder="MikroTik password"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               required
             />
           </div>
-
+{/* 
           <div className="space-y-2">
             <Label htmlFor="area">Associated Area (Optional)</Label>
             <Input
@@ -108,7 +104,7 @@ export default function CreateDeviceDialog({ open, onOpenChange }: CreateDeviceD
               value={formData.associatedArea}
               onChange={(e) => setFormData({ ...formData, associatedArea: e.target.value })}
             />
-          </div>
+          </div> */}
 
           <div className="flex gap-2 pt-4">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="flex-1">

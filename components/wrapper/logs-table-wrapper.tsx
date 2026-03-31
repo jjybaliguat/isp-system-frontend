@@ -19,7 +19,7 @@ export default function LogsTableWrapper() {
   const [entity, setEntity] = useState("")
   const [month, setMonth] = useState("")
   const [year, setYear] = useState("")
-  const entities = ["User", "Billing", "Client", "Employee", "Coverage", "Service Plan", "Client Type", "Network", "SMS"]
+  const entities = ["User", "Billing", "Client", "Employee", "Coverage", "Service Plan", "Client Type", "Network", "Mikrotik", "SMS"]
 
   const { data, isLoading, error } = useGetLogsQuery({
     page,

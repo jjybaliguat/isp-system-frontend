@@ -175,7 +175,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       case "ADMIN":
         return {
           navMain: data.navMain.filter(item =>
-            ["/dashboard", "/dashboard/clients", "/dashboard/clients", "/dashboard/applicants", "/dashboard/billing", "/dashboard/tickets", "/dashboard/billing-matrix"].includes(item.url)
+            ["/dashboard", "/dashboard/clients", "/dashboard/clients", "/dashboard/applicants", "/dashboard/billing", "/dashboard/tickets", "/dashboard/billing-matrix", "/dashboard/logs"].includes(item.url)
           ),
           navSecondary: data.navSecondary,
           integrations: undefined,

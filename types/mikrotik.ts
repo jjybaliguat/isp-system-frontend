@@ -4,23 +4,23 @@ export enum MikroTikDeviceStatus {
 }
 
 export interface MikroTikRemoteStatusResponse {
-  routerId: string
   status: "online" | "offline"
-  remoteAccess: boolean
 }
 
 export interface MikroTikDevice {
   id: string
   name: string
-  ipAddress: string
-  status?: MikroTikDeviceStatus
-  routerOSVersion?: string
-  lastChecked?: string
-  activeSessions?: number
-  bandwidth?: number
-  uptime?: string
+  username: string
+  wireguardKeys?: WireGuardKeys
+  connectScript?: string
   createdAt?: string
   updatedAt?: string
+}
+
+interface WireGuardKeys {
+  publicKey: string
+  privateKey: string
+  assignedIp: string
 }
 
 export interface MikroTikSession {
