@@ -25,6 +25,7 @@ import PppSecretsTableWrapper from "@/components/wrapper/ppp-secrets-table-wrapp
 import { useParams, useRouter } from "next/navigation"
 import PppActiveTableWrapperV2 from "@/components/wrapper/ppp-active-table-wrapper-v2"
 import { useGetMikrotikDevicesQuery } from "@/redux/fetures/mikrotik-device-slice"
+import PppSecretsTableWrapperV2 from "@/components/wrapper/ppp-secrets-table-wrapper-v2"
 
 const ManageMikrotikPage = () => {
   const { id } = useParams() as { id: string }
@@ -90,7 +91,7 @@ const ManageMikrotikPage = () => {
           </TabsContent>
 
           <TabsContent value="secrets" className="flex flex-col flex-1">
-            {/* <PppSecretsTableWrapper mikrotikId={id} /> */}
+            <PppSecretsTableWrapperV2 mikrotikId={id} />
           </TabsContent>
         </div>
       </Tabs>

@@ -51,6 +51,7 @@ const handleCopy = async () => {
           {/* 🔹 Instructions */}
           <div className="space-y-3">
             <h3 className="font-semibold text-base">Setup Instructions (Make sure your mikrotik has WireGuard)</h3>
+            <p className="font-semibold text-sm">Wireguard is available in V.7 RouterOs (Upgrade your router to V.7)</p>
 
             <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground">
               <li>Open your MikroTik router (Winbox or WebFig)</li>

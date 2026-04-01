@@ -92,11 +92,26 @@ const mikrotikApiSlice = apiSlice.injectEndpoints({
       }),
       providesTags: ["Mikrotik"]
     }),
+    getPPPSecretsV2: builder.query<PaginatedResponse<PPPSecrets>, RequestParams>({
+      query: ({ page = 1, limit = 10, search = "", status="All", mikrotikId }) => ({
+        url: `/mikrotik/${mikrotikId}/ppp/secret?page=${page}&limit=${limit}&search=${search}&status=${status}`,
+        method: "GET"
+      }),
+      providesTags: ["Mikrotik"]
+    }),
     updatedSecrets: builder.mutation<void, {names: string[], action: "create" | "delete" | "enable" | "disable"}>({
       query: (body) => ({
         url: `/mikrotik/ppp/secret`,
         method: "PATCH",
         body
+      }),
+      invalidatesTags: ["Mikrotik", "Logs"]
+    }),
+    updatedSecretsV2: builder.mutation<void, {mikrotikId: string, names: string[], action: "create" | "delete" | "enable" | "disable"}>({
+      query: ({mikrotikId, names, action}) => ({
+        url: `/mikrotik/${mikrotikId}/ppp/secret`,
+        method: "PATCH",
+        body: {names, action}
       }),
       invalidatesTags: ["Mikrotik", "Logs"]
     })
@@ -108,5 +123,7 @@ export const {
   useGetPPPHistoryQuery,
   useGetPPPSecretsQuery,
   useUpdatedSecretsMutation,
-  useGetActivePPPV2Query
+  useUpdatedSecretsV2Mutation,
+  useGetActivePPPV2Query,
+  useGetPPPSecretsV2Query
 } = mikrotikApiSlice
