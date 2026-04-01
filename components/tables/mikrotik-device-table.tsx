@@ -36,7 +36,7 @@ function GetMikroTikDeviceStatus({ id }: { id: string }) {
   const [checkDeviceStatus] = useCheckDeviceStatusMutation()
   const [error, setError] = useState<Error | null>(null)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
-  const intervalMs = 5000
+  const intervalMs = 10000
 
   const fetchStatus = async () => {
     try {

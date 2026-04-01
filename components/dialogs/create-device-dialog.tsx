@@ -88,7 +88,7 @@ export default function CreateDeviceDialog({ open, onOpenChange }: CreateDeviceD
             <Label htmlFor="password">Login Password</Label>
             <Input
               id="password"
-              type="text"
+              type="password"
               placeholder="MikroTik password"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
