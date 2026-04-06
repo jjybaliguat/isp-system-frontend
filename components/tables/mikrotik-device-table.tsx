@@ -19,6 +19,8 @@ import WireguardSetupDialog from "../dialogs/wireguard-setup-dialog"
 import { set } from "lodash"
 import { useRouter } from "next/navigation"
 import CreateDeviceDialog from "../dialogs/create-device-dialog"
+import { useAppSelector } from "@/redux/store/store"
+import { UserRole } from "@/types/users"
 
 interface MikroTikDeviceTableProps {
   devices: MikroTikDevice[]
@@ -108,6 +110,7 @@ export default function MikroTikDeviceTable({
   onSearch,
   onStatusFilter,
 }: MikroTikDeviceTableProps) {
+  const user = useAppSelector((store)=>store.auth)
   const [selectedDevices, setSelectedDevices] = useState<string[]>([])
   const [selectedDevice, setSelectedDevice] = useState<MikroTikDevice | null>(null)
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
@@ -282,11 +285,13 @@ export default function MikroTikDeviceTable({
                                 script: device.connectScript || "No connection script available",
                                 routerName: device.name
                               })}
+                              disabled={user.role !== UserRole.SUPERADMIN}
                             >
                               Connection Script
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={()=>setSelectedDevice(device)}
+                              disabled={user.role !== UserRole.SUPERADMIN}
                             >Edit Device</DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={(e) => e.preventDefault()}

@@ -101,7 +101,7 @@ const mikrotikApiSlice = apiSlice.injectEndpoints({
     }),
     updatedSecrets: builder.mutation<void, {names: string[], action: "create" | "delete" | "enable" | "disable"}>({
       query: (body) => ({
-        url: `/mikrotik/ppp/secret`,
+        url: `/mikrotik/ppp/secrets`,
         method: "PATCH",
         body
       }),
@@ -109,7 +109,7 @@ const mikrotikApiSlice = apiSlice.injectEndpoints({
     }),
     updatedSecretsV2: builder.mutation<void, {mikrotikId: string, names: string[], action: "create" | "delete" | "enable" | "disable"}>({
       query: ({mikrotikId, names, action}) => ({
-        url: `/mikrotik/${mikrotikId}/ppp/secret`,
+        url: `/mikrotik/${mikrotikId}/ppp/secrets`,
         method: "PATCH",
         body: {names, action}
       }),

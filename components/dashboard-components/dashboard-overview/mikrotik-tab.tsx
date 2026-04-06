@@ -8,6 +8,8 @@ import CreateDeviceDialog from "@/components/dialogs/create-device-dialog"
 import MikroTikDeviceTable from "@/components/tables/mikrotik-device-table"
 import { MikroTikDeviceStatus } from "@/types/mikrotik"
 import { useGetMikrotikDevicesQuery } from "@/redux/fetures/mikrotik-device-slice"
+import { useAppSelector } from "@/redux/store/store"
+import { UserRole } from "@/types/users"
 
 export default function MikroTikPage() {
   const [page, setPage] = useState(1)
@@ -23,6 +25,7 @@ export default function MikroTikPage() {
 
   const devices = data?.data || []
   const pagination = data?.pagination
+  const user = useAppSelector((store)=>store.auth)
 
   return (
     <div className="space-y-6">
@@ -32,7 +35,7 @@ export default function MikroTikPage() {
           <h1 className="text-3xl font-bold text-foreground">MikroTik Management</h1>
           <p className="text-sm text-muted-foreground mt-1">Monitor and manage your network devices</p>
         </div>
-        <Button onClick={() => setIsCreateDialogOpen(true)} className="gap-2">
+        <Button onClick={() => setIsCreateDialogOpen(true)} className="gap-2" disabled={user.role !== UserRole.SUPERADMIN}>
           <Plus className="w-4 h-4" />
           Add Device
         </Button>

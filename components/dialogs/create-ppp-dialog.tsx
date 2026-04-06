@@ -6,31 +6,50 @@ import { Label } from '../ui/label'
 import { Input } from '../ui/input'
 import { Checkbox } from '../ui/checkbox'
 import { Button } from '../ui/button'
-import { useCreatePPPMutation } from '@/redux/fetures/mikrotik-device-slice'
+import { MikrotikPPPProfiles, useCreatePPPMutation, useGetPPPProfilesQuery, useUpdatePPPMutation } from '@/redux/fetures/mikrotik-device-slice'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
+import { toast } from 'sonner'
+import { PPPSecrets } from '@/redux/fetures/mikrotik-api-slice'
 
 const CreatePPPDialog = ({
+    routerId,
     open,
-    onOpenChange
+    onOpenChange,
+    profiles,
+    selectedItem
 } : {
+    routerId: string
     open: boolean,
-    onOpenChange: () => void
+    onOpenChange: () => void,
+    profiles?: MikrotikPPPProfiles[],
+    selectedItem?: PPPSecrets | null
 }) => {
     const [createPPP, {isLoading: creating}] = useCreatePPPMutation()
+    const [updatePPP, {isLoading: updating}] = useUpdatePPPMutation()
     const [formData, setFormData] = useState({
-        name: "",
-        password: ""
+        name: selectedItem?.name || "",
+        password: selectedItem?.password || "",
+        profile: selectedItem?.profile || ""
     })
     const [isUsernameSameAsPassword, setIsUserNameSameAsPassword] = useState(false)
+
+    const isEditing = selectedItem !== null
 
     const handleSubmit = async(e: React.FormEvent) => {
         e.preventDefault()
         try {
-            const response = await createPPP(formData).unwrap()
-
-            console.log(response)
+            isEditing ? 
+            await updatePPP({routerId, ...formData}).unwrap() :
+            await createPPP({routerId, ...formData}).unwrap()
+            toast.success(`PPP ${formData.name} ${isEditing? "updated" : "created"} successfully`)
+            setFormData({
+                name: "",
+                password: "",
+                profile: ""
+            })
             onOpenChange()
-        } catch (error) {
-            console.log(error)
+        } catch (error: any) {
+            toast.error(error.data.message)
         }
     }
 
@@ -43,6 +62,16 @@ const CreatePPPDialog = ({
     //     }
     // }
 
+    useEffect(()=>{
+        if(selectedItem){
+            setFormData({
+                name: selectedItem.name,
+                password: selectedItem.password,
+                profile: selectedItem.profile
+            })
+        }
+    }, [selectedItem])
+
     useEffect(()=> {
         if(isUsernameSameAsPassword){
             setFormData({...formData, password: formData.name})
@@ -51,7 +80,7 @@ const CreatePPPDialog = ({
 
   return (
     <>
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open || isEditing} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle>Create PPP Account</DialogTitle>
@@ -64,6 +93,7 @@ const CreatePPPDialog = ({
                             type='text'
                             value={formData.name}
                             onChange={(e)=>setFormData({...formData, name: e.target.value})}
+                            disabled={isEditing}
                             required
                         />
                     </div>
@@ -84,8 +114,29 @@ const CreatePPPDialog = ({
                             <Label htmlFor='passCheck'>Password Same As Name</Label>
                         </div>
                     </div>
+                    <div className='space-y-2'>
+                        <Label htmlFor='name'>Profile</Label>
+                        <Select
+                        value={formData.profile}
+                        onValueChange={(value) => setFormData({ ...formData, profile: value })}
+                        required
+                        >
+                        <SelectTrigger id="servicePlanId" className="w-full">
+                            <SelectValue placeholder="Select ppp profile" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {profiles?.map((profile) => (
+                            <SelectItem key={profile.id} value={profile.name}>
+                                {profile.name}
+                            </SelectItem>
+                            ))}
+                        </SelectContent>
+                        </Select>
+                    </div>
                     <div className='flex justify-end'>
-                        <Button type='submit' disabled>{creating? "Creating..." : "Create"}</Button>
+                        {isEditing ? <Button type='submit' disabled={updating}>{updating? "Saving..." : "Save"}</Button> :
+                        <Button type='submit' disabled={creating}>{creating? "Creating..." : "Create"}</Button>
+                        }
                     </div>
                 </form>
             </DialogContent>
