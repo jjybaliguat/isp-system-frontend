@@ -25,6 +25,8 @@ function PPPActiveTableV2({mikrotikId, searchQuery}: {mikrotikId: string, search
       }
     )
 
+    console.log(mikrotikId)
+
     const sessions = data?.data || []
     const pagination = data?.pagination || { page: 1, limit: 10, total: 0, totalPages: 0 }
 

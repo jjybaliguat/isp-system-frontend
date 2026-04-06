@@ -89,7 +89,7 @@ export default function MikroTikPage() {
       />
 
       {/* Create Device Dialog */}
-      <CreateDeviceDialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen} />
+      <CreateDeviceDialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen} device={null} />
     </div>
   )
 }

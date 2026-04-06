@@ -45,6 +45,21 @@ export const mikrotikApiSlice = apiSlice.injectEndpoints({
             method: "DELETE"
         }),
         invalidatesTags: ["Mikrotik"]
+    }),
+    updateDevice: builder.mutation<void, {id: string, data: {name: string, username: string, password: string}}>({
+        query: ({id, data}) => ({
+            url: `/mikrotik/${id}`,
+            method: "PATCH",
+            body: data
+        })
+    }),
+    createPPP: builder.mutation<void, {name: string, password: string}>({
+        query: (body) => ({
+            url: "/mikrotik/ppp",
+            method: "POST",
+            body
+        }),
+        invalidatesTags: ["Mikrotik"]
     })
   }),
 })
@@ -53,5 +68,7 @@ export const {
   useGetMikrotikDevicesQuery,
   useCreateMikrotikDeviceMutation,
   useCheckDeviceStatusMutation,
-  useDeleteDeviceMutation
+  useDeleteDeviceMutation,
+  useUpdateDeviceMutation,
+  useCreatePPPMutation
 } = mikrotikApiSlice
