@@ -137,7 +137,7 @@ function PPPActiveTableV2({mikrotikId, searchQuery}: {mikrotikId: string, search
                 <TableRow
                     key={row.name}
                     className="cursor-pointer hover:bg-muted"
-                    // onDoubleClick={()=>router.push(`/dashboard/ppp/${row.name}`)}
+                    onDoubleClick={()=>router.push(`/dashboard/ppp/${row.name}`)}
                 >
 
                     <TableCell className="font-medium">
