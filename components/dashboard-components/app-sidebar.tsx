@@ -129,11 +129,11 @@ const data = {
     }
   ],
   navSecondary: [
-    {
-      title: "PPP",
-      url: "/dashboard/ppp",
-      icon: IconRouter,
-    }
+    // {
+    //   title: "PPP",
+    //   url: "/dashboard/ppp",
+    //   icon: IconRouter,
+    // }
   ],
   integrations: [
     {
