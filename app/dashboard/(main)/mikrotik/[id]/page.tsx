@@ -43,7 +43,7 @@ const ManageMikrotikPage = () => {
   const handleSetSelectedRouter = (routerId: string) => {
     window.location.href = `/dashboard/mikrotik/${routerId}`
   }
-
+  
   return (
     <PageWrapper
       pageName="Mikrotik PPPoE"

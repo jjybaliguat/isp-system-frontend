@@ -11,8 +11,6 @@ const PppSecretsTableWrapperV2 = ({mikrotikId} : {mikrotikId: string}) => {
     const [debounceQuery, setDebouncedQuery] = useState("")
     const user = useAppSelector(store=>store.auth)
 
-    if(user.providerType !== "MAIN") return null
-
     useEffect(() => {
       const handler = setTimeout(() => {
         setDebouncedQuery(searchQuery)

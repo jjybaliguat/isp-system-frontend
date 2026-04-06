@@ -18,6 +18,7 @@ import { toast } from "sonner"
 import WireguardSetupDialog from "../dialogs/wireguard-setup-dialog"
 import { set } from "lodash"
 import { useRouter } from "next/navigation"
+import CreateDeviceDialog from "../dialogs/create-device-dialog"
 
 interface MikroTikDeviceTableProps {
   devices: MikroTikDevice[]
@@ -273,7 +274,7 @@ export default function MikroTikDeviceTable({
                             <DropdownMenuItem
                               onClick={() => router.push(`/dashboard/mikrotik/${device.id}`)}
                             >
-                              Manage PPP
+                              Manage
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => setWireguardDialog({
@@ -284,7 +285,9 @@ export default function MikroTikDeviceTable({
                             >
                               Connection Script
                             </DropdownMenuItem>
-                            <DropdownMenuItem>Edit Device</DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={()=>setSelectedDevice(device)}
+                            >Edit Device</DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={(e) => e.preventDefault()}
                             >
@@ -335,10 +338,12 @@ export default function MikroTikDeviceTable({
         </CardContent>
       </Card>
 
-      {/* Details Drawer */}
+      {/* Details Drawer
       {selectedDevice && (
-        <MikroTikDeviceDetailsDrawer device={selectedDevice} open={isDetailsOpen} onOpenChange={setIsDetailsOpen} />
-      )}
+        <MikroTikDeviceDetailsDrawer device={selectedDevice} open={selectedDevice!==null} onOpenChange={setIsDetailsOpen} />
+      )} */}
+
+      <CreateDeviceDialog device={selectedDevice!} open={selectedDevice !== null} onOpenChange={()=>setSelectedDevice(null)} />
       <WireguardSetupDialog
         open={wireguardDialog.open}
         onOpenChange={(open) => setWireguardDialog((prev) => ({ ...prev, open }))}
