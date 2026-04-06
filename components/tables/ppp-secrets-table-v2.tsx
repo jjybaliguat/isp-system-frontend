@@ -10,6 +10,8 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import VerifyPassword from '../dialogs/verify-password'
 import CreatePPPDialog from '../dialogs/create-ppp-dialog'
+import { useGetPPPProfilesQuery } from '@/redux/fetures/mikrotik-device-slice'
+import { MikroTikDevice } from '@/types/mikrotik'
 
 function PPPSecretsTableV2({searchQuery, mikrotikId}: {searchQuery: string, mikrotikId: string}) {
     const [updateSecrets, {isLoading: loadingUpdate}] = useUpdatedSecretsV2Mutation()
@@ -20,6 +22,8 @@ function PPPSecretsTableV2({searchQuery, mikrotikId}: {searchQuery: string, mikr
     const [statusFilter, setStatusFilter] = useState<string>("All")
     const router = useRouter()
     const [openCreatePPPDialog, setOpenCreatePPPDialog] = useState(false)
+    const {data: pppProfiles} = useGetPPPProfilesQuery({id: mikrotikId})
+    const [selectedItem, setSelectedItem] = useState<PPPSecrets | null>(null)
     const {data, isLoading, isError, error} = useGetPPPSecretsV2Query({
       mikrotikId,
       page: currentPage,
@@ -237,7 +241,7 @@ const handleRowClick = (
                         <TableRow
                         key={row.name}
                         className={`cursor-pointer select-none ${isSelected ? "bg-primary text-white" : ""} hover:bg-primary hover:text-white ${row.disabled === "true" ? `${isSelected ? "bg-primary text-slate-400" : "bg-muted text-muted-foreground"}` : ""}`}
-                        onDoubleClick={()=>router.push(`/dashboard/ppp/${row.name}`)}
+                        onDoubleClick={() => setSelectedItem(row)}
                         onClick={(e) => handleRowClick(e, row, index)}
                     >
 
@@ -388,7 +392,7 @@ const handleRowClick = (
             )}
         </div>
       </div>
-      <CreatePPPDialog open={openCreatePPPDialog} onOpenChange={()=>setOpenCreatePPPDialog(false)} />
+      <CreatePPPDialog open={openCreatePPPDialog} selectedItem={selectedItem} onOpenChange={()=>{setOpenCreatePPPDialog(false); setSelectedItem(null)}} profiles={pppProfiles} routerId={mikrotikId} />
     </>
   )
 }

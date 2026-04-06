@@ -15,6 +15,12 @@ interface MikrotikDeviceInput {
     password: string
 }
 
+export interface MikrotikPPPProfiles {
+    id: string
+    name: string
+    localAddress: string
+    remoteAddress: string
+}
 
 export const mikrotikApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -53,13 +59,27 @@ export const mikrotikApiSlice = apiSlice.injectEndpoints({
             body: data
         })
     }),
-    createPPP: builder.mutation<void, {name: string, password: string}>({
+    createPPP: builder.mutation<void, {routerId: string, name: string, password: string, profile: string}>({
         query: (body) => ({
-            url: "/mikrotik/ppp",
+            url: "/mikrotik/ppp/secret",
             method: "POST",
             body
         }),
         invalidatesTags: ["Mikrotik"]
+    }),
+    updatePPP: builder.mutation<void, {routerId: string, name: string, password: string, profile: string}>({
+        query: (body) => ({
+            url: "/mikrotik/ppp/secret",
+            method: "PATCH",
+            body
+        }),
+        invalidatesTags: ["Mikrotik"]
+    }),
+    getPPPProfiles: builder.query<MikrotikPPPProfiles[], {id: string}>({
+        query: ({id}) => ({
+            url: `/mikrotik/${id}/ppp/profile`,
+            method: "GET"
+        })
     })
   }),
 })
@@ -70,5 +90,7 @@ export const {
   useCheckDeviceStatusMutation,
   useDeleteDeviceMutation,
   useUpdateDeviceMutation,
-  useCreatePPPMutation
+  useCreatePPPMutation,
+  useGetPPPProfilesQuery,
+  useUpdatePPPMutation
 } = mikrotikApiSlice

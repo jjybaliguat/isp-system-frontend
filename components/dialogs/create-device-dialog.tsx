@@ -44,7 +44,7 @@ export default function CreateDeviceDialog({ open, onOpenChange, device }: Creat
 
     try {
       isEditing? 
-      await updateDevice({id: device?.id!, data: formData}) 
+      await updateDevice({id: device?.id!, data: formData}).unwrap()
       : 
       await createDevice({
         name: formData.name,
