@@ -22,6 +22,23 @@ export interface MikrotikPPPProfiles {
     remoteAddress: string
 }
 
+interface MikrotikSystemInfo {
+    identity: string,
+    uptime: string,
+    cpu: {
+        load: number,
+        count: number,
+        frequency?: number
+    },
+    memory: {
+        total: number,
+        free: number,
+        used: number,
+    },
+    version: string,
+    boardName: string,
+}
+
 export const mikrotikApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getMikrotikDevices: builder.query<PaginatedResponse<MikroTikDevice>, GetMikrotikParams>({
@@ -80,6 +97,12 @@ export const mikrotikApiSlice = apiSlice.injectEndpoints({
             url: `/mikrotik/${id}/ppp/profile`,
             method: "GET"
         })
+    }),
+    getMikrotikSystem: builder.query<MikrotikSystemInfo, {id: string}>({
+        query: ({id}) => ({
+            url: `/mikrotik/${id}/system`,
+            method: "GET"
+        })
     })
   }),
 })
@@ -92,5 +115,6 @@ export const {
   useUpdateDeviceMutation,
   useCreatePPPMutation,
   useGetPPPProfilesQuery,
-  useUpdatePPPMutation
+  useUpdatePPPMutation,
+  useGetMikrotikSystemQuery
 } = mikrotikApiSlice
