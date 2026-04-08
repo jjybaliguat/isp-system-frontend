@@ -51,6 +51,9 @@ export interface ProviderDataSchema {
             footerMessage:  string
         }
     }
+    _count: {
+        clients: number
+    }
     clients?: ClientDataSchema[]
     servicePlans?: ServicePlanDataSchema[],
     coverage?: CoverageDataSchema[]
