@@ -8,7 +8,7 @@ interface Session {
   recordedAt: string
 }
 
-interface PPPActive {
+export interface PPPActive {
   name: string
   service: string
   address: string
@@ -114,6 +114,14 @@ const mikrotikApiSlice = apiSlice.injectEndpoints({
         body: {names, action}
       }),
       invalidatesTags: ["Mikrotik", "Logs"]
+    }),
+    removeActivePPPs: builder.mutation<void, {mikrotikId: string, names: string[]}>({
+      query: ({mikrotikId, names}) => ({
+        url: `/mikrotik/${mikrotikId}/ppp/active`,
+        method: "DELETE",
+        body: {names}
+      }),
+      invalidatesTags: ["Mikrotik", "Logs"]
     })
   }),
 })
@@ -125,5 +133,6 @@ export const {
   useUpdatedSecretsMutation,
   useUpdatedSecretsV2Mutation,
   useGetActivePPPV2Query,
-  useGetPPPSecretsV2Query
+  useGetPPPSecretsV2Query,
+  useRemoveActivePPPsMutation
 } = mikrotikApiSlice

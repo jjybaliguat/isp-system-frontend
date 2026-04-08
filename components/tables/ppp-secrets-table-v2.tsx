@@ -151,7 +151,7 @@ const handleRowClick = (
           <VerifyPassword
             triggerButton={
                 <Button
-                disabled={loadingUpdate}
+                disabled={loadingUpdate || selectedRows.length <= 0}
                 size="icon-lg" variant="secondary" className='hover:bg-destructive hover:text-white text-destructive'><MinusIcon className='h-6 w-6' /></Button>
             }
             onConfirm={()=>handleUpdate("delete")}
@@ -159,7 +159,7 @@ const handleRowClick = (
           <VerifyPassword
             triggerButton={
               <Button
-              disabled={loadingUpdate}
+              disabled={loadingUpdate || selectedRows.length <= 0}
               size="icon-lg" variant="secondary" className='hover:bg-blue-500 hover:text-white text-blue-700'><CheckIcon /></Button>
             }
             onConfirm={()=>handleUpdate("enable")}
@@ -167,7 +167,7 @@ const handleRowClick = (
           <VerifyPassword
             triggerButton={
               <Button
-              disabled={loadingUpdate}
+              disabled={loadingUpdate || selectedRows.length <= 0}
               size="icon-lg" variant="secondary" className='hover:bg-destructive hover:text-white text-destructive'><XIcon /></Button>
             }
             onConfirm={()=>handleUpdate("disable")}
