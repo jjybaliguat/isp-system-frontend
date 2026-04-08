@@ -1,19 +1,23 @@
 "use client"
-import { useGetActivePPPQuery, useGetActivePPPV2Query, useGetPPPSecretsQuery } from '@/redux/fetures/mikrotik-api-slice'
+import { PPPActive, useGetActivePPPQuery, useGetActivePPPV2Query, useGetPPPSecretsQuery, useRemoveActivePPPsMutation } from '@/redux/fetures/mikrotik-api-slice'
 import { useState, useMemo, useEffect } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import {ChevronLeft, ChevronRight, ChevronsRight, ChevronsLeft } from "lucide-react"
+import {ChevronLeft, ChevronRight, ChevronsRight, ChevronsLeft, MinusIcon } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 import LoadingComponent from "../Loading"
 import { useRouter } from 'next/navigation'
+import VerifyPassword from '../dialogs/verify-password'
+import { toast } from 'sonner'
 
 
 function PPPActiveTableV2({mikrotikId, searchQuery}: {mikrotikId: string, searchQuery: string}) {
     const [currentPage, setCurrentPage] = useState(1)
     const [itemsPerPage, setItemsPerPage] = useState(10)
+    const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(null);
+    const [selectedRows, setSelectedRows] = useState<string[]>([]);
     const router = useRouter()
-
+    const [removeActivePPPs, {isLoading: loadingDeletePPPs}] = useRemoveActivePPPsMutation()
     const {data, isLoading, isError, error} = useGetActivePPPV2Query({
         mikrotikId,
         search: searchQuery,
@@ -92,195 +96,249 @@ function PPPActiveTableV2({mikrotikId, searchQuery}: {mikrotikId: string, search
         setCurrentPage(1)
     }
 
+    const handleRowClick = (
+        e: React.MouseEvent,
+        row: PPPActive,
+        index: number
+      ) => {
+        const rowName = row.name;
+    
+        if (e.shiftKey && lastSelectedIndex !== null) {
+          // SHIFT: range selection
+          const start = Math.min(lastSelectedIndex, index);
+          const end = Math.max(lastSelectedIndex, index);
+    
+          const range = sessions.slice(start, end + 1).map(r => r.name);
+    
+          setSelectedRows(prev => Array.from(new Set([...prev, ...range])));
+        } else if (e.ctrlKey || e.metaKey) {
+          // CTRL: toggle selection
+          setSelectedRows(prev =>
+            prev.includes(rowName)
+              ? prev.filter(name => name !== rowName)
+              : [...prev, rowName]
+          );
+          setLastSelectedIndex(index);
+        } else {
+          // Normal click
+          setSelectedRows([rowName]);
+          setLastSelectedIndex(index);
+        }
+      };
+
+      const handleRemoveActive = async() => {
+        try {
+          await removeActivePPPs({mikrotikId, names: selectedRows})
+          toast.success("Selected PPP active deleted")
+        } catch (error) {
+          console.log(error)
+          toast.error("Error while deleting selected ppp active")
+        }
+      }
+
   return (
-    <div className="rounded-lg border border-border bg-card">
-
-        <div className="overflow-x-auto">
-            <Table>
-
-            <TableHeader>
-                <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Service</TableHead>
-                <TableHead>Address</TableHead>
-                <TableHead>Uptime</TableHead>
-                </TableRow>
-            </TableHeader>
-
-            <TableBody>
-
-                {isLoading && (
-                <TableRow>
-                    <TableCell colSpan={3} className="text-center py-6">
-                    Loading sessions...
-                    </TableCell>
-                </TableRow>
-                )}
-
-                {isError && (
-                <TableRow>
-                    <TableCell colSpan={3} className="text-center text-red-500 py-6">
-                    Failed to load PPP sessions
-                    </TableCell>
-                </TableRow>
-                )}
-
-                {!isLoading && sessions.length === 0 && (
-                <TableRow>
-                    <TableCell colSpan={3} className="text-center py-6">
-                    No active sessions found
-                    </TableCell>
-                </TableRow>
-                )}
-
-                {sessions.map((row)=>(
-                <TableRow
-                    key={row.name}
-                    className="cursor-pointer hover:bg-muted"
-                    onDoubleClick={()=>router.push(`/dashboard/ppp/${row.name}`)}
-                >
-
-                    <TableCell className="font-medium">
-                    {row.name}
-                    </TableCell>
-                    <TableCell className="font-medium">
-                    {row.service}
-                    </TableCell>
-
-                    <TableCell>
-                    {row.address}
-                    </TableCell>
-
-                    <TableCell>
-                    {row.uptime}
-                    </TableCell>
-
-                </TableRow>
-                ))}
-
-            </TableBody>
-
-            </Table>
-        </div>
-        {pagination.total > 0 && (
-          <div className="flex flex-col gap-3 border-t border-border px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-            <div className="flex items-center gap-3">
-              <div className="text-sm text-muted-foreground">
-                Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
-                {Math.min(currentPage * itemsPerPage, pagination.total)} of {pagination.total} clients
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground whitespace-nowrap">Rows per page:</span>
-                <Select value={itemsPerPage.toString()} onValueChange={handleItemsPerPageChange}>
-                  <SelectTrigger className="h-8 w-[70px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="10">10</SelectItem>
-                    <SelectItem value="25">25</SelectItem>
-                    <SelectItem value="50">50</SelectItem>
-                    <SelectItem value="100">100</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="flex items-center justify-between gap-2 sm:justify-end">
-              {/* Mobile: Simple prev/next with page info */}
-              <div className="flex items-center gap-2 sm:hidden">
-                <Button variant="outline" size="sm" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
-                  <ChevronsLeft className="h-4 w-4" />
-                </Button>
+    <>
+    <div className="space-y-4">
+        <VerifyPassword
+            triggerButton={
                 <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                  disabled={currentPage === 1}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <span className="text-sm text-muted-foreground whitespace-nowrap">
-                  Page {currentPage} of {pagination.totalPages}
-                </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage((prev) => Math.min(pagination.totalPages, prev + 1))}
-                  disabled={currentPage === pagination.totalPages}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage(pagination.totalPages)}
-                  disabled={currentPage === pagination.totalPages}
-                >
-                  <ChevronsRight className="h-4 w-4" />
-                </Button>
-              </div>
+                disabled={loadingDeletePPPs || selectedRows.length <= 0}
+                size="icon-lg" variant="secondary" className='hover:bg-destructive hover:text-white text-destructive'><MinusIcon className='h-6 w-6' /></Button>
+            }
+            onConfirm={handleRemoveActive}
+          />
+        <div className="rounded-lg border border-border bg-card">
+            <div className="overflow-x-auto">
+                <Table>
+                <TableHeader>
+                    <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Service</TableHead>
+                    <TableHead>Address</TableHead>
+                    <TableHead>Uptime</TableHead>
+                    </TableRow>
+                </TableHeader>
 
-              {/* Desktop: Full pagination with page numbers */}
-              <div className="hidden items-center gap-2 sm:flex">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage(1)}
-                  disabled={currentPage === 1}
-                  className="h-8 w-8 p-0"
-                >
-                  <ChevronsLeft className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                  disabled={currentPage === 1}
-                  className="h-8 px-3"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <div className="flex items-center gap-1">
-                  {getPageNumbers().map((page, index) =>
-                    typeof page === "number" ? (
-                      <Button
-                        key={index}
-                        variant={currentPage === page ? "secondary" : "ghost"}
-                        size="sm"
-                        onClick={() => setCurrentPage(page)}
-                        className="h-8 w-8 p-0"
+                <TableBody>
+
+                    {isLoading && (
+                    <TableRow>
+                        <TableCell colSpan={3} className="text-center py-6">
+                        Loading sessions...
+                        </TableCell>
+                    </TableRow>
+                    )}
+
+                    {isError && (
+                    <TableRow>
+                        <TableCell colSpan={3} className="text-center text-red-500 py-6">
+                        Failed to load PPP sessions
+                        </TableCell>
+                    </TableRow>
+                    )}
+
+                    {!isLoading && sessions.length === 0 && (
+                    <TableRow>
+                        <TableCell colSpan={3} className="text-center py-6">
+                        No active sessions found
+                        </TableCell>
+                    </TableRow>
+                    )}
+
+                    {sessions.map((row, index)=>{
+                      const isSelected = selectedRows.includes(row.name)
+                      return (
+                      <TableRow
+                          key={row.name}
+                          className={`cursor-pointer select-none ${isSelected ? "bg-primary text-white" : ""} hover:bg-primary hover:text-white`}
+                          onClick={(e) => handleRowClick(e, row, index)}
+                          onDoubleClick={()=>router.push(`/dashboard/ppp/${row.name}`)}
                       >
-                        {page}
-                      </Button>
-                    ) : (
-                      <span key={index} className="px-2 text-muted-foreground">
-                        {page}
-                      </span>
-                    ),
-                  )}
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage((prev) => Math.min(pagination.totalPages, prev + 1))}
-                  disabled={currentPage === pagination.totalPages}
-                  className="h-8 px-3"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage(pagination.totalPages)}
-                  disabled={currentPage === pagination.totalPages}
-                  className="h-8 w-8 p-0"
-                >
-                  <ChevronsRight className="h-4 w-4" />
-                </Button>
-              </div>
+
+                          <TableCell className="font-medium">
+                          {row.name}
+                          </TableCell>
+                          <TableCell className="font-medium">
+                          {row.service}
+                          </TableCell>
+
+                          <TableCell>
+                          {row.address}
+                          </TableCell>
+
+                          <TableCell>
+                          {row.uptime}
+                          </TableCell>
+
+                      </TableRow>
+                      )
+                })}
+
+                </TableBody>
+
+                </Table>
             </div>
-          </div>
-        )}
+            {pagination.total > 0 && (
+              <div className="flex flex-col gap-3 border-t border-border px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                <div className="flex items-center gap-3">
+                  <div className="text-sm text-muted-foreground">
+                    Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
+                    {Math.min(currentPage * itemsPerPage, pagination.total)} of {pagination.total} clients
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground whitespace-nowrap">Rows per page:</span>
+                    <Select value={itemsPerPage.toString()} onValueChange={handleItemsPerPageChange}>
+                      <SelectTrigger className="h-8 w-[70px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="10">10</SelectItem>
+                        <SelectItem value="25">25</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                        <SelectItem value="100">100</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between gap-2 sm:justify-end">
+                  {/* Mobile: Simple prev/next with page info */}
+                  <div className="flex items-center gap-2 sm:hidden">
+                    <Button variant="outline" size="sm" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
+                      <ChevronsLeft className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                      disabled={currentPage === 1}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <span className="text-sm text-muted-foreground whitespace-nowrap">
+                      Page {currentPage} of {pagination.totalPages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage((prev) => Math.min(pagination.totalPages, prev + 1))}
+                      disabled={currentPage === pagination.totalPages}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(pagination.totalPages)}
+                      disabled={currentPage === pagination.totalPages}
+                    >
+                      <ChevronsRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  {/* Desktop: Full pagination with page numbers */}
+                  <div className="hidden items-center gap-2 sm:flex">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(1)}
+                      disabled={currentPage === 1}
+                      className="h-8 w-8 p-0"
+                    >
+                      <ChevronsLeft className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                      disabled={currentPage === 1}
+                      className="h-8 px-3"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <div className="flex items-center gap-1">
+                      {getPageNumbers().map((page, index) =>
+                        typeof page === "number" ? (
+                          <Button
+                            key={index}
+                            variant={currentPage === page ? "secondary" : "ghost"}
+                            size="sm"
+                            onClick={() => setCurrentPage(page)}
+                            className="h-8 w-8 p-0"
+                          >
+                            {page}
+                          </Button>
+                        ) : (
+                          <span key={index} className="px-2 text-muted-foreground">
+                            {page}
+                          </span>
+                        ),
+                      )}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage((prev) => Math.min(pagination.totalPages, prev + 1))}
+                      disabled={currentPage === pagination.totalPages}
+                      className="h-8 px-3"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(pagination.totalPages)}
+                      disabled={currentPage === pagination.totalPages}
+                      className="h-8 w-8 p-0"
+                    >
+                      <ChevronsRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+        </div>
     </div>
+    </>
   )
 }
 
