@@ -308,7 +308,7 @@ const getPageNumbers = () => {
                     )}
                     {columnVisibility.totalClients && (
                       <TableCell>
-                        <span className="text-sm font-mono text-foreground">{provider.clients?.length}</span>
+                        <span className="text-sm font-mono text-foreground">{provider._count.clients}</span>
                       </TableCell>
                     )}
                     <TableCell>

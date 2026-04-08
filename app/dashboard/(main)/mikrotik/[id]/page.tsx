@@ -38,7 +38,6 @@ const ManageMikrotikPage = () => {
     pollingInterval: 1000
   })
 
-  // ✅ Handle router change (updates URL)
   const handleSetSelectedRouter = (routerId: string) => {
     window.location.href = `/dashboard/mikrotik/${routerId}`
   }
