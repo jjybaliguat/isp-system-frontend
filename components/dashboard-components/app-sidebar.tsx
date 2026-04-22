@@ -63,6 +63,11 @@ const data = {
       icon: IconListDetails,
     },
     {
+      title: "Clients Report",
+      url: "/dashboard/clients-report",
+      icon: IconListDetails,
+    },
+    {
       title: "Applicants",
       url: "/dashboard/applicants",
       icon: IconListDetails,
@@ -129,11 +134,11 @@ const data = {
     }
   ],
   navSecondary: [
-    // {
-    //   title: "PPP",
-    //   url: "/dashboard/ppp",
-    //   icon: IconRouter,
-    // }
+    {
+      title: "Modem Docs",
+      url: "/dashboard/modem-docs",
+      icon: IconRouter,
+    }
   ],
   integrations: [
     {

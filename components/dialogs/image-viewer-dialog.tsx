@@ -1,6 +1,6 @@
 "use client"
 import React from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
+import { Dialog, DialogContent, DialogTitle } from '../ui/dialog'
 import Image from 'next/image'
 
 const ImageViewer = ({
@@ -12,28 +12,33 @@ const ImageViewer = ({
 }) => {
   return (
     <Dialog open={!!previewImage} onOpenChange={() => setPreviewImage(null)}>
-        <DialogContent className="max-w-3xl p-2 overflow-hidden">
+      
+      <DialogContent className="w-screen h-screen max-w-none p-0 border-none bg-black">
+        <DialogTitle className="sr-only">Image Preview</DialogTitle>
+        {previewImage && (
+          <div className="relative w-full h-full">
             
-            <DialogHeader>
-            <DialogTitle className="text-sm text-muted-foreground">
-                Payment Proof Preview
-            </DialogTitle>
-            </DialogHeader>
+            {/* IMAGE */}
+            <Image
+              src={previewImage}
+              alt="Preview"
+              fill
+              className="object-contain"
+              unoptimized
+            />
 
-            {previewImage && (
-            <div className="w-full max-h-[80vh] flex items-center justify-center">
-                <Image
-                src={previewImage}
-                alt="Payment Proof"
-                width={1000}
-                height={800}
-                className="object-contain rounded-lg"
-                unoptimized
-                />
-            </div>
-            )}
+            {/* CLOSE BUTTON */}
+            <button
+              onClick={() => setPreviewImage(null)}
+              className="absolute top-4 right-4 z-10 bg-black/50 text-white px-3 py-1 rounded-md hover:bg-black/70 transition"
+            >
+              ✕
+            </button>
 
-        </DialogContent>
+          </div>
+        )}
+
+      </DialogContent>
     </Dialog>
   )
 }

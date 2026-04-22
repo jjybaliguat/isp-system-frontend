@@ -25,7 +25,7 @@ export function NavSecondary({
   return (
     <SidebarGroup {...props}>
       <SidebarGroupContent>
-        <SidebarGroupLabel>Mikrotik</SidebarGroupLabel>
+        <SidebarGroupLabel>Modem</SidebarGroupLabel>
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>

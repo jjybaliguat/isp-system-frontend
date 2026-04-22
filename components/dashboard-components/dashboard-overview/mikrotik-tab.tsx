@@ -39,6 +39,10 @@ export default function MikroTikPage() {
           <Plus className="w-4 h-4" />
           Add Device
         </Button>
+        <Button onClick={() => setIsCreateDialogOpen(true)} className="gap-2" disabled={user.role !== UserRole.SUPERADMIN}>
+          <Plus className="w-4 h-4" />
+          Add Device
+        </Button>
       </div>
 
       {/* Summary Cards */}
