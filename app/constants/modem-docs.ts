@@ -18,6 +18,7 @@ export interface ModemDoc {
             defaultPassword: string;
         },
     },
+    tutorialVideoUrl?: string;
     slug: string;
 }
 
@@ -74,6 +75,7 @@ export const modemDocs : ModemDoc[] = [
                 defaultPassword: 'eeeeeeee'
             }
         },
+        tutorialVideoUrl: '/videos/5v5-modem-flashing.mp4',
         slug: '5v5-Huawei'
     },
     {

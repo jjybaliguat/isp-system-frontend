@@ -4,8 +4,10 @@ import { useState } from "react";
 import { modemDocs } from "@/app/constants/modem-docs";
 import ModemCard from "@/components/cards/ModemCard";
 import { Router } from "lucide-react";
+import { withRoleGuard } from "@/lib/withRoleGuard";
+import { UserRole } from "@/types/users";
 
-export default function ModemsPage() {
+function ModemsPage() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("ALL");
 
@@ -62,6 +64,7 @@ export default function ModemsPage() {
             </select>
 
           </div>
+          <p className="mt-4">Modem Flasher Link: <a href="https://drive.google.com/drive/folders/1M_ICc0x7Y5kZFtr9meVJCWoh8mi-g8YZ?usp=sharing" target="_blank" className="text-blue-500 hover:underline">Click here</a></p>
         </div>
       </div>
 
@@ -91,3 +94,5 @@ export default function ModemsPage() {
     </div>
   );
 }
+
+export default withRoleGuard(ModemsPage, {roles: [UserRole.ADMIN, UserRole.SUPERADMIN]})
