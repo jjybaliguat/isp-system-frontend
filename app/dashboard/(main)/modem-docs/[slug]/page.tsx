@@ -93,19 +93,19 @@ export default function ModemDetailPage({
                         <span className="font-medium">Password:</span> {modem.networkConfig.wifi.defaultPassword}
                     </p>
                 </div>
-                <div className="bg-white p-5 rounded-2xl shadow-sm border">
-                    {modem.tutorialVideoUrl && (
-                        <div className="mt-4">
-                            <h2 className="font-semibold text-lg mb-4">
-                                🎥 5v5 Flash to EPON Tutorial
-                            </h2>
-                            <video controls className="rounded-xl border">
-                                <source src={modem.tutorialVideoUrl} type="video/mp4" />
-                                Your browser does not support the video tag.
-                            </video>
-                        </div>
-                    )}
-                </div>
+                {modem.tutorialVideoUrl && (
+                    <div className="bg-white p-5 rounded-2xl shadow-sm border">
+                            <div className="mt-4">
+                                <h2 className="font-semibold text-lg mb-4">
+                                    🎥 5v5 Flash to EPON Tutorial
+                                </h2>
+                                <video controls className="rounded-xl border">
+                                    <source src={modem.tutorialVideoUrl} type="video/mp4" />
+                                    Your browser does not support the video tag.
+                                </video>
+                            </div>
+                    </div>
+                )}
             </div>
 
             {/* RIGHT SIDE */}
