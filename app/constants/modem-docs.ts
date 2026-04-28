@@ -18,6 +18,7 @@ export interface ModemDoc {
             defaultPassword: string;
         },
     },
+    
     tutorialVideoUrl?: string;
     slug: string;
 }

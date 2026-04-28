@@ -25,6 +25,7 @@ import "@uiw/react-markdown-preview/markdown.css"
 import { useAppSelector } from "@/redux/store/store"
 import { useUploadImageMutation } from "@/redux/fetures/upload-image-slice"
 import { OtherPaymentOptions } from "@/types/provider"
+import WebsiteModalSettings from "./WebsiteModalSettings"
 
 // Load the markdown editor only on the client and ensure we use the module default export
 const MDEditor = dynamic(
@@ -638,6 +639,8 @@ const handleSavePaymentOptions = async() => {
           <Button onClick={handleSaveDocumentsSettings} disabled={loadingDocumentSettings}>{loadingDocumentSettings? "" : "Save Document Settings"}</Button>
         </CardFooter>
       </Card>
+
+      <WebsiteModalSettings />
 
         {/* ------------------ Database Backup Settings ------------------ */}
         <Card>
