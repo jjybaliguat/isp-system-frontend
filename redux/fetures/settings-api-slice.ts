@@ -84,9 +84,22 @@ const SettingsApiSlice = apiSlice.injectEndpoints({
       body
     }),
     invalidatesTags: ["Provider"]
-  })
   }),
-})
+  saveWebsiteModal: builder.mutation<void, {isActive: boolean; description: string; imageUrl: string | null}>({
+    query: (body) => ({
+      url: "/settings/website-modal",
+      method: "POST",
+      body
+    }),
+    invalidatesTags: ["Provider"]
+  }),
+  getWebsiteModal: builder.query<{isActive: boolean; description: string; imageUrl: string | null}, void>({
+    query: () => ({
+      url: "/settings/website-modal",
+      method: "GET",
+    }),
+  }),
+})})
 
 export const { 
     useUpdateNotificationSettingsMutation,
@@ -94,5 +107,7 @@ export const {
     useUpdateBillingSettingsMutation,
     useUpdateDocumentSettingsMutation,
     useUpdateBackupSettingsMutation,
-    useSavePaymentOptionsMutation
+    useSavePaymentOptionsMutation,
+    useSaveWebsiteModalMutation,
+    useGetWebsiteModalQuery
 } = SettingsApiSlice;
