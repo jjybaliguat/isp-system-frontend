@@ -51,7 +51,7 @@ const WebsiteModal = () => {
           <img
             src={data.imageUrl}
             alt="Modal"
-            className="w-full h-80 object-contain rounded-xl mb-4"
+            className="w-full h-40 md:h-80 object-contain rounded-xl mb-4"
           />
         )}
 
