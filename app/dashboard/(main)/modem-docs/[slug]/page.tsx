@@ -170,7 +170,7 @@ export default function ModemDetailPage({
                 {/* Management CONFIG */}
                 {modem.managementConfigImages && modem.managementConfigImages?.length > 0 && (<div className="bg-white p-5 rounded-2xl shadow-sm border">
                     <h2 className="font-semibold text-lg mb-4">
-                        Management Config
+                        Management Configuration
                     </h2>
 
                     <div className="grid md:grid-cols-2 gap-4">
