@@ -18,7 +18,7 @@ export interface ModemDoc {
             defaultPassword: string;
         },
     },
-    
+    managementConfigImages?: string[];
     tutorialVideoUrl?: string;
     slug: string;
 }
@@ -49,6 +49,7 @@ export const modemDocs : ModemDoc[] = [
                 defaultPassword: 'eeeeeeee'
             }
         },
+        managementConfigImages: ["/images/modems/iot/iot-management-root.png", "/images/modems/iot/iot-management-admin.png"],
         slug: 'iot-HG6245D'
     },
     {
