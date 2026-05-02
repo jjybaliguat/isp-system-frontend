@@ -37,7 +37,7 @@ const WebsiteModal = () => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl p-6">
+      <DialogContent className="max-w-2xl rounded-2xl p-6">
         
         {/* Header */}
         <DialogHeader>
@@ -57,7 +57,7 @@ const WebsiteModal = () => {
 
         {/* Description */}
         <div
-          className="text-sm text-gray-700 space-y-2 leading-relaxed"
+          className="text-sm text-gray-700 space-y-2 leading-relaxed max-h-[40vh] overflow-y-auto"
           dangerouslySetInnerHTML={{
             __html: DOMPurify.sanitize(formatDescription(data.description || "")),
           }}
