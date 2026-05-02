@@ -128,45 +128,65 @@ export default function ModemDetailPage({
 
                 {/* WAN CONFIG */}
                 <div className="bg-white p-5 rounded-2xl shadow-sm border">
-                <h2 className="font-semibold text-lg mb-4">
-                    🌐 WAN Configuration
-                </h2>
+                    <h2 className="font-semibold text-lg mb-4">
+                        🌐 WAN Configuration
+                    </h2>
 
-                <div className="grid md:grid-cols-2 gap-4">
-                    {modem.networkConfig.wanConfigImage.map((img, i) => (
-                    <Image
-                        key={i}
-                        src={img}
-                        alt="WAN"
-                        width={400}
-                        height={250}
-                        className="rounded-xl border hover:scale-[1.02] transition"
-                        onClick={() => setSelectedImage(img)}
-                    />
-                    ))}
-                </div>
+                    <div className="grid md:grid-cols-2 gap-4">
+                        {modem.networkConfig.wanConfigImage.map((img, i) => (
+                        <Image
+                            key={i}
+                            src={img}
+                            alt="WAN"
+                            width={400}
+                            height={250}
+                            className="rounded-xl border hover:scale-[1.02] transition"
+                            onClick={() => setSelectedImage(img)}
+                        />
+                        ))}
+                    </div>
                 </div>
 
                 {/* WIFI CONFIG */}
                 <div className="bg-white p-5 rounded-2xl shadow-sm border">
-                <h2 className="font-semibold text-lg mb-4">
-                    📡 WiFi Configuration
-                </h2>
+                    <h2 className="font-semibold text-lg mb-4">
+                        📡 WiFi Configuration
+                    </h2>
 
-                <div className="grid md:grid-cols-2 gap-4">
-                    {modem.networkConfig.wifi.configImages.map((img, i) => (
-                    <Image
-                        key={i}
-                        src={img}
-                        alt="WiFi"
-                        width={400}
-                        height={250}
-                        className="rounded-xl border hover:scale-[1.02] transition"
-                        onClick={() => setSelectedImage(img)}
-                    />
-                    ))}
+                    <div className="grid md:grid-cols-2 gap-4">
+                        {modem.networkConfig.wifi.configImages.map((img, i) => (
+                        <Image
+                            key={i}
+                            src={img}
+                            alt="WiFi"
+                            width={400}
+                            height={250}
+                            className="rounded-xl border hover:scale-[1.02] transition"
+                            onClick={() => setSelectedImage(img)}
+                        />
+                        ))}
+                    </div>
                 </div>
-                </div>
+                {/* Management CONFIG */}
+                {modem.managementConfigImages && modem.managementConfigImages?.length > 0 && (<div className="bg-white p-5 rounded-2xl shadow-sm border">
+                    <h2 className="font-semibold text-lg mb-4">
+                        Management Config
+                    </h2>
+
+                    <div className="grid md:grid-cols-2 gap-4">
+                        {modem.managementConfigImages.map((img, i) => (
+                        <Image
+                            key={i}
+                            src={img}
+                            alt="Management config"
+                            width={400}
+                            height={250}
+                            className="rounded-xl border hover:scale-[1.02] transition"
+                            onClick={() => setSelectedImage(img)}
+                        />
+                        ))}
+                    </div>
+                </div>)}
 
             </div>
             </div>

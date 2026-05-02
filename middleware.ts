@@ -17,6 +17,11 @@ export async function middleware(req: NextRequest) {
 
   let userRole: string | null = null;
 
+  const url = req.nextUrl.clone()
+      url.protocol = "https:"
+      url.host = "sierracommunication.net"
+      url.port = ""
+
   if (token) {
     try {
       const { payload } = await jwtVerify(token, JWT_SECRET);
@@ -44,7 +49,9 @@ export async function middleware(req: NextRequest) {
   }
   
   if (!userRole) {
-    return NextResponse.redirect(new URL("/login", req.url));
+    url.pathname = "/login"
+
+    return NextResponse.redirect(url);
   }
 
   if (pathname.startsWith("/dashboard") && userRole === "CLIENT") {
