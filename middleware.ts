@@ -40,9 +40,9 @@ export async function middleware(req: NextRequest) {
   
   if (pathname === "/login") {
     if (userRole) {
-      const redirectPath =
+      url.pathname =
       userRole === "CLIENT" ? "/client-portal" : "/dashboard";
-      return NextResponse.redirect(new URL(redirectPath, req.url));
+      return NextResponse.redirect(new URL(url));
     }
     
     return NextResponse.next();
@@ -55,7 +55,8 @@ export async function middleware(req: NextRequest) {
   }
 
   if (pathname.startsWith("/dashboard") && userRole === "CLIENT") {
-    return NextResponse.redirect(new URL("/client-portal", req.url));
+    url.pathname = "/client-portal"
+    return NextResponse.redirect(url);
   }
 
   return NextResponse.next();
